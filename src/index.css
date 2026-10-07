@@ -2195,7 +2195,7 @@ body.log-loaded .loaded-log-field {
 }
 
 body.log-loaded .loaded-log-field::before {
-  content: "Loaded log";
+  content: "Geladenes Log";
   display: block;
   font-size: var(--font-micro);
   font-weight: 700;

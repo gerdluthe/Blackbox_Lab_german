@@ -20,148 +20,87 @@ export const ACADEMY_ENTRIES = [
   {
     id: "imbalance",
     file: "sample-academy-imbalance.bbl",
-    title: "The heli that shook itself blurry",
-    teaser: "Feels rough everywhere, but the tune looks fine. Where do you look?",
+    title: "Der Heli, der sich selbst unscharf schüttelte",
+    teaser: "Fühlt sich überall rau an, aber das Tuning sieht gut aus. Wo schaust du hin?",
     brief:
-      "This machine flies its maneuvers well enough — and still " +
-      "something is clearly wrong. Explore the Vibration and " +
-      "Signal labs, then check what the tuning instruments say. " +
-      "When you think you know the root cause, reveal the answer.",
+      "Diese Maschine fliegt ihre Manöver ordentlich — und trotzdem stimmt eindeutig etwas nicht. Erkunde das Vibrations- und das Signal-Labor und sieh dann nach, was die Tuning-Instrumente sagen. Wenn du glaubst, die Grundursache zu kennen, decke die Antwort auf.",
     reveal: {
       diagnosis: [
-        "The gyro spectrum shows a strong peak at the main rotor's " +
-          "once-per-revolution frequency (about 30 Hz at this " +
-          "headspeed) — the signature of rotor imbalance, not of any " +
-          "tuning value.",
-        "The filters remove most of it, but the residual still " +
-          "reaches the control loop — and it even shows up as an " +
-          "apparent yaw ringing Review. That is vibration wearing a " +
-          "tuning costume.",
-        "This is why the recommendation engine holds tuning advice " +
-          "while a mechanical source is suspected: chasing gains " +
-          "here would tune around a bent cause."
+        "Das Gyro-Spektrum zeigt eine starke Spitze bei der Einmal-pro-Umdrehung-Frequenz des Hauptrotors (bei dieser Headspeed etwa 30 Hz) — die Signatur einer Rotor-Unwucht, nicht eines Tuning-Wertes.",
+        "Die Filter entfernen das meiste davon, aber der Rest erreicht trotzdem den Regelkreis — und zeigt sich sogar als scheinbares Gier-Schwingen (Review). Das ist Vibration im Tuning-Kostüm.",
+        "Deshalb hält die Empfehlungs-Engine Tuning-Ratschläge zurück, solange eine mechanische Ursache vermutet wird: Hier an den Gains zu drehen hieße, um eine verbogene Ursache herumzutunen."
       ],
       fix:
-        "Mechanics first: balance the blades and head, check " +
-        "bearings and grips, then fly again. The spectrum peak " +
-        "shrinking is the proof — no PID value can provide it."
+        "Erst die Mechanik: Blätter und Kopf wuchten, Lager und Blattgriffe prüfen, dann erneut fliegen. Beweis ist, dass die Spektrumspitze schrumpft — das kann kein PID-Wert leisten."
     }
   },
   {
     id: "underdamped-roll",
     file: "sample-academy-underdamped-roll.bbl",
-    title: "The roll that always came back",
-    teaser: "Crisp inputs, but something rebounds. Which axis, and why?",
+    title: "Das Rollen, das immer zurückkam",
+    teaser: "Knackige Eingaben, aber etwas schwingt zurück. Welche Achse, und warum?",
     brief:
-      "Fly through the Response Review and the per-axis event " +
-      "evidence. One axis behaves differently from the other two. " +
-      "When you can name the axis and the pattern, reveal the answer.",
+      "Gehe durch die Antwort-Auswertung (Response Review) und die Ereignis-Belege je Achse. Eine Achse verhält sich anders als die anderen beiden. Wenn du die Achse und das Muster benennen kannst, decke die Antwort auf.",
     reveal: {
       diagnosis: [
-        "Roll bounce-back sits far above the fleet bar: after each " +
-          "roll command peaks, the response swings back through the " +
-          "target instead of settling onto it.",
-        "Pitch and yaw show no such pattern — the defect is " +
-          "axis-specific, which points at that axis's damping, not " +
-          "at anything global like vibration or filters.",
-        "This is the signature of an underdamped axis: too little " +
-          "damping authority for the response speed asked of it."
+        "Das Zurückschwingen auf Roll liegt weit über der Flotten-Messlatte: Nachdem jedes Roll-Kommando seinen Höhepunkt erreicht, schwingt die Antwort durch das Ziel zurück, statt sich darauf einzupendeln.",
+        "Nick und Gier zeigen kein solches Muster — der Defekt ist achsenspezifisch, was auf die Dämpfung dieser Achse hinweist, nicht auf etwas Globales wie Vibration oder Filter.",
+        "Das ist die Signatur einer unterdämpften Achse: zu wenig Dämpfungsautorität für die verlangte Antwortgeschwindigkeit."
       ],
       fix:
-        "More roll damping (the D-family on that axis) or a gentler " +
-        "roll response, then confirm with the same crisp roll " +
-        "inputs — the bounce-back median on the next log is the " +
-        "instrument that verifies exactly this change."
+        "Mehr Roll-Dämpfung (die D-Familie dieser Achse) oder eine sanftere Roll-Antwort, dann mit denselben knackigen Roll-Eingaben bestätigen — der Zurückschwing-Median im nächsten Log ist das Instrument, das genau diese Änderung prüft."
     }
   },
   {
     id: "weak-ff",
     file: "sample-academy-weak-ff.bbl",
-    title: "The heli that leaned on I",
-    teaser: "It gets there — late, and by the wrong route. Which term does the work?",
+    title: "Der Heli, der sich auf I stützte",
+    teaser: "Er kommt an — spät und auf dem falschen Weg. Welcher Anteil macht die Arbeit?",
     brief:
-      "Tracking looks acceptable at a glance. Open the command " +
-      "balance evidence and look at WHICH PID term carries the " +
-      "commands. When you can say who does the lifting, reveal " +
-      "the answer.",
+      "Die Nachführung sieht auf den ersten Blick akzeptabel aus. Öffne den Beleg zur Kommando-Bilanz und schau, WELCHER PID-Anteil die Kommandos trägt. Wenn du sagen kannst, wer die Last stemmt, decke die Antwort auf.",
     reveal: {
       diagnosis: [
-        "During command windows the I-term dominates while P plus " +
-          "feedforward barely contribute — the command-balance " +
-          "instrument flags exactly this on the highest-error axis.",
-        "The machine still follows the stick, but by integrating " +
-          "error after the fact instead of being fed the command " +
-          "up front. That is why it feels late and slightly rubbery.",
-        "Nothing here is saturated and nothing rings — with weak " +
-          "feedforward, balance is the instrument that sees the " +
-          "problem while the others stay quiet."
+        "In den Kommando-Fenstern dominiert der I-Anteil, während P plus Feedforward kaum beitragen — genau das markiert das Kommando-Bilanz-Instrument auf der Achse mit dem höchsten Fehler.",
+        "Die Maschine folgt dem Stick trotzdem, aber indem sie den Fehler nachträglich aufintegriert, statt das Kommando vorab zu bekommen. Deshalb fühlt sie sich spät und leicht gummiartig an.",
+        "Nichts ist gesättigt und nichts schwingt — bei schwachem Feedforward ist die Bilanz das Instrument, das das Problem sieht, während die anderen ruhig bleiben."
       ],
       fix:
-        "Raise feedforward so the command reaches the rotor " +
-        "directly. The verifying instrument: on the next log the " +
-        "I-share during commands drops and support rises — the same " +
-        "balance numbers that flagged it."
+        "Erhöhe das Feedforward, damit das Kommando den Rotor direkt erreicht. Das prüfende Instrument: Im nächsten Log sinkt der I-Anteil während der Kommandos und die Unterstützung steigt — dieselben Bilanz-Zahlen, die es markiert haben."
     }
   },
   {
     id: "governor-droop",
     file: "sample-academy-governor-droop.bbl",
     dumpFile: "sample-academy-governor-droop.dump.txt",
-    title: "The headspeed that gave way",
-    teaser: "Every climb costs rotor speed. How much, and what pays it back?",
+    title: "Die Headspeed, die nachgab",
+    teaser: "Jeder Steigflug kostet Rotordrehzahl. Wie viel, und was zahlt es zurück?",
     brief:
-      "Open the Governor lab and watch headspeed against its " +
-      "target through the collective climbs. When you can say what " +
-      "happens under load — and roughly how much — reveal the " +
-      "answer. This flight also comes WITH its saved CLI dump: " +
-      "paste it via Add CLI settings and the earned recommendation " +
-      "turns into an exact value with a paste-ready CLI snippet.",
+      "Öffne das Governor-Labor und beobachte die Headspeed gegen ihr Ziel durch die Kollektiv-Steigflüge. Wenn du sagen kannst, was unter Last passiert — und ungefähr wie viel —, decke die Antwort auf. Dieser Flug kommt AUCH mit seinem gespeicherten CLI-Dump: Füge ihn über „CLI-Einstellungen hinzufügen“ ein, und die verdiente Empfehlung wird zu einem exakten Wert mit einem einfügefertigen CLI-Snippet.",
     reveal: {
       diagnosis: [
-        "Headspeed sags several percent every time collective load " +
-          "arrives, and recovers slowly — classic governor droop.",
-        "The droop shows only under load: in the hover segments the " +
-          "hold looks perfect. Judging a governor by its hover is " +
-          "how this problem hides.",
-        "Cyclic instruments stay quiet: this is a governor-domain " +
-          "finding, and the engine keeps governor changes in their " +
-          "own lane because held headspeed is what makes the other " +
-          "instruments comparable at all."
+        "Die Headspeed sackt jedes Mal um mehrere Prozent ein, wenn Kollektiv-Last kommt, und erholt sich langsam — klassischer Governor-Droop.",
+        "Der Droop zeigt sich nur unter Last: In den Schwebeflug-Abschnitten sieht das Halten perfekt aus. Einen Governor an seinem Schwebeflug zu beurteilen ist genau, wie sich dieses Problem versteckt.",
+        "Die Zyklik-Instrumente bleiben ruhig: Das ist ein Befund im Governor-Bereich, und die Engine hält Governor-Änderungen in ihrer eigenen Spur, weil gehaltene Headspeed überhaupt erst die anderen Instrumente vergleichbar macht."
       ],
       fix:
-        "More governor gain (or precomp for the load it can see " +
-        "coming), then the same climbs again. The verifying " +
-        "instrument is flight droop percent under load — not the " +
-        "hover average."
+        "Mehr Governor-Gain (oder Precomp für die Last, die er kommen sieht), dann dieselben Steigflüge noch einmal. Das prüfende Instrument ist der Flug-Droop in Prozent unter Last — nicht der Schwebeflug-Durchschnitt."
     }
   },
   {
     id: "dead-current",
     file: "sample-academy-dead-current.bbl",
-    title: "The sensor that read nothing",
-    teaser: "The power sums don't add up — or rather, they don't exist.",
+    title: "Der Sensor, der nichts las",
+    teaser: "Die Leistungssummen gehen nicht auf — genauer gesagt, es gibt sie nicht.",
     brief:
-      "Open the Battery lab and look for the current story. " +
-      "Something every other lab report has is missing here. When " +
-      "you know what — and what the app does about it — reveal the " +
-      "answer.",
+      "Öffne das Akku-Labor und such nach der Strom-Geschichte. Etwas, das jeder andere Labor-Bericht hat, fehlt hier. Wenn du weißt, was — und was die App dagegen tut —, decke die Antwort auf.",
     reveal: {
       diagnosis: [
-        "The current sensor reports nothing usable, so every " +
-          "current-based conclusion — draw, internal resistance, " +
-          "consumption — is honestly marked as needing a current " +
-          "sensor instead of being estimated.",
-        "An analyzer that fabricated a plausible-looking current " +
-          "trace here would poison every downstream number. Absence " +
-          "stated is trust earned.",
-        "Voltage-side conclusions still stand: they come from a " +
-          "sensor that actually reported."
+        "Der Stromsensor meldet nichts Brauchbares, daher ist jede stromabhängige Schlussfolgerung — Strom, Innenwiderstand, Verbrauch — ehrlich als „braucht einen Stromsensor“ markiert, statt geschätzt zu werden.",
+        "Ein Analysewerkzeug, das hier eine plausibel aussehende Stromkurve erfände, würde jede nachfolgende Zahl vergiften. Benannte Abwesenheit schafft Vertrauen.",
+        "Spannungsseitige Schlussfolgerungen gelten weiter: Sie stammen von einem Sensor, der tatsächlich gemeldet hat."
       ],
       fix:
-        "Check the current sensor wiring and its scale setting. " +
-        "When real amps flow into the log, the missing sections " +
-        "fill themselves in — nothing else about the flight needs " +
-        "to change."
+        "Prüfe Verkabelung und Skalierung des Stromsensors. Sobald echte Ampere ins Log fließen, füllen sich die fehlenden Abschnitte von selbst — am Rest des Fluges muss nichts geändert werden."
     }
   },
   {
@@ -169,34 +108,18 @@ export const ACADEMY_ENTRIES = [
     file: "sample-academy-stale-dump.bbl",
     dumpFile: "sample-academy-stale-dump.dump.txt",
     freshDumpFile: "sample-academy-stale-dump.fresh.dump.txt",
-    title: "The dump that lied",
-    teaser: "The saved settings and the flight disagree. Which do you believe?",
+    title: "Der Dump, der log",
+    teaser: "Die gespeicherten Einstellungen und der Flug widersprechen sich. Wem glaubst du?",
     brief:
-      "This flight comes WITH its saved CLI dump — copy it from " +
-      "this card and paste it into the model card (Add CLI " +
-      "settings). Then watch what the app says about it. When you " +
-      "understand who wins a disagreement, reveal the answer.",
+      "Dieser Flug kommt MIT seinem gespeicherten CLI-Dump — kopiere ihn von dieser Karte und füge ihn in die Modellkarte ein („CLI-Einstellungen hinzufügen“). Beobachte dann, was die App dazu sagt. Wenn du verstehst, wer einen Widerspruch gewinnt, decke die Antwort auf.",
     reveal: {
       diagnosis: [
-        "Two settings in the pasted dump disagree with what this " +
-          "log actually flew — the dump was saved before a bench " +
-          "session and never refreshed. Dumps go stale silently.",
-        "The app checks every mapped setting against the flown " +
-          "headers of the log itself and flags the disagreement " +
-          "instead of trusting the file.",
-        "For any setting the log carries, the flown header value " +
-          "wins — a stale dump can warn you, but it can never " +
-          "mis-number a recommendation."
+        "Zwei Einstellungen im eingefügten Dump widersprechen dem, was dieses Log tatsächlich geflogen ist — der Dump wurde vor einer Werkbank-Session gespeichert und nie aktualisiert. Dumps veralten unbemerkt.",
+        "Die App prüft jede zugeordnete Einstellung gegen die geflogenen Header des Logs selbst und markiert den Widerspruch, statt der Datei zu vertrauen.",
+        "Bei jeder Einstellung, die das Log enthält, gewinnt der geflogene Header-Wert — ein veralteter Dump kann dich warnen, aber nie eine Empfehlung falsch beziffern."
       ],
       fix:
-        "Save a fresh dump after every bench session and update it " +
-        "in the model card when the app asks. Try it here: copy the " +
-        "FRESH dump below — the one saved after the bench session — " +
-        "and paste it via Update the saved settings dump. The " +
-        "warning clears, because the file finally agrees with the " +
-        "flight. Once the app reads your settings live from the " +
-        "flight controller, this check happens by itself before " +
-        "anything is written."
+        "Speichere nach jeder Werkbank-Session einen frischen Dump und aktualisiere ihn in der Modellkarte, wenn die App danach fragt. Probiere es hier aus: Kopiere den AKTUELLEN Dump unten — den nach der Werkbank-Session gespeicherten — und füge ihn über „Gespeicherten Einstellungs-Dump aktualisieren“ ein. Die Warnung verschwindet, weil die Datei endlich zum Flug passt. Sobald die App deine Einstellungen live aus der Flugsteuerung liest, geschieht diese Prüfung von selbst, bevor etwas geschrieben wird."
     }
   }
 ];

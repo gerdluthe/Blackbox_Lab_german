@@ -364,7 +364,7 @@ const REPLAY_DEFAULT_LAYOUT = ["tracking-roll", "headspeed", "throttle", "power"
 const REPLAY_GRAPH_PRESETS = [
   {
     key: "tracking-roll",
-    label: "Roll: target vs gyro",
+    label: "Roll: Ziel gegen Gyro",
     yLabel: "deg/s",
     series: (dataset) => presetSeries(dataset, [
       { patterns: [/^setpoint\[0\]$/i], color: PRESET_COLORS.setpoint },
@@ -373,7 +373,7 @@ const REPLAY_GRAPH_PRESETS = [
   },
   {
     key: "tracking-pitch",
-    label: "Pitch: target vs gyro",
+    label: "Nick: Ziel gegen Gyro",
     yLabel: "deg/s",
     series: (dataset) => presetSeries(dataset, [
       { patterns: [/^setpoint\[1\]$/i], color: PRESET_COLORS.setpoint },
@@ -382,7 +382,7 @@ const REPLAY_GRAPH_PRESETS = [
   },
   {
     key: "tracking-yaw",
-    label: "Yaw: target vs gyro",
+    label: "Gier: Ziel gegen Gyro",
     yLabel: "deg/s",
     series: (dataset) => presetSeries(dataset, [
       { patterns: [/^setpoint\[2\]$/i], color: PRESET_COLORS.setpoint },
@@ -391,7 +391,7 @@ const REPLAY_GRAPH_PRESETS = [
   },
   {
     key: "gyro",
-    label: "Gyro (filtered, all axes)",
+    label: "Gyro (gefiltert, alle Achsen)",
     yLabel: "deg/s",
     series: (dataset) => presetSeries(dataset, [
       { patterns: [/^gyroADC\[0\]$/i], color: CHART_COLORS[0] },
@@ -401,7 +401,7 @@ const REPLAY_GRAPH_PRESETS = [
   },
   {
     key: "gyro-raw",
-    label: "Gyro (unfiltered)",
+    label: "Gyro (ungefiltert)",
     yLabel: "deg/s",
     series: (dataset) => presetSeries(dataset, [
       { patterns: [/^gyroUnfilt\[0\]$/i, /^gyroRAW\[0\]$/i], color: CHART_COLORS[0] },
@@ -411,8 +411,8 @@ const REPLAY_GRAPH_PRESETS = [
   },
   {
     key: "headspeed",
-    label: "Headspeed & governor target",
-    yLabel: "rpm",
+    label: "Headspeed & Governor-Ziel",
+    yLabel: "U/min",
     series: (dataset) => presetSeries(dataset, [
       { patterns: [/^governorTarget$/i, /^govTarget$/i], color: CHART_COLORS[0] },
       { patterns: [/^headspeed$/i, /^erpm/i], color: CHART_COLORS[1] }
@@ -420,16 +420,16 @@ const REPLAY_GRAPH_PRESETS = [
   },
   {
     key: "collective",
-    label: "Collective",
-    yLabel: "collective",
+    label: "Kollektiv",
+    yLabel: "Kollektiv",
     series: (dataset) => presetSeries(dataset, [
       { patterns: [/^setpoint\[3\]$/i], color: CHART_COLORS[5] }
     ])
   },
   {
     key: "throttle",
-    label: "Motor output (%)",
-    yLabel: "output (%)",
+    label: "Motorausgang (%)",
+    yLabel: "Ausgang (%)",
     series: (dataset) => presetSeries(dataset, [
       { patterns: [/^motor\[0\]$/i], color: CHART_COLORS[3], convert: toThrottlePercent },
       { patterns: [/^motor\[1\]$/i], color: CHART_COLORS[4], convert: toThrottlePercent }
@@ -437,7 +437,7 @@ const REPLAY_GRAPH_PRESETS = [
   },
   {
     key: "power",
-    label: "Voltage & current",
+    label: "Spannung & Strom",
     yLabel: "V · A",
     series: (dataset) => presetSeries(dataset, [
       { patterns: dataset.voltagePatterns, color: CHART_COLORS[0], convert: toVolts },
@@ -501,7 +501,7 @@ function renderReplayStack(dataset) {
   if (!dataset) {
     if (controls) controls.hidden = true;
     stack.innerHTML =
-      '<p class="chart-empty">Open a log first. Then stack the charts you want to replay here.</p>';
+      '<p class="chart-empty">Öffne zuerst ein Log. Stapele dann hier die Diagramme, die du wiedergeben willst.</p>';
     return;
   }
 
@@ -509,7 +509,7 @@ function renderReplayStack(dataset) {
 
   if (layout.length === 0) {
     stack.innerHTML =
-      '<p class="chart-empty">Sticks-only view: no graphs stacked. The playhead, sticks and readouts still run above; add a graph anytime.</p>';
+      '<p class="chart-empty">Nur-Sticks-Ansicht: keine Diagramme gestapelt. Abspielkopf, Sticks und Anzeigen laufen oben weiter; füge jederzeit ein Diagramm hinzu.</p>';
   }
 
   // The header fields this log carries, grouped — read from the
@@ -546,25 +546,15 @@ function renderReplayStack(dataset) {
 
     const row = document.createElement("div");
     row.className = "replay-graph-row";
-    row.innerHTML = `
-      <div class="replay-graph-head">
-        <span>${escapeHtml(heading)}</span>
-        <span class="replay-graph-tools">
-          <button data-stack-move="-1" data-stack-key="${escapeHtml(key)}" title="Move up">▲</button>
-          <button data-stack-move="1" data-stack-key="${escapeHtml(key)}" title="Move down">▼</button>
-          <button data-stack-remove="${escapeHtml(key)}" title="Remove">✕</button>
-        </span>
-      </div>
-      <div class="chart-container"></div>
-    `;
+    row.innerHTML = ` <div class="replay-graph-head"> <span>${escapeHtml(heading)}</span> <span class="replay-graph-tools"> <button data-stack-move="-1" data-stack-key="${escapeHtml(key)}" title="Nach oben">▲</button> <button data-stack-move="1" data-stack-key="${escapeHtml(key)}" title="Nach unten">▼</button> <button data-stack-remove="${escapeHtml(key)}" title="Entfernen">✕</button> </span> </div> <div class="chart-container"></div> `;
     stack.appendChild(row);
 
     const container = row.querySelector(".chart-container");
 
     if (series.length === 0) {
       container.innerHTML = preset
-        ? '<p class="chart-empty">This log has no data for this chart.</p>'
-        : `<p class="chart-empty">This log does not carry <code>${escapeHtml(fieldName)}</code>.</p>`;
+        ? '<p class="chart-empty">Dieses Log hat keine Daten für dieses Diagramm.</p>'
+        : `<p class="chart-empty">Dieses Log enthält <code>${escapeHtml(fieldName)}</code> nicht.</p>`;
       continue;
     }
 
@@ -660,8 +650,8 @@ function renderReplayFieldBrowser(layout, fieldGroups) {
 
   if (summary) {
     summary.textContent =
-      `All logged fields — ${totalFields} field${totalFields === 1 ? "" : "s"} in ` +
-      `${fieldGroups.length} group${fieldGroups.length === 1 ? "" : "s"}, any of them one click from the timeline`;
+      `Alle geloggten Felder — ${totalFields} Feld${totalFields === 1 ? "" : "er"} in ` +
+      `${fieldGroups.length} Gruppe${fieldGroups.length === 1 ? "" : "n"}, jede davon einen Klick von der Zeitleiste entfernt`;
   }
 
   groupsHost.innerHTML = "";
@@ -698,7 +688,7 @@ function renderReplayFieldBrowser(layout, fieldGroups) {
       chip.innerHTML = entry.alias
         ? `${escapeHtml(entry.alias)} <code>${escapeHtml(entry.name)}</code>`
         : `<code>${escapeHtml(entry.name)}</code>`;
-      if (inStack) chip.title += " — already in the stack";
+      if (inStack) chip.title += " — bereits im Stapel";
       chips.appendChild(chip);
       shown += 1;
     }
@@ -708,7 +698,7 @@ function renderReplayFieldBrowser(layout, fieldGroups) {
 
   if (shown === 0) {
     groupsHost.innerHTML =
-      '<p class="replay-field-empty">No logged field matches that search.</p>';
+      '<p class="replay-field-empty">Kein geloggtes Feld passt zu dieser Suche.</p>';
   }
 }
 
@@ -1133,8 +1123,8 @@ document.querySelectorAll(".peek-advanced-link").forEach((link) => {
       });
 
     link.textContent = peeking
-      ? "Hide the advanced data again"
-      : "Show the advanced data behind this page";
+      ? "Die erweiterten Daten wieder ausblenden"
+      : "Die erweiterten Daten hinter dieser Seite anzeigen";
 
     const note = link.parentElement.querySelector(".peek-advanced-note");
     if (note) {
@@ -1168,7 +1158,7 @@ function disarmOpenLog() {
   openLogButton.title = "";
   if (openLogLock && !openLogLock.hidden) {
     openLogLock.textContent = "🔒";
-    openLogButton.title = "Click the lock to open another log";
+    openLogButton.title = "Auf das Schloss klicken, um ein anderes Log zu öffnen";
   }
   if (openLogArmTimer) {
     clearTimeout(openLogArmTimer);
@@ -1203,7 +1193,7 @@ openLogLock.addEventListener("click", (event) => {
   openLogArmed = true;
   openLogLock.textContent = "🔓";
   openLogButton.classList.add("armed");
-  openLogButton.title = "Unlocked: click to open another log";
+  openLogButton.title = "Entsperrt: klicken, um ein anderes Log zu öffnen";
   openLogArmTimer = setTimeout(disarmOpenLog, 4000);
 });
 
@@ -1238,7 +1228,7 @@ function beginLoadProgress() {
   // feedback reads as a hang wherever it starts. On Home it
   // closes itself when done (the pilot is already at the
   // overview); elsewhere it ends with the stay-or-go choice.
-  loadProgressTitle.textContent = "Reading your flight…";
+  loadProgressTitle.textContent = "Lese deinen Flug…";
   loadProgressText.textContent = "";
   loadSpinner.hidden = false;
   loadProgressActions.hidden = true;
@@ -1262,7 +1252,7 @@ function finishLoadProgress(succeeded) {
   // stay-or-go question — show the arrival for a beat, then get
   // out of the way. Failures stay up everywhere until dismissed.
   if (succeeded && currentScreenName() === "home") {
-    loadProgressTitle.textContent = "Flight analyzed";
+    loadProgressTitle.textContent = "Flug analysiert";
     loadSpinner.hidden = true;
     setTimeout(() => {
       loadProgress.hidden = true;
@@ -1271,8 +1261,8 @@ function finishLoadProgress(succeeded) {
   }
 
   loadProgressTitle.textContent = succeeded
-    ? "Flight analyzed"
-    : "Could not read this log";
+    ? "Flug analysiert"
+    : "Dieses Log konnte nicht gelesen werden";
   loadSpinner.hidden = true;
   loadProgressActions.hidden = false;
 
@@ -1280,7 +1270,7 @@ function finishLoadProgress(succeeded) {
   // a dismiss for the failure case.
   const onHome = currentScreenName() === "home";
   loadGoOverview.hidden = onHome;
-  loadStayHere.textContent = onHome ? "Close" : "Stay on this page";
+  loadStayHere.textContent = onHome ? "Schließen" : "Auf dieser Seite bleiben";
 }
 
 loadGoOverview.addEventListener("click", () => {
@@ -1325,7 +1315,7 @@ async function routeSettingsDump(file) {
   // attach them to, and no way to know which helicopter they belong to.
   if (!currentCraftName) {
     setLoadStatus(
-      `${file.name} looks like a Rotorflight settings dump. Open the flight it belongs to first, then add the dump from the model card on Home. The settings are filed against that helicopter.`
+      `${file.name} sieht wie ein Rotorflight-Einstellungs-Dump aus. Öffne zuerst den Flug, zu dem er gehört, und füge den Dump dann über die Modellkarte auf dem Startbildschirm hinzu. Die Einstellungen werden diesem Heli zugeordnet.`
     );
     finishLoadProgress(false);
     return true;
@@ -1338,7 +1328,7 @@ async function routeSettingsDump(file) {
   navigation.showScreen("home");
 
   setLoadStatus(
-    `${file.name} read into your ${currentCraftName} model card. The flight stays open.`
+    `${file.name} wurde in deine Modellkarte ${currentCraftName} eingelesen. Der Flug bleibt geöffnet.`
   );
   finishLoadProgress(true);
   return true;
@@ -1350,7 +1340,7 @@ async function loadFromFile(file) {
   // re-arms its card only after this completes for its file.
   setAcademyEntry(null);
   beginLoadProgress();
-  setLoadStatus(`Reading ${file.name}...`);
+  setLoadStatus(`Lese ${file.name}...`);
   await new Promise((resolve) => setTimeout(resolve, 30));
 
   // A settings dump describes the machine, not a flight. Opening one
@@ -1366,7 +1356,7 @@ async function loadFromFile(file) {
 
   if (!logData || logData.flights.length === 0) {
     setLoadStatus(
-      "Could not read any flight data from this file."
+      "Aus dieser Datei konnten keine Flugdaten gelesen werden."
     );
     finishLoadProgress(false);
     return;
@@ -1392,7 +1382,7 @@ async function loadFromFile(file) {
   flightPicker.hidden = logData.flights.length < 2;
 
   setLoadStatus(
-    "Analyzing flight... (big logs take a few seconds)"
+    "Analysiere Flug... (große Logs brauchen ein paar Sekunden)"
   );
   await new Promise((resolve) => setTimeout(resolve, 30));
 
@@ -1409,11 +1399,11 @@ async function loadFromFile(file) {
 
   const startHereHeading = el("startHereHeading");
   if (startHereHeading) {
-    startHereHeading.textContent = "Load Another Log";
+    startHereHeading.textContent = "Weiteres Log laden";
   }
 
   if (!loadProgress.hidden) {
-    loadProgressText.textContent = `${file.name} analyzed: the verdict is ready on the overview.`;
+    loadProgressText.textContent = `${file.name} analysiert: Das Urteil ist in der Übersicht bereit.`;
   }
   finishLoadProgress(true);
 }
@@ -1424,7 +1414,7 @@ logFileInput.addEventListener("change", async () => {
       await loadFromFile(logFileInput.files[0]);
     } catch (error) {
       setLoadStatus(
-        "Something went wrong reading this log: " + error.message
+        "Beim Lesen dieses Logs ist etwas schiefgelaufen: " + error.message
       );
       finishLoadProgress(false);
       // A file the decoder cannot read is exactly the failure the
@@ -1440,18 +1430,18 @@ logFileInput.addEventListener("change", async () => {
 trySampleButton.addEventListener("click", async () => {
   if (!window.blackboxLab) {
     fileStatus.textContent =
-      "Samples are available when running the desktop app.";
+      "Beispielflüge sind nur in der Desktop-App verfügbar.";
     return;
   }
 
-  fileStatus.textContent = "Loading sample flight...";
+  fileStatus.textContent = "Lade Beispielflug...";
 
   const bytes = await window.blackboxLab.readSampleLog(
     "sample-bell-222ut.bbl"
   );
 
   if (!bytes) {
-    fileStatus.textContent = "Could not load the sample flight.";
+    fileStatus.textContent = "Der Beispielflug konnte nicht geladen werden.";
     return;
   }
 
@@ -1463,7 +1453,7 @@ trySampleButton.addEventListener("click", async () => {
   await loadFromFile(file);
 
   fileStatus.textContent =
-    "Loaded: sample flight (a helicopter with a mechanical problem. Can you find it?)";
+    "Geladen: Beispielflug (ein Heli mit einem mechanischen Problem. Kannst du es finden?)";
 });
 
 flightSelect.addEventListener("change", () => {
@@ -2331,13 +2321,13 @@ function buildSpectrumMarkers(spectra, headspeedRpm) {
       const ratio = peak.hz / (headspeedRpm / 60);
 
       if (Math.abs(ratio - 1) < 0.15) {
-        name = `main rotor 1/rev · ${name}`;
+        name = `Hauptrotor 1/rev · ${name}`;
         classification = "main_rotor_1rev";
       } else if (Math.abs(ratio - 2) < 0.2) {
-        name = `main rotor 2/rev · ${name}`;
+        name = `Hauptrotor 2/rev · ${name}`;
         classification = "main_rotor_2rev";
       } else if (ratio > 3.5 && ratio < 6.5) {
-        name = `tail region · ${name}`;
+        name = `Heckbereich · ${name}`;
         classification = "tail_region";
       }
     }
@@ -2356,9 +2346,9 @@ function buildSpectrumMarkers(spectra, headspeedRpm) {
 // ======================================================
 
 const STATUS_WORDS = {
-  good: "Looks good",
-  watch: "Worth watching",
-  attention: "Needs attention"
+  good: "Sieht gut aus",
+  watch: "Beobachten",
+  attention: "Braucht Aufmerksamkeit"
 };
 
 // The Flight Events card: every stick command as one row,
@@ -2399,7 +2389,7 @@ function renderFlightEvents(flightEvents) {
   const shown = flightEvents.events.slice(0, 60);
 
   if (shown.length < flightEvents.events.length) {
-    summary.textContent += ` Showing the first ${shown.length} of ${flightEvents.events.length}.`;
+    summary.textContent += ` Zeige die ersten ${shown.length} von ${flightEvents.events.length}.`;
   }
 
   for (const event of shown) {
@@ -2491,13 +2481,13 @@ function showGovernorEventDetail(event) {
     return;
   }
 
-  const markers = [{ x: event.t, label: "excursion" }];
+  const markers = [{ x: event.t, label: "Abweichung" }];
 
   if (
     Number.isFinite(event.tPeak) &&
     event.tPeak - event.t > 0.15
   ) {
-    markers.push({ x: event.tPeak, label: "peak" });
+    markers.push({ x: event.tPeak, label: "Spitze" });
   }
 
   const targetValues = currentDataset.governorTarget ?? [];
@@ -2511,7 +2501,7 @@ function showGovernorEventDetail(event) {
       { label: "govTarget", values: targetValues, color: CHART_COLORS[0] },
       { label: "headspeed", values: actualValues, color: CHART_COLORS[1] }
     ],
-    { yLabel: "rpm", markers, linkGroup: "governorEventSync" }
+    { yLabel: "U/min", markers, linkGroup: "governorEventSync" }
   );
 
   // One output series, picked the way the ANALYSIS picked it — by
@@ -2536,17 +2526,17 @@ function showGovernorEventDetail(event) {
     [
       {
         patterns: outputPatterns,
-        label: "Motor output (%)",
+        label: "Motorausgang (%)",
         convert: toThrottlePercent,
         color: CHART_COLORS[3]
       },
       {
         patterns: [/^setpoint\[3\]$/i],
-        label: "Collective target",
+        label: "Kollektiv-Ziel",
         color: CHART_COLORS[5]
       }
     ],
-    { yLabel: "% · collective", markers, linkGroup: "governorEventSync" }
+    { yLabel: "% · Kollektiv", markers, linkGroup: "governorEventSync" }
   );
 
   mountStickInset({
@@ -2599,7 +2589,7 @@ function renderGovernorEvents(dataset) {
       event.cause === "power-limit" ? "chip-overshoot" : "chip-slow"
     }`;
 
-    const label = event.kind === "under" ? "Under" : "Over";
+    const label = event.kind === "under" ? "Unter" : "Über";
     const metric = `${event.kind === "under" ? "−" : "+"}${event.peakErrorPercent}%`;
 
     chip.innerHTML = `
@@ -2610,12 +2600,12 @@ function renderGovernorEvents(dataset) {
 
     chip.title =
       event.cause === "power-limit"
-        ? "Power-system limit"
+        ? "Grenze des Antriebssystems"
         : event.cause === "load"
-          ? "Load droop after a collective increase"
+          ? "Lasteinbruch nach einer Kollektiv-Erhöhung"
           : event.cause === "collective-drop"
-            ? "Overspeed after a collective drop"
-            : "Unexplained excursion";
+            ? "Überdrehzahl nach einem Kollektiv-Abfall"
+            : "Unerklärte Abweichung";
 
     chip.addEventListener("click", () => {
       const wasSelected = chip.classList.contains("selected");
@@ -2676,7 +2666,7 @@ function recommendationFirstStep(rec) {
 
   if (rec.suggestion) {
     return {
-      text: `Try one ${rec.suggestion.magnitudeClass} ${rec.suggestion.direction === "up" ? "up" : "down"} on ${rec.suggestion.family}. Change only this, fly the same moves again, and watch ${rec.verifyMetric ?? "the same finding"}. Compare Flights is the judge.`,
+      text: `Probiere eine ${rec.suggestion.magnitudeClass} Änderung nach ${rec.suggestion.direction === "up" ? "oben" : "unten"} bei ${rec.suggestion.family}. Ändere nur das, fliege dieselben Bewegungen noch einmal und beobachte ${rec.verifyMetric ?? "dasselbe Ergebnis"}. „Flüge vergleichen“ ist der Richter.`,
       tone: "action"
     };
   }
@@ -2772,14 +2762,9 @@ function renderPackCard(dataset, nextSteps, firmwareRevision, context = {}) {
         ? new Date(dump.savedAtMs).toLocaleDateString()
         : null;
       dumpNote.textContent =
-        `The saved settings dump${savedDate ? ` (read ${savedDate})` : ""} disagrees with this flight on ` +
-        `${dumpFreshness.mismatches.length} setting${
-          dumpFreshness.mismatches.length === 1 ? "" : "s"
-        } (${dumpFreshness.mismatches
-          .slice(0, 3)
-          .map((m) => m.setting)
-          .join(", ")}${dumpFreshness.mismatches.length > 3 ? ", \u2026" : ""}) — the configuration changed since it was read. ` +
-        "This flight's own values are used where the log carries them; refresh the dump for the rest.";
+        `Der gespeicherte Einstellungs-Dump${savedDate ? ` (gelesen ${savedDate})` : ""} weicht bei diesem Flug ab, und zwar bei ` +
+        `${dumpFreshness.mismatches.length} Einstellung${ dumpFreshness.mismatches.length === 1 ? "" : "en" } (${dumpFreshness.mismatches .slice(0, 3) .map((m) => m.setting) .join(", ")}${dumpFreshness.mismatches.length > 3 ? ", \u2026" : ""}) — die Konfiguration hat sich seit dem Einlesen geändert. ` +
+        "Die eigenen Werte dieses Fluges werden verwendet, wo das Log sie enthält; aktualisiere den Dump für den Rest.";
       const updateButton = el("packDumpUpdateButton");
       if (updateButton) {
         updateButton.onclick = () =>
@@ -2823,11 +2808,11 @@ function renderPackCard(dataset, nextSteps, firmwareRevision, context = {}) {
   const banner = el("packAppliedBanner");
   const bannerText =
     appliedAssessment?.verdict === "applied"
-      ? "Previous change pack confirmed on this log \u2713 \u2014 per-change verification verdicts arrive with the field calibration."
+      ? "Vorheriges Änderungspaket in diesem Log bestätigt ✓ — Einzelurteile pro Änderung kommen mit der Feldkalibrierung."
       : appliedAssessment?.verdict === "partial"
-        ? `Previous change pack partially applied (${appliedAssessment.applied} of ${appliedAssessment.applied + appliedAssessment.missed} confirmed on this log) \u2014 unapplied changes are not graded.`
+        ? `Vorheriges Änderungspaket teilweise angewendet (${appliedAssessment.applied} von ${appliedAssessment.applied + appliedAssessment.missed} in diesem Log bestätigt) — nicht angewendete Änderungen werden nicht bewertet.`
         : appliedAssessment?.verdict === "not-applied"
-          ? "Previous change pack not found on this log \u2014 nothing is graded against it."
+          ? "Vorheriges Änderungspaket in diesem Log nicht gefunden — es wird nichts daran bewertet."
           : null;
   if (banner) {
     banner.hidden = !bannerText;
@@ -2872,19 +2857,17 @@ function renderPackCard(dataset, nextSteps, firmwareRevision, context = {}) {
 
   el("packIntro").textContent =
     pack.withheld && pack.queued.length > 0
-      ? `This flight held ${pack.withheld.banks.length} different headspeed banks (${pack.withheld.banks
-          .map((rpm) => `${rpm} rpm`)
-          .join(", ")}), so its evidence mixes two flight regimes. ` +
-        `${pack.queued.length} earned change${pack.queued.length === 1 ? " waits" : "s wait"} for a single-bank flight — fly one bank and the pack unlocks.`
+      ? `Dieser Flug hielt ${pack.withheld.banks.length} verschiedene Headspeed-Bänke (${pack.withheld.banks .map((rpm) => `${rpm} U/min`) .join(", ")}), daher mischt sein Beleg zwei Flugregime. ` +
+        `${pack.queued.length} verdiente Änderung${pack.queued.length === 1 ? " wartet" : "en warten"} auf einen Flug mit einer einzigen Bank — fliege eine Bank und das Paket wird freigeschaltet.`
       : pack.profiles && pack.members.length > 0
-        ? `This flight flew ${flownProfileCount} PID profiles; each change below was earned entirely in ${pack.profiles.packProfileName}, and this pack verifies that profile. ` +
-          `${pack.members.length} change${pack.members.length === 1 ? "" : "s"} — each verified by its own instrument on the next log. Change nothing else alongside.`
+        ? `Dieser Flug flog ${flownProfileCount} PID-Profile; jede Änderung unten wurde vollständig in ${pack.profiles.packProfileName} verdient, und dieses Paket prüft dieses Profil. ` +
+          `${pack.members.length} Änderung${pack.members.length === 1 ? "" : "en"} — jede im nächsten Log von ihrem eigenen Instrument geprüft. Ändere daneben nichts anderes.`
         : pack.profiles && pack.queued.length > 0
-          ? `This flight flew ${flownProfileCount} PID profiles and no earned change could be attributed to a single one — ` +
-            `${pack.queued.length} change${pack.queued.length === 1 ? " waits" : "s wait"}, each with its reason below. A single-profile flight unlocks them.`
+          ? `Dieser Flug flog ${flownProfileCount} PID-Profile, und keine verdiente Änderung ließ sich einem einzelnen zuordnen — ` +
+            `${pack.queued.length} Änderung${pack.queued.length === 1 ? " wartet" : "en warten"}, jede mit ihrem Grund unten. Ein Flug mit einem einzigen Profil schaltet sie frei.`
           : pack.members.length > 0
-            ? `${pack.members.length} change${pack.members.length === 1 ? "" : "s"} earned by this flight — each verified by its own instrument on the next log. Change nothing else alongside.`
-            : "No change is earned yet, but the evidence flights below would settle the open questions.";
+            ? `${pack.members.length} Änderung${pack.members.length === 1 ? "" : "en"} von diesem Flug verdient — jede im nächsten Log von ihrem eigenen Instrument geprüft. Ändere daneben nichts anderes.`
+            : "Noch keine Änderung verdient, aber die Beleg-Flüge unten würden die offenen Fragen klären.";
 
   const members = el("packMembers");
   members.innerHTML = "";
@@ -2900,17 +2883,9 @@ function renderPackCard(dataset, nextSteps, firmwareRevision, context = {}) {
       : "";
     const earnedIn =
       member.profile !== undefined
-        ? `<div class="chart-hint">Earned in: ${profileName(member.profile)}</div>`
+        ? `<div class="chart-hint">Verdient in: ${profileName(member.profile)}</div>`
         : "";
-    row.innerHTML = `
-      <div class="pack-member-head"><code>${member.setting}</code> <b>${change}</b></div>
-      <div class="chart-hint">${member.card?.meaning ?? ""}</div>
-      <div class="chart-hint">Why: ${member.finding ?? ""}</div>
-      ${earnedIn}
-      <div class="chart-hint">Verified by: ${member.instrument ?? "its lab"}${
-        member.expectedResult ? ` \u00b7 expect: ${member.expectedResult}` : ""
-      }</div>
-      ${note}`;
+    row.innerHTML = ` <div class="pack-member-head"><code>${member.setting}</code> <b>${change}</b></div> <div class="chart-hint">${member.card?.meaning ?? ""}</div> <div class="chart-hint">Warum: ${member.finding ?? ""}</div> ${earnedIn} <div class="chart-hint">Geprüft durch: ${member.instrument ?? "sein Labor"}${ member.expectedResult ? ` · erwartet: ${member.expectedResult}` : "" }</div> ${note}`;
     members.appendChild(row);
   }
 
@@ -2977,7 +2952,7 @@ function renderPackCard(dataset, nextSteps, firmwareRevision, context = {}) {
       .map((text) => {
         const seen = seenCounts.get(text);
         return `<li>${text}${
-          seen ? ` <b>\u2014 pattern seen in ${seen} flights now.</b>` : ""
+          seen ? ` <b>— Muster jetzt in ${seen} Flügen gesehen.</b>` : ""
         }</li>`;
       })
       .join("");
@@ -2999,7 +2974,7 @@ function packEmptyStory(pack, context) {
 
   if (context.vibrationConcern) {
     reasons.push(
-      "Tuning changes are held while a vibration finding is open — filters come before PIDs. Fix the mechanical source, fly again, and the tuning instruments are read fresh."
+      "Tuning-Änderungen werden zurückgehalten, solange ein Vibrationsbefund offen ist — Filter kommen vor PIDs. Behebe die mechanische Ursache, fliege erneut, und die Tuning-Instrumente werden neu gelesen."
     );
   }
 
@@ -3020,8 +2995,8 @@ function packEmptyStory(pack, context) {
     const parts = [];
     if (clearAxes.length > 0) {
       parts.push(
-        `${listWords(clearAxes)} response checks read Clear` +
-          (context.pidConfidence ? ` at ${context.pidConfidence} confidence` : "") +
+        `${listWords(clearAxes)}: Reaktionsprüfungen lesen sich als „Clear“ (unauffällig)` +
+          (context.pidConfidence ? ` mit ${context.pidConfidence} Sicherheit` : "") +
           "."
       );
     }
@@ -3029,30 +3004,30 @@ function packEmptyStory(pack, context) {
       const count = axisEvidence[axis] ?? 0;
       parts.push(
         (count === 0
-          ? `${axis} flew no clean command at all — nothing to judge yet;`
-          : `${axis} flew only ${count} clean command${count === 1 ? "" : "s"} — too few to judge;`) +
-          ` 4–6 deliberate ${axis.toLowerCase()} stops and reversals at one headspeed would settle it.`
+          ? `${axis} hat gar kein sauberes Kommando geflogen — noch nichts zu beurteilen;`
+          : `${axis}: nur ${count} sauber${count === 1 ? "es Kommando" : "e Kommandos"} geflogen — zu wenige zum Beurteilen;`) +
+          ` 4–6 bewusste ${axis.toLowerCase()}-Stopps und -Umkehrungen bei einer Headspeed würden es klären.`
       );
     }
     if (parts.length > 0) reasons.push(parts.join(" "));
   } else if (context.pidStatus) {
-    reasons.push(`Tuning status: ${context.pidStatus}.`);
+    reasons.push(`Tuning-Status: ${context.pidStatus}.`);
   }
 
   if (context.governorCapability && context.governorCapability !== "full") {
     reasons.push(
-      "No usable governor target is logged, so the governor lane has nothing to weigh."
+      "Es ist kein brauchbares Governor-Ziel geloggt, deshalb hat der Governor-Zweig nichts zu bewerten."
     );
   }
 
   for (const blocked of pack.blocked ?? []) {
-    reasons.push(`Held back — ${blocked.finding}: ${blocked.blockedBy}.`);
+    reasons.push(`Zurückgehalten — ${blocked.finding}: ${blocked.blockedBy}.`);
   }
 
   return (
-    "No change is earned from this flight, and nothing is queued. " +
+    "Dieser Flug verdient keine Änderung, und nichts ist vorgemerkt. " +
     (reasons.length > 0 ? reasons.join(" ") + " " : "") +
-    "The pack fills itself in when a flight earns a change: one setting, one instrument, verified by the next log."
+    "Das Paket füllt sich von selbst, sobald ein Flug eine Änderung verdient: eine Einstellung, ein Instrument, im nächsten Log geprüft."
   );
 }
 
@@ -3061,7 +3036,7 @@ const copyPackText = (sourceId, button) => {
   if (!text) return;
   const done = () => {
     const previous = button.textContent;
-    button.textContent = "Copied";
+    button.textContent = "Kopiert";
     setTimeout(() => { button.textContent = previous; }, 1400);
   };
   if (navigator.clipboard?.writeText) {
@@ -3109,7 +3084,7 @@ function renderFirstSteps(dataset, nextSteps, pidAnalysis) {
   const withGap = (text, key) => {
     const gap = cardGap(key);
     if (!gap) return text;
-    return text ? `${text}\n\nNot measured: ${gap}` : gap;
+    return text ? `${text}\n\nNicht gemessen: ${gap}` : gap;
   };
   const gapEntries = [];
   const noteGap = (key, screen, title) => {
@@ -3146,7 +3121,7 @@ function renderFirstSteps(dataset, nextSteps, pidAnalysis) {
         events.oscillation > 0
           ? `${events.oscillation} oscillated`
           : null,
-        events.slow > 0 ? `${events.slow} settled slowly` : null
+        events.slow > 0 ? `${events.slow} schwangen langsam ein` : null
       ]
         .filter(Boolean)
         .join(", ")
@@ -3158,12 +3133,12 @@ function renderFirstSteps(dataset, nextSteps, pidAnalysis) {
     "Tuning",
     pidRec?.text ??
       (nonCleanEvents > 0
-        ? `Nothing to change yet. Fly the same moves again: if the same ${events.worst?.axis ? events.worst.axis.toLowerCase() + " " : ""}events keep coming back, this card will name the knob.`
+        ? `Noch nichts zu ändern. Fliege dieselben Bewegungen noch einmal: Wenn dieselben ${events.worst?.axis ? events.worst.axis.toLowerCase() + " " : ""}Ereignisse immer wiederkommen, nennt diese Karte die Stellschraube.`
         : behaviorReviews > 0
-          ? "Fly the same maneuvers again: if the pattern returns, it has earned a closer look. Change nothing yet."
+          ? "Fliege dieselben Manöver noch einmal: Kehrt das Muster zurück, hat es einen genaueren Blick verdient. Ändere noch nichts."
           : gentleDemand
-            ? "Fly deliberate stick steps — clear inputs, held briefly — then read this page again. Gentle flying cannot earn tuning advice."
-            : "Nothing to change."),
+            ? "Fliege bewusste Stick-Sprünge — klare Eingaben, kurz gehalten — und lies diese Seite dann noch einmal. Gemütliches Fliegen kann keinen Tuning-Rat verdienen."
+            : "Nichts zu ändern."),
     actionableTone(pidRec, statusTone(cardStatus("tuning")))
   );
 
@@ -3195,20 +3170,20 @@ function renderFirstSteps(dataset, nextSteps, pidAnalysis) {
       governor.stableDipAtPowerLimit ||
       (Number.isFinite(dipOutput) && dipOutput >= 95)
     ) {
-      governorText = `The ${dipRpm} rpm dip is a power-system limit, not a tuning problem: the motor output was already at ${Math.round(dipOutput)}% when it happened, so no governor setting can add power that isn't there. Adjust the gearing/Kv to match your target headspeed, or lower the target.`;
+      governorText = `Der Einbruch um ${dipRpm} U/min ist eine Grenze des Antriebssystems, kein Tuning-Problem: Der Motorausgang stand schon bei ${Math.round(dipOutput)} %, als es passierte, deshalb kann keine Governor-Einstellung Leistung hinzufügen, die nicht da ist. Passe Übersetzung/Kv an deine Ziel-Headspeed an oder senke das Ziel.`;
     } else if (loadDriven) {
-      governorText = `The ${dipRpm} rpm dip followed a real load demand with output headroom to spare: the governor answered a hard ask, which is a power system doing its job. Nothing to change; if the same maneuver keeps dipping deeper across flights, that trend is the signal.`;
+      governorText = `Der Einbruch um ${dipRpm} U/min folgte einer echten Lastanforderung bei noch vorhandener Ausgangsreserve: Der Governor hat auf eine harte Anforderung geantwortet, das ist ein Antriebssystem, das seine Arbeit tut. Nichts zu ändern; wenn dasselbe Manöver über die Flüge immer tiefer einbricht, ist dieser Trend das Signal.`;
     } else if (governor.capability === "full") {
-      governorText = `The ${dipRpm} rpm dip happened with output headroom remaining${Number.isFinite(dipOutput) ? ` (${Math.round(dipOutput)}%)` : ""} and no matching load demand. That is governor-tune territory. One dip is not a pattern: fly the same load again, and if it repeats, the What To Try Next card below will carry the gated advice.`;
+      governorText = `Der Einbruch um ${dipRpm} U/min geschah bei verbleibender Ausgangsreserve${Number.isFinite(dipOutput) ? ` (${Math.round(dipOutput)} %)` : ""} und ohne passende Lastanforderung. Das ist Governor-Tuning-Gebiet. Ein Einbruch ist kein Muster: Fliege dieselbe Last noch einmal, und wenn er sich wiederholt, trägt die Karte „Was als Nächstes probieren“ unten den freigegebenen Rat.`;
     } else {
       // Headspeed-only log: the Verdict already explains that hold
       // is judged against the rotor's own trend — this card only
       // says what to do about the swing.
       governorText =
-        "Repeat the same maneuver on the next flight. If the swing keeps returning at the same moment of the maneuver, that pattern is the signal worth acting on; a one-off is conditions.";
+        "Wiederhole dasselbe Manöver im nächsten Flug. Kehrt die Schwankung immer im selben Moment des Manövers zurück, ist dieses Muster das Signal, auf das sich Handeln lohnt; ein Einzelfall sind die Bedingungen.";
     }
   } else if (governor && governor.hasRotorSpeedData !== false) {
-    governorText = "Nothing to change.";
+    governorText = "Nichts zu ändern.";
   }
 
   // No capability append here: on THIS page the Verdict already
@@ -3217,7 +3192,7 @@ function renderFirstSteps(dataset, nextSteps, pidAnalysis) {
   add(
     "governorFirstStep",
     "governor",
-    "Rotor speed",
+    "Rotordrehzahl",
     governor && governor.hasRotorSpeedData === false
       ? cardGap("rotor")
       : governorText,
@@ -3244,19 +3219,19 @@ function renderFirstSteps(dataset, nextSteps, pidAnalysis) {
   let filterText = null;
 
   if (vibrationCard?.status === "attention" && peak) {
-    filterText = `${peak.sourceAction ?? "Check the rotating parts for balance and play."} Then fly again and re-read this page. Change no filter setting for this — filters only hide it from the gyro.`;
+    filterText = `${peak.sourceAction ?? "Prüfe die rotierenden Teile auf Wuchtung und Spiel."} Fliege dann erneut und lies diese Seite noch einmal. Ändere dafür keine Filtereinstellung — Filter verstecken es nur vor dem Gyro.`;
   } else if (peak?.managed && peak.magnitude > 3) {
-    filterText = `Nothing to change now. ${peak.sourceAction ?? "Check the rotating parts for balance and play."} A bench job for when it is convenient — across flights, a growing raw peak is the signal to act.`;
+    filterText = `Jetzt nichts zu ändern. ${peak.sourceAction ?? "Prüfe die rotierenden Teile auf Wuchtung und Spiel."} Ein Werkbank-Job für den passenden Zeitpunkt — über die Flüge ist eine wachsende Roh-Spitze das Signal zum Handeln.`;
   } else if (topAdvisor?.priority === "filters") {
     filterText =
-      "Enable the RPM filter (harmonic notches keyed to headspeed) in the Configurator's filter page, and check it covers the listed harmonics. Then fly again.";
+      "Aktiviere den RPM-Filter (harmonische Notches, an die Headspeed gekoppelt) auf der Filterseite des Configurators und prüfe, dass er die aufgelisteten Harmonischen abdeckt. Fliege dann erneut.";
   } else if (topAdvisor) {
-    filterText = "Nothing to change.";
+    filterText = "Nichts zu ändern.";
   } else if (dataset?.spectra?.length) {
-    filterText = "Nothing to change.";
+    filterText = "Nichts zu ändern.";
   } else {
     filterText =
-      "Fly a longer steady stretch and open that log: the spectrum needs a steady window. On a multi-flight file, pick a longer flight.";
+      "Fliege eine längere gleichmäßige Strecke und öffne dieses Log: Das Spektrum braucht ein gleichmäßiges Fenster. Wähle bei einer Mehrflug-Datei einen längeren Flug.";
   }
 
   add(
@@ -3273,16 +3248,16 @@ function renderFirstSteps(dataset, nextSteps, pidAnalysis) {
   add(
     "escFirstStep",
     "esc",
-    "Power & ESC",
+    "Antrieb & ESC",
     withGap(
       escLab && escLab.status !== "insufficient"
         ? escLab.status === "attention"
-          ? "Adjust the gearing/Kv to match your target headspeed, take some pitch out, or lower the headspeed — one of the three, then fly the same load again."
+          ? "Passe Übersetzung/Kv an deine Ziel-Headspeed an, nimm etwas Pitch heraus oder senke die Headspeed — eines der drei, und fliege dann dieselbe Last noch einmal."
           : escLab.status === "watch"
-            ? "Nothing to change now: just remember this margin before asking the machine for more headspeed or pitch."
-            : "Nothing to change."
+            ? "Jetzt nichts zu ändern: Merke dir nur diese Reserve, bevor du der Maschine mehr Headspeed oder Pitch abverlangst."
+            : "Nichts zu ändern."
         : escLab
-          ? "Fly a longer steady stretch: output headroom is measured over steady flight, and this log had none long enough."
+          ? "Fliege eine längere gleichmäßige Strecke: Die Ausgangsreserve wird im gleichmäßigen Flug gemessen, und dieses Log hatte keine ausreichend lange."
           : null,
       "power"
     ),
@@ -3290,7 +3265,7 @@ function renderFirstSteps(dataset, nextSteps, pidAnalysis) {
       ? statusTone(cardStatus("power") ?? escLab.status)
       : "info"
   );
-  noteGap("power", "esc", "Power & ESC");
+  noteGap("power", "esc", "Antrieb & ESC");
 
   // ---- Battery ----
   const batteryLab = dataset?.labs?.battery;
@@ -3298,16 +3273,16 @@ function renderFirstSteps(dataset, nextSteps, pidAnalysis) {
   add(
     "batteryFirstStep",
     "battery",
-    "Battery",
+    "Akku",
     withGap(
       batteryLab && batteryLab.status !== "insufficient"
         ? batteryLab.status === "attention"
-          ? "Check the pack and its connectors before another hard flight, and log the next flights: one dip is a moment, a repeating dip is a pack."
+          ? "Prüfe den Akku und seine Stecker vor dem nächsten harten Flug und logge die nächsten Flüge: Ein Einbruch ist ein Moment, ein wiederkehrender Einbruch ist ein Akku."
           : batteryLab.status === "watch"
-            ? "Nothing to change yet: keep logging flights — repetition is what turns one dip into a verdict."
-            : "Nothing to change."
+            ? "Noch nichts zu ändern: Logge weiter Flüge — Wiederholung macht aus einem Einbruch ein Urteil."
+            : "Nichts zu ändern."
         : batteryLab
-          ? "Do not judge the pack from this flight: it offered no steady-load section to read it from."
+          ? "Beurteile den Akku nicht anhand dieses Fluges: Er bot keinen Abschnitt mit gleichmäßiger Last, aus dem man ihn lesen könnte."
           : null,
       "battery"
     ),
@@ -3315,7 +3290,7 @@ function renderFirstSteps(dataset, nextSteps, pidAnalysis) {
       ? statusTone(cardStatus("battery") ?? batteryLab.status)
       : "info"
   );
-  noteGap("battery", "battery", "Battery");
+  noteGap("battery", "battery", "Akku");
 
   // ---- Signal ----
   const signalLab = dataset?.signalLab;
@@ -3329,10 +3304,10 @@ function renderFirstSteps(dataset, nextSteps, pidAnalysis) {
     "Signal",
     signalLab
       ? signalLab.status === "attention"
-        ? "Check the receiver antenna placement, orientation and condition before the next flight."
+        ? "Prüfe vor dem nächsten Flug Platzierung, Ausrichtung und Zustand der Empfängerantenne."
         : signalLab.status === "watch"
-          ? "Nothing to change yet: if dips keep landing in the same flight orientation across logs, reposition the antennas."
-          : "Nothing to change."
+          ? "Noch nichts zu ändern: Fallen die Einbrüche über mehrere Logs immer in dieselbe Fluglage, positioniere die Antennen um."
+          : "Nichts zu ändern."
       : cardGap("signal"),
     signalLab ? statusTone(cardStatus("signal") ?? signalLab.status) : "info"
   );
@@ -3344,23 +3319,23 @@ function renderFirstSteps(dataset, nextSteps, pidAnalysis) {
   add(
     "becFirstStep",
     "bec",
-    "BEC output",
+    "BEC-Ausgang",
     becLab
       ? becLab.status === "attention"
-        ? "Work through the BEC output path on the bench: the BEC's voltage setting and current capability, then the wiring and connectors."
+        ? "Gehe den BEC-Ausgangspfad auf der Werkbank durch: Spannungseinstellung und Strombelastbarkeit des BEC, dann Verkabelung und Stecker."
         : becLab.status === "watch"
           ? becLab.implausibleBrownout
-            ? "Inspect the voltage-measurement path — the sensor's wiring and connector — before touching the BEC."
-            : "Nothing to change yet: keep logging — with power, repetition is what matters."
-          : "Nothing to change."
+            ? "Prüfe den Spannungsmesspfad — Verkabelung und Stecker des Sensors —, bevor du das BEC anfasst."
+            : "Noch nichts zu ändern: Logge weiter — bei der Stromversorgung zählt die Wiederholung."
+          : "Nichts zu ändern."
       : cardGap("bec"),
     becLab ? statusTone(cardStatus("bec") ?? becLab.status) : "info"
   );
-  noteGap("bec", "bec", "BEC output");
+  noteGap("bec", "bec", "BEC-Ausgang");
 
   // Rotor speed and vibration gaps ride along the same way (their
   // first-step texts above already speak to the partial case).
-  noteGap("rotor", "governor", "Rotor speed");
+  noteGap("rotor", "governor", "Rotordrehzahl");
   noteGap("vibration", "filter", "Vibration");
 
   renderHomeFirstSteps(entries, gapEntries);
@@ -3425,7 +3400,7 @@ function renderHomeFirstSteps(entries, gapEntries = []) {
     const line = document.createElement("p");
     line.className = "first-steps-clear";
     line.textContent =
-      "Nothing needs your attention: this flight is healthy. The Labs carry the details.";
+      "Nichts braucht deine Aufmerksamkeit: Dieser Flug ist gesund. Die Labore tragen die Details.";
     list.appendChild(line);
   }
 
@@ -3446,7 +3421,7 @@ function renderHomeFirstSteps(entries, gapEntries = []) {
   if (gapEntries.length > 0) {
     const heading = document.createElement("p");
     heading.className = "first-steps-gap-heading";
-    heading.textContent = "Not measured on this flight";
+    heading.textContent = "Nicht gemessen in diesem Flug";
     list.appendChild(heading);
 
     // One sensor, one line: the current gap speaks for Battery
@@ -3502,7 +3477,7 @@ function renderSignalLab(dataset) {
 
   if (!lab) {
     story.textContent =
-      "This log carries no link telemetry (no signal strength and no receiver flags), so radio-link health cannot be assessed.";
+      "Dieses Log enthält keine Link-Telemetrie (keine Signalstärke und keine Empfänger-Flags), deshalb lässt sich die Funkverbindung nicht beurteilen.";
     metricsElement.innerHTML = "";
     if (eventsCard) eventsCard.hidden = true;
     if (chartCard) chartCard.hidden = true;
@@ -3530,7 +3505,7 @@ function renderSignalLab(dataset) {
       document.body.classList.contains("advanced-mode");
       renderEventTable(
         eventsTable,
-        ["When", "What", "Duration", "Detail"],
+        ["Wann", "Was", "Dauer", "Detail"],
         lab.events.map(
           (event) => `
           <tr>
@@ -3539,10 +3514,10 @@ function renderSignalLab(dataset) {
               event.kind === "failsafe"
                 ? "Failsafe"
                 : event.kind === "link-loss"
-                  ? "Link loss"
+                  ? "Verbindungsverlust"
                   : event.kind === "deep-degradation"
-                    ? "Deep signal dip"
-                    : "Signal dip"
+                    ? "Tiefer Signaleinbruch"
+                    : "Signaleinbruch"
             }</td>
             <td>${event.durationMs} ms</td>
             <td>${event.detail}</td>
@@ -3557,7 +3532,7 @@ function renderSignalLab(dataset) {
     chartCard.hidden = !hasRssi;
     if (hasRssi) {
       renderSeriesChart(el("chartSignal"), dataset, [/^rssi$/i], {
-        yLabel: "signal (as logged)"
+        yLabel: "Signal (wie geloggt)"
       });
     }
   }
@@ -3576,7 +3551,7 @@ function renderBecLab(dataset) {
 
   if (!lab) {
     story.textContent =
-      "This log carries no usable BEC voltage telemetry, so BEC output cannot be assessed.";
+      "Dieses Log enthält keine brauchbare BEC-Spannungs-Telemetrie, deshalb lässt sich der BEC-Ausgang nicht beurteilen.";
     metricsElement.innerHTML = "";
     if (eventsCard) eventsCard.hidden = true;
     if (chartCard) chartCard.hidden = true;
@@ -3604,19 +3579,19 @@ function renderBecLab(dataset) {
       document.body.classList.contains("advanced-mode");
       renderEventTable(
         eventsTable,
-        ["When", "Lowest", "Depth", "Duration", "Servo context"],
+        ["Wann", "Tiefster", "Tiefe", "Dauer", "Servo-Zusammenhang"],
         lab.events.map(
           (event) => `
           <tr>
             <td>${event.startSeconds.toFixed(1)} s</td>
             <td>${event.lowestVolts.toFixed(2)} V</td>
             <td>${event.depthPercent.toFixed(1)}%</td>
-            <td>${event.durationMs} ms${event.sustained ? " (sustained)" : ""}</td>
+            <td>${event.durationMs} ms${event.sustained ? " (anhaltend)" : ""}</td>
             <td>${
               event.demandContext === "high-demand"
-                ? "high servo demand, consistent with load"
+                ? "hohe Servo-Anforderung, passend zur Last"
                 : event.demandContext === "quiet"
-                  ? "servos quiet: look at wiring/BEC"
+                  ? "Servos ruhig: Verkabelung/BEC prüfen"
                   : "—"
             }</td>
           </tr>`
@@ -3634,7 +3609,7 @@ function renderBecLab(dataset) {
       [
         {
           patterns: [/^Vbec$/i],
-          label: "BEC voltage (V)",
+          label: "BEC-Spannung (V)",
           // renderScaledChart hands convert the whole VALUES ARRAY
           // (see toVolts) — a per-value converter renders an empty
           // chart with healthy-looking axes.
@@ -3644,10 +3619,10 @@ function renderBecLab(dataset) {
             )
         }
       ],
-      "BEC voltage (V)"
+      "BEC-Spannung (V)"
     );
     renderSeriesChart(el("chartBecServo"), dataset, [/^servo\[\d\]$/i], {
-      yLabel: "servo command (µs)"
+      yLabel: "Servo-Kommando (µs)"
     });
   }
 }
@@ -3687,25 +3662,11 @@ function renderServoLimits(servoLimits) {
 
   const rows = servoLimits.events
     .map(
-      (event) => `
-        <tr>
-          <td>${servoDisplayName(event.servo)}</td>
-          <td>${event.startSeconds.toFixed(1)}–${event.endSeconds.toFixed(1)} s</td>
-          <td>${event.side === "max" ? "upper" : "lower"} edge</td>
-          <td>${event.durationMs} ms</td>
-          <td>${Math.round(event.valueUs)} µs</td>
-        </tr>`
+      (event) => ` <tr> <td>${servoDisplayName(event.servo)}</td> <td>${event.startSeconds.toFixed(1)}–${event.endSeconds.toFixed(1)} s</td> <td>${event.side === "max" ? "oberer" : "unterer"} Anschlag</td> <td>${event.durationMs} ms</td> <td>${Math.round(event.valueUs)} µs</td> </tr>`
     )
     .join("");
 
-  table.innerHTML = `
-    <table class="history-table">
-      <tr>
-        <th>Servo</th><th>When</th><th>Edge</th><th>Held for</th><th>Command</th>
-      </tr>
-      ${rows}
-    </table>
-  `;
+  table.innerHTML = ` <table class="history-table"> <tr> <th>Servo</th><th>Wann</th><th>Anschlag</th><th>Gehalten</th><th>Kommando</th> </tr> ${rows} </table> `;
 }
 
 // ---- "What to try next" — recommendation cards ----
@@ -3730,7 +3691,7 @@ function recommendationEvidenceLabel(rec) {
   const count = Number.isInteger(rec.evidenceCount)
     ? rec.evidenceCount
     : (rec.evidence ?? []).length;
-  return `${count} event${count === 1 ? "" : "s"} on this page`;
+  return `${count} Ereignis${count === 1 ? "" : "se"} auf dieser Seite`;
 }
 
 function renderNextSteps(cardId, listId, recommendations) {
@@ -3749,16 +3710,10 @@ function renderNextSteps(cardId, listId, recommendations) {
   list.innerHTML = recommendations
     .map((rec) => {
       const action = rec.suggestion
-        ? `<p><strong>Try:</strong> one ${escapeHtml(rec.suggestion.magnitudeClass)} ${rec.suggestion.direction === "up" ? "up" : "down"} on <code>${escapeHtml(rec.suggestion.family)}</code>. Change only this, fly the same moves again, and watch ${escapeHtml(rec.verifyMetric ?? "the same finding")}. Expected: ${escapeHtml(rec.expectedResult ?? "")}</p>`
-        : `<p><strong>Not calling it yet:</strong> ${escapeHtml(rec.gatedReason ?? "more evidence needed.")}</p>`;
+        ? `<p><strong>Probiere:</strong> eine ${escapeHtml(rec.suggestion.magnitudeClass)} Änderung nach ${rec.suggestion.direction === "up" ? "oben" : "unten"} bei <code>${escapeHtml(rec.suggestion.family)}</code>. Ändere nur das, fliege dieselben Bewegungen noch einmal und beobachte ${escapeHtml(rec.verifyMetric ?? "dasselbe Ergebnis")}. Erwartet: ${escapeHtml(rec.expectedResult ?? "")}</p>`
+        : `<p><strong>Noch keine Empfehlung:</strong> ${escapeHtml(rec.gatedReason ?? "mehr Belege nötig.")}</p>`;
 
-      return `
-        <div class="event-detail-explain">
-          <p><strong>${escapeHtml(rec.finding)}</strong></p>
-          <p>${escapeHtml(rec.hypothesis ?? "")}</p>
-          ${action}
-          <p class="chart-hint">Confidence: ${escapeHtml(rec.confidence ?? "\u2014")} · based on ${escapeHtml(recommendationEvidenceLabel(rec))}</p>
-        </div>`;
+      return ` <div class="event-detail-explain"> <p><strong>${escapeHtml(rec.finding)}</strong></p> <p>${escapeHtml(rec.hypothesis ?? "")}</p> ${action} <p class="chart-hint">Sicherheit: ${escapeHtml(rec.confidence ?? "—")} · basierend auf ${escapeHtml(recommendationEvidenceLabel(rec))}</p> </div>`;
     })
     .join("");
 }
@@ -3819,28 +3774,28 @@ function renderPrecompBalance(dataset) {
 
   if (Number.isFinite(precomp.governor?.riseDroopPercent)) {
     metrics.push({
-      label: "Rise droop (median)",
+      label: "Anstiegs-Droop (Median)",
       value: `${precomp.governor.riseDroopPercent}%`
     });
   }
 
   if (Number.isFinite(precomp.governor?.dropOvershootPercent)) {
     metrics.push({
-      label: "Drop overspeed (median)",
+      label: "Abfall-Überdrehzahl (Median)",
       value: `${precomp.governor.dropOvershootPercent}%`
     });
   }
 
   if (precomp.transientCount > 0) {
     metrics.push({
-      label: "Collective moves read",
-      value: `${precomp.riseCount} up · ${precomp.dropCount} down`
+      label: "Gelesene Kollektiv-Bewegungen",
+      value: `${precomp.riseCount} hoch · ${precomp.dropCount} runter`
     });
   }
 
   if (Number.isFinite(precomp.tail?.kickRatio)) {
     metrics.push({
-      label: "Tail kick vs baseline",
+      label: "Heck-Kick gegenüber Basislinie",
       value: `${precomp.tail.kickRatio}×`
     });
   }
@@ -3875,18 +3830,7 @@ function renderGovernorSettings(dataset) {
   }
 
   card.hidden = false;
-  table.innerHTML = `
-    <tr><th>Setting</th><th>Value</th></tr>
-    ${rows
-      .map(
-        (key) => `
-      <tr>
-        <td>${key}</td>
-        <td>${String(parsed[key])}</td>
-      </tr>`
-      )
-      .join("")}
-  `;
+  table.innerHTML = ` <tr><th>Einstellung</th><th>Wert</th></tr> ${rows .map( (key) => ` <tr> <td>${key}</td> <td>${String(parsed[key])}</td> </tr>` ) .join("")} `;
 }
 
 const AXIS_INDEX = { roll: 0, pitch: 1, yaw: 2 };
@@ -3908,7 +3852,7 @@ function showEventDetail(event) {
   // An event without a timeline anchor gets no invented moment —
   // the card says what is known and the chart stays un-zoomed.
   if (!Number.isFinite(event.t)) {
-    explain.textContent = `A ${event.magnitude ?? "?"}°/s ${event.axis.toLowerCase()} setpoint step was analyzed, but its exact position on the flight timeline could not be anchored, so no zoomed chart is shown for it.`;
+    explain.textContent = `Ein ${event.magnitude ?? "?"}°/s-${event.axis.toLowerCase()}-Setpoint-Sprung wurde analysiert, aber seine genaue Position auf der Flug-Zeitleiste ließ sich nicht verankern, deshalb wird dafür kein gezoomtes Diagramm gezeigt.`;
     chartElement.innerHTML = "";
     return;
   }
@@ -3917,20 +3861,20 @@ function showEventDetail(event) {
   // pirouette already running at 200°/s can step by 23°/s, and the
   // chart plots the absolute target. The words must match the chart.
   const asked =
-    `At ${event.t.toFixed(1)} s the ${event.axis.toLowerCase()} setpoint ${event.direction === -1 ? "stepped down" : "stepped up"} by ${event.magnitude ?? "?"}°/s` +
+    `Bei ${event.t.toFixed(1)} s ist der ${event.axis.toLowerCase()}-Setpoint ${event.direction === -1 ? "gesunken" : "gestiegen"} um ${event.magnitude ?? "?"}°/s` +
     (Number.isFinite(event.tEnd) && event.tEnd - event.t > 0.15
-      ? ` — one stick movement that kept going until the target held at ${event.tEnd.toFixed(1)} s; the response is measured from that hold, inside the shaded window.`
+      ? ` — eine Stick-Bewegung, die weiterlief, bis das Ziel bei ${event.tEnd.toFixed(1)} s gehalten wurde; die Antwort wird ab diesem Halten gemessen, im schattierten Fenster.`
       : ".");
   explain.textContent =
     event.verdict === "overshoot"
-      ? `${asked} The response went ${event.overshoot_ds ?? "?"}°/s PAST the target (${event.overshoot_percent}% of the step) before coming back: visible below as the gyro line crossing beyond the setpoint line. Occasional overshoot on hard inputs is normal; a pattern of it is tune feedback.`
+      ? `${asked} Die Antwort ging ${event.overshoot_ds ?? "?"}°/s ÜBER das Ziel hinaus (${event.overshoot_percent} % des Sprungs), bevor sie zurückkam: unten sichtbar als Gyro-Linie, die über die Setpoint-Linie hinausschießt. Gelegentliches Überschwingen bei harten Eingaben ist normal; ein Muster davon ist Tuning-Rückmeldung.`
       : event.verdict === "oscillation"
-        ? `${asked} After the input the response swung back and forth across the target, up to ±${event.oscillation_ds}°/s: an oscillation, not a single overshoot. If this repeats on hard inputs, it is classic gain feedback: watch the gyro line below.`
+        ? `${asked} Nach dem Eingriff pendelte die Antwort um das Ziel hin und her, bis zu ±${event.oscillation_ds}°/s: ein Schwingen, kein einzelnes Überschwingen. Wiederholt sich das bei harten Eingaben, ist es klassische Gain-Rückkopplung: beobachte unten die Gyro-Linie.`
         : event.verdict === "slow"
-          ? `${asked} The response reached the target but took ${event.settling_ms} ms to settle. Watch the gyro line hunting around the setpoint below.`
+          ? `${asked} Die Antwort erreichte das Ziel, brauchte aber ${event.settling_ms} ms zum Einschwingen. Beobachte unten, wie die Gyro-Linie um den Setpoint pendelt.`
           : event.verdict === "lagging"
-            ? `${asked} The response was still approaching the target when its measurement window closed, so it is not scored as overshoot or settling. If this repeats on deliberate inputs, it reads as a slow response.`
-            : `${asked} The gyro followed the setpoint cleanly: this is what good tracking looks like.`;
+            ? `${asked} Die Antwort war noch im Anlauf zum Ziel, als ihr Messfenster endete, deshalb wird sie weder als Überschwingen noch als Einschwingen bewertet. Wiederholt sich das bei bewussten Eingaben, liest es sich als träge Antwort.`
+            : `${asked} Der Gyro folgte dem Setpoint sauber: So sieht gute Nachführung aus.`;
 
   // The evidence, right here: the same setpoint-vs-gyro chart the
   // Tuning matrix draws, windowed to THIS event's own extent —
@@ -3951,20 +3895,20 @@ function showEventDetail(event) {
   const window = eventChartWindow(event);
   detail.dataset.eventId = event.id ?? "";
 
-  const markers = [{ x: event.t, label: "command" }];
+  const markers = [{ x: event.t, label: "Kommando" }];
   const bands = [];
   const heldLater =
     Number.isFinite(event.tEnd) && event.tEnd - event.t > 0.15;
 
   if (heldLater) {
-    markers.push({ x: event.tEnd, label: "target held" });
+    markers.push({ x: event.tEnd, label: "Ziel gehalten" });
   }
 
   if (Number.isFinite(event.tEnd) && Number.isFinite(event.tMeasureEnd)) {
     bands.push({
       min: event.tEnd,
       max: event.tMeasureEnd,
-      label: "measured response"
+      label: "Gemessene Antwort"
     });
   }
 
@@ -3972,7 +3916,7 @@ function showEventDetail(event) {
     Number.isFinite(event.tResponsePeak) &&
     event.tResponsePeak - event.t > 0.15
   ) {
-    markers.push({ x: event.tResponsePeak, label: "response peak" });
+    markers.push({ x: event.tResponsePeak, label: "Antwort-Spitze" });
   }
 
   renderPresetChart(
@@ -4026,8 +3970,8 @@ function renderLabVerdictStories(verdict) {
       // broken page, not a capability limit.
       element.textContent =
         key === "vibration"
-          ? "This flight offered no usable noise window (too little steady flight), so vibration and filtering cannot be judged from it."
-          : "This flight could not support this analysis.";
+          ? "Dieser Flug bot kein brauchbares Rauschfenster (zu wenig gleichmäßiger Flug), deshalb lassen sich Vibration und Filterung daraus nicht beurteilen."
+          : "Dieser Flug konnte diese Analyse nicht tragen.";
       element.className = "lab-story status-text-insufficient";
     }
   }
@@ -4058,24 +4002,16 @@ function renderVerdict(dataset) {
   for (const card of verdict.cards) {
     const tile = document.createElement("div");
     tile.className = `verdict-tile status-${card.status}`;
-    tile.title = `${card.detail}${card.action ? ` What to do: ${card.action}` : ""}`;
+    tile.title = `${card.detail}${card.action ? ` Was zu tun ist: ${card.action}` : ""}`;
 
     // A partial log carries its gap on the card that would have
     // measured it; an unavailable card IS the gap, greyed.
     const gapLine =
       card.gap && card.status !== "unavailable"
-        ? `<div class="verdict-tile-gap" title="${escapeHtml(card.gapAction ?? card.gap)}">Not measured: ${escapeHtml(card.gapShort ?? card.gap)}</div>`
+        ? `<div class="verdict-tile-gap" title="${escapeHtml(card.gapAction ?? card.gap)}">Nicht gemessen: ${escapeHtml(card.gapShort ?? card.gap)}</div>`
         : "";
 
-    tile.innerHTML = `
-      <div class="verdict-item-top">
-        <span class="status-dot"></span>
-        <span class="verdict-item-title">${card.statusLabel ? `${card.title} · ${card.statusLabel}` : card.title}</span>
-      </div>
-      <div class="verdict-tile-headline">${card.headline}</div>
-      ${gapLine}
-      <div class="verdict-tile-evidence">${card.status === "unavailable" ? "How to log it → " : "Show me → "}${card.evidence}</div>
-    `;
+    tile.innerHTML = ` <div class="verdict-item-top"> <span class="status-dot"></span> <span class="verdict-item-title">${card.statusLabel ? `${card.title} · ${card.statusLabel}` : card.title}</span> </div> <div class="verdict-tile-headline">${card.headline}</div> ${gapLine} <div class="verdict-tile-evidence">${card.status === "unavailable" ? "So loggst du es → " : "Zeig es mir → "}${card.evidence}</div> `;
 
     tile.addEventListener("click", () => {
       navigation.showScreen(card.screen);
@@ -4133,7 +4069,7 @@ function renderSeriesChart(element, dataset, patterns, options = {}) {
 
   if (columns.length === 0) {
     element.innerHTML =
-      '<p class="chart-empty">This log has no data for this chart.</p>';
+      '<p class="chart-empty">Dieses Log hat keine Daten für dieses Diagramm.</p>';
     return;
   }
 
@@ -4208,7 +4144,7 @@ function renderScaledChart(element, dataset, entries, yLabel) {
 
   if (series.length === 0) {
     element.innerHTML =
-      '<p class="chart-empty">This log has no data for this chart.</p>';
+      '<p class="chart-empty">Dieses Log hat keine Daten für dieses Diagramm.</p>';
     return;
   }
 
@@ -4251,7 +4187,7 @@ function renderPresetChart(element, dataset, entries, yLabel, options = {}) {
   // compares traces, so ask for at least two.
   if (series.length < 2) {
     element.innerHTML =
-      '<p class="chart-empty">This log has no data for this chart.</p>';
+      '<p class="chart-empty">Dieses Log hat keine Daten für dieses Diagramm.</p>';
     return;
   }
 
@@ -4284,8 +4220,8 @@ function renderTuningPresets(dataset) {
     const dTerm = { patterns: [column("axisD")], color: PRESET_COLORS.d };
 
     renderPresetChart(axis.tracking, dataset, [setpoint, gyro], "deg/s");
-    renderPresetChart(axis.ff, dataset, [setpoint, gyro, iTerm], "deg/s · term output");
-    renderPresetChart(axis.terms, dataset, [setpoint, pTerm, iTerm, dTerm], "deg/s · term output");
+    renderPresetChart(axis.ff, dataset, [setpoint, gyro, iTerm], "deg/s · Anteilsausgang");
+    renderPresetChart(axis.terms, dataset, [setpoint, pTerm, iTerm, dTerm], "deg/s · Anteilsausgang");
   }
 }
 
@@ -4374,11 +4310,11 @@ function renderGovernorTechnical(dataset) {
   const rows = [];
 
   rows.push({
-    label: "Analysis capability",
+    label: "Analyse-Fähigkeit",
     value:
       gov.capability === "full"
-        ? "Full: a logged governor target was accepted; droop is target-relative"
-        : "Partial: headspeed stability only; swings are measured against the rotor's own trend"
+        ? "Voll: Ein geloggtes Governor-Ziel wurde akzeptiert; Droop ist zielbezogen"
+        : "Teilweise: nur Headspeed-Stabilität; Schwankungen werden am eigenen Trend des Rotors gemessen"
   });
 
   const targetColumns = dataset.findColumnsIn([
@@ -4386,25 +4322,25 @@ function renderGovernorTechnical(dataset) {
     /govTarget/i
   ]);
   rows.push({
-    label: "Governor-target source",
+    label: "Governor-Ziel-Quelle",
     value:
       targetColumns.length === 0
-        ? "no governor-target column in this log"
+        ? "keine Governor-Ziel-Spalte in diesem Log"
         : gov.capability === "full"
-          ? `${targetColumns[0]}: accepted as a rotor-speed target`
-          : `${targetColumns[0]}, present but rejected: it does not behave like a rotor-speed target (constant or passthrough, e.g. DIRECT mode)`
+          ? `${targetColumns[0]}: als Rotordrehzahl-Ziel akzeptiert`
+          : `${targetColumns[0]}, vorhanden aber abgelehnt: verhält sich nicht wie ein Rotordrehzahl-Ziel (konstant oder Durchleitung, z. B. DIRECT-Modus)`
   });
 
   for (const bank of gov.perBank ?? []) {
     rows.push({
-      label: `Bank ${bank.targetRpm} rpm${bank.observed ? " (observed)" : ""}`,
+      label: `Bank ${bank.targetRpm} U/min${bank.observed ? " (beobachtet)" : ""}`,
       value: describeBank(bank)
     });
   }
 
   if (gov.capability !== "full" && Number.isFinite(gov.droopRpm)) {
     rows.push({
-      label: "Largest short-term swing",
+      label: "Größte kurzfristige Schwankung",
       value:
         `${gov.droopRpm} rpm` +
         (Number.isFinite(gov.droopPercent)
@@ -4413,42 +4349,42 @@ function renderGovernorTechnical(dataset) {
         (Number.isFinite(gov.droopTimeSeconds)
           ? ` at ${gov.droopTimeSeconds} s`
           : "") +
-        ": against the rotor's own trend, not a target"
+        ": gegen den eigenen Trend des Rotors, nicht gegen ein Ziel"
     });
   }
 
   const stableSamples = gov.stableSampleCount ?? 0;
   rows.push({
-    label: "Stable samples used",
+    label: "Verwendete stabile Samples",
     value: stableSamples.toLocaleString()
   });
   rows.push({
-    label: "Evidence confidence",
+    label: "Sicherheit des Belegs",
     value:
       stableSamples >= 5000
-        ? "High: a long stable-flight window backs these numbers"
+        ? "Hoch: Ein langes stabiles Flugfenster stützt diese Zahlen"
         : stableSamples >= 1500
-          ? "Moderate: a usable but not generous stable window"
-          : "Low: short stable window; treat conclusions as provisional"
+          ? "Mittel: ein brauchbares, aber nicht großzügiges stabiles Fenster"
+          : "Niedrig: kurzes stabiles Fenster; Schlüsse als vorläufig behandeln"
   });
 
   const excursions = dataset.governorEvents?.summary;
   if (excursions) {
     rows.push({
-      label: "Headspeed excursions",
+      label: "Headspeed-Abweichungen",
       value:
         excursions.totalFound === 0
-          ? "none detected in stable flight"
-          : `${excursions.totalFound} (${excursions.under} under · ${excursions.over} over)`
+          ? "keine im stabilen Flug erkannt"
+          : `${excursions.totalFound} (${excursions.under} darunter · ${excursions.over} darüber)`
     });
   }
 
   rows.push({
-    label: "ESC output telemetry",
+    label: "ESC-Ausgangs-Telemetrie",
     value:
       dataset.findColumnsIn([/^escThr/i, /throttle/i]).length > 0
-        ? "available: significant dips carry output/headroom context"
-        : "not logged: output/headroom context unavailable for events"
+        ? "verfügbar: bedeutende Einbrüche tragen Ausgangs-/Reserve-Kontext"
+        : "nicht geloggt: Ausgangs-/Reserve-Kontext für Ereignisse nicht verfügbar"
   });
 
   const governorTerms = ["govP", "govI", "govD", "govF"].filter(
@@ -4456,29 +4392,29 @@ function renderGovernorTechnical(dataset) {
       dataset.findColumnsIn([new RegExp(`^${name}`, "i")]).length > 0
   );
   rows.push({
-    label: "Governor P/I/D/F telemetry",
-    value: governorTerms.length > 0 ? governorTerms.join(", ") : "not logged"
+    label: "Governor-P/I/D/F-Telemetrie",
+    value: governorTerms.length > 0 ? governorTerms.join(", ") : "nicht geloggt"
   });
 
   const precompGovernor = dataset.precomp?.governor;
   if (precompGovernor) {
     rows.push({
-      label: "Collective precomp evidence",
+      label: "Kollektiv-Precomp-Beleg",
       value:
-        `${precompGovernor.riseCount ?? 0} rise / ${precompGovernor.dropCount ?? 0} drop transients` +
+        `${precompGovernor.riseCount ?? 0} Anstiege / ${precompGovernor.dropCount ?? 0} Abfall-Übergänge` +
         (Number.isFinite(precompGovernor.riseDroopPercent)
-          ? `: rise droop ${precompGovernor.riseDroopPercent}%`
+          ? `: Anstiegs-Droop ${precompGovernor.riseDroopPercent} %`
           : "") +
         (Number.isFinite(precompGovernor.dropOvershootPercent)
-          ? `, drop overspeed ${precompGovernor.dropOvershootPercent}%`
+          ? `, Abfall-Überdrehzahl ${precompGovernor.dropOvershootPercent} %`
           : "")
     });
   }
   const precompTail = dataset.precomp?.tail;
   if (precompTail && Number.isFinite(precompTail.kickRatio)) {
     rows.push({
-      label: "Tail-kick evidence",
-      value: `${precompTail.kickRatio}× the tail's baseline error on collective moves`
+      label: "Heck-Kick-Beleg",
+      value: `${precompTail.kickRatio}× der Basis-Abweichung des Hecks bei Kollektiv-Bewegungen`
     });
   }
 
@@ -4518,17 +4454,17 @@ function renderGovernorEvidence(dataset) {
 
   if (droopContextTitle) {
     droopContextTitle.textContent = hasTarget
-      ? "The Worst Droop, In Context"
-      : "The Largest Swing, In Context";
+      ? "Der schlimmste Droop im Zusammenhang"
+      : "Die größte Schwankung im Zusammenhang";
   }
 
   if (droopContextHint) {
     droopContextHint.textContent = hasTarget
-      ? "The seconds around the biggest dip, lined up on one clock. Zoom any chart and the others follow. Read top to bottom: what the rotor did, what the pilot and governor asked for, and what the power system delivered."
-      : "The seconds around the largest short-term headspeed swing, lined up on one clock. Zoom any chart and the others follow. No governor target is logged, so this shows steadiness, not droop against a target.";
+      ? "Die Sekunden rund um den größten Einbruch, auf einer Uhr ausgerichtet. Zoome in ein Diagramm und die anderen folgen. Von oben nach unten lesen: was der Rotor tat, was Pilot und Governor verlangten und was das Antriebssystem lieferte."
+      : "Die Sekunden rund um die größte kurzfristige Headspeed-Schwankung, auf einer Uhr ausgerichtet. Zoome in ein Diagramm und die anderen folgen. Es ist kein Governor-Ziel geloggt, daher zeigt das die Gleichmäßigkeit, nicht den Droop gegen ein Ziel.";
   }
 
-  const markerLabel = hasTarget ? "worst droop" : "largest swing";
+  const markerLabel = hasTarget ? "schlimmster Droop" : "größte Schwankung";
   const markers = [{ x: droopTime, label: markerLabel }];
 
   const targetValues = dataset.governorTarget ?? [];
@@ -4548,12 +4484,12 @@ function renderGovernorEvidence(dataset) {
       ? [
           { label: "govTarget", values: targetValues, color: CHART_COLORS[0] },
           { label: "headspeed", values: actualValues, color: CHART_COLORS[1] },
-          { label: "RPM error", values: errorValues, color: CHART_COLORS[4] }
+          { label: "RPM-Fehler", values: errorValues, color: CHART_COLORS[4] }
         ]
       : [
           { label: "headspeed", values: actualValues, color: CHART_COLORS[1] }
         ],
-    { yLabel: "rpm", markers, linkGroup: "droopSync" }
+    { yLabel: "U/min", markers, linkGroup: "droopSync" }
   );
 
   renderSyncedChart(
@@ -4563,17 +4499,17 @@ function renderGovernorEvidence(dataset) {
     [
       {
         patterns: [/^motor\[0\]$/i],
-        label: "Motor output (%)",
+        label: "Motorausgang (%)",
         convert: toThrottlePercent,
         color: CHART_COLORS[3]
       },
       {
         patterns: [/^setpoint\[3\]$/i],
-        label: "Collective target",
+        label: "Kollektiv-Ziel",
         color: CHART_COLORS[5]
       }
     ],
-    { yLabel: "% · collective", markers, linkGroup: "droopSync" }
+    { yLabel: "% · Kollektiv", markers, linkGroup: "droopSync" }
   );
 
   renderSyncedChart(
@@ -4583,19 +4519,19 @@ function renderGovernorEvidence(dataset) {
     [
       {
        patterns: dataset.voltagePatterns,
-        label: "Pack voltage (V)",
+        label: "Akkuspannung (V)",
         convert: toVolts,
         color: CHART_COLORS[0]
       },
       
       {
   patterns: [/^EscI$/i],
-  label: "Current (A)",
+  label: "Strom (A)",
   convert: toAmps,
   color: CHART_COLORS[1]
 }
     ],
-    { yLabel: "volts · amps", markers, linkGroup: "droopSync" }
+    { yLabel: "Volt · Ampere", markers, linkGroup: "droopSync" }
   );
 
   // Real recorded governor terms only — never derived.
@@ -4618,7 +4554,7 @@ function renderGovernorEvidence(dataset) {
       dataset,
       window,
       governorTermEntries,
-      { yLabel: "governor terms", markers, linkGroup: "droopSync" }
+      { yLabel: "Governor-Anteile", markers, linkGroup: "droopSync" }
     );
   }
 }
@@ -4692,7 +4628,7 @@ function renderEscEvidence(dataset) {
   const temperatureEntries = [
     { patterns: [/^Tesc$/i], label: "Tesc", color: CHART_COLORS[1] },
     { patterns: [/^Tesc2$/i], label: "Tesc2", color: CHART_COLORS[4] },
-    { patterns: [/^tempEsc/i, /escTemp/i], label: "ESC temp", color: CHART_COLORS[1] }
+    { patterns: [/^tempEsc/i, /escTemp/i], label: "ESC-Temperatur", color: CHART_COLORS[1] }
   ].filter((entry) => {
     const column = dataset.findColumnsIn(entry.patterns)[0];
     return (
@@ -4902,40 +4838,7 @@ function renderEscEvidence(dataset) {
     // load figures ARE output percentages — printing them in amps
     // would invent current measurements the log never made, and the
     // watt figures built on that dead channel go with them.
-    escEventsTable.innerHTML = `
-      <tr>
-        <th>When</th><th>Avg current</th><th>Peak current</th>
-        <th>Peak output</th><th>Peak power</th><th>Sag under load</th><th>Reading</th>
-      </tr>
-      ${describedEvents
-        .map(
-          ({ event, output, voltage, baseline, sagPercent, watts, explanation }) => `
-        <tr>
-          <td>${event.startSeconds.toFixed(1)}–${event.endSeconds.toFixed(1)} s</td>
-          <td>${currentCarriesData ? cell(event.averageLoad, 1, " A") : "—"}</td>
-          <td>${currentCarriesData ? cell(event.peakLoad, 1, " A") : "—"}</td>
-          <td>${cell(output?.max, 0, "%")}</td>
-          <td>${currentCarriesData ? cell(watts?.max, 0, " W") : "—"}</td>
-          <td>${
-            Number.isFinite(sagPercent) &&
-            Number.isFinite(baseline?.volts) &&
-            Number.isFinite(voltage?.min)
-              ? `${baseline.volts.toFixed(1)} → ${voltage.min.toFixed(1)} V (${sagPercent.toFixed(1)}%)`
-              : "—"
-          }</td>
-          <td>${
-            explanation.cause === "headroom-limit"
-              ? "At the limit"
-              : explanation.cause === "collective-load"
-                ? "Collective load"
-                : explanation.cause === "battery-sag"
-                  ? "Battery sag"
-                  : "Normal load"
-          }</td>
-        </tr>`
-        )
-        .join("")}
-    `;
+    escEventsTable.innerHTML = ` <tr> <th>Wann</th><th>Ø Strom</th><th>Spitzenstrom</th> <th>Spitzen-Ausgang</th><th>Spitzenleistung</th><th>Einbruch unter Last</th><th>Befund</th> </tr> ${describedEvents .map( ({ event, output, voltage, baseline, sagPercent, watts, explanation }) => ` <tr> <td>${event.startSeconds.toFixed(1)}–${event.endSeconds.toFixed(1)} s</td> <td>${currentCarriesData ? cell(event.averageLoad, 1, " A") : "—"}</td> <td>${currentCarriesData ? cell(event.peakLoad, 1, " A") : "—"}</td> <td>${cell(output?.max, 0, "%")}</td> <td>${currentCarriesData ? cell(watts?.max, 0, " W") : "—"}</td> <td>${ Number.isFinite(sagPercent) && Number.isFinite(baseline?.volts) && Number.isFinite(voltage?.min) ? `${baseline.volts.toFixed(1)} → ${voltage.min.toFixed(1)} V (${sagPercent.toFixed(1)}%)` : "—" }</td> <td>${ explanation.cause === "headroom-limit" ? "Am Limit" : explanation.cause === "collective-load" ? "Kollektiv-Last" : explanation.cause === "battery-sag" ? "Akku-Einbruch" : "Normale Last" }</td> </tr>` ) .join("")} `;
 
     escEventsStories.innerHTML = "";
 
@@ -4968,7 +4871,7 @@ function renderEscEvidence(dataset) {
 
     if (window) {
       const markers = [
-        { x: biggest.event.peakSeconds, label: "peak load" }
+        { x: biggest.event.peakSeconds, label: "Spitzenlast" }
       ];
 
       // The collective tells the load story better than any
@@ -4993,12 +4896,12 @@ function renderEscEvidence(dataset) {
         window,
         [
           {
-            label: "ESC output (%)",
+            label: "ESC-Ausgang (%)",
             values: outputPercent,
             color: CHART_COLORS[3]
           }
         ],
-        { yLabel: "output (%)", markers, linkGroup: "loadSync" }
+        { yLabel: "Ausgang (%)", markers, linkGroup: "loadSync" }
       );
 
       if (collectiveColumn) {
@@ -5009,11 +4912,11 @@ function renderEscEvidence(dataset) {
           [
             {
               patterns: [/^setpoint\[3\]$/i],
-              label: "Collective target",
+              label: "Kollektiv-Ziel",
               color: CHART_COLORS[5]
             }
           ],
-          { yLabel: "collective", markers, linkGroup: "loadSync" }
+          { yLabel: "Kollektiv", markers, linkGroup: "loadSync" }
         );
       } else {
         chartLoadCollective.hidden = true;
@@ -5028,14 +4931,14 @@ function renderEscEvidence(dataset) {
         window,
         [
           currentCarriesData && {
-            label: "Current (A)",
+            label: "Strom (A)",
             values: currentAmps,
             color: CHART_COLORS[1]
           },
-          { label: "Voltage (V)", values: voltageVolts, color: CHART_COLORS[0] }
+          { label: "Spannung (V)", values: voltageVolts, color: CHART_COLORS[0] }
         ].filter(Boolean),
         {
-          yLabel: currentCarriesData ? "amps · volts" : "volts",
+          yLabel: currentCarriesData ? "Ampere · Volt" : "volts",
           markers,
           linkGroup: "loadSync"
         }
@@ -5050,12 +4953,12 @@ function renderEscEvidence(dataset) {
           window,
           [
             {
-              label: "Electrical power (W)",
+              label: "Elektrische Leistung (W)",
               values: wattValues,
               color: CHART_COLORS[2]
             }
           ],
-          { yLabel: "watts", markers, linkGroup: "loadSync" }
+          { yLabel: "Watt", markers, linkGroup: "loadSync" }
         );
       } else {
         chartLoadWatts.innerHTML = "";
@@ -5144,36 +5047,7 @@ function renderEscEvidence(dataset) {
       : "—";
 
   escProfileCard.hidden = false;
-  escProfileTable.innerHTML = `
-    <tr>
-      <th>Bank</th><th>Avg output</th><th>Avg current</th>
-      <th>Avg power</th><th>Max temp</th>
-    </tr>
-    ${banks
-      .map(
-        (bank) => `
-      <tr>
-        <td>${bank.targetRpm} rpm</td>
-        <td>${profileCell(averageAt(outputPercent, bank.indexes), 1, "%")}</td>
-        <td>${
-          currentCarriesData
-            ? profileCell(averageAt(currentAmps, bank.indexes), 1, " A")
-            : "—"
-        }</td>
-        <td>${
-          currentCarriesData
-            ? profileCell(averageAt(wattValues, bank.indexes), 0, " W")
-            : "—"
-        }</td>
-        <td>${
-          temperatureValues
-            ? profileCell(maximumAt(temperatureValues, bank.indexes), 0, " °C")
-            : "—"
-        }</td>
-      </tr>`
-      )
-      .join("")}
-  `;
+  escProfileTable.innerHTML = ` <tr> <th>Bank</th><th>Ø Ausgang</th><th>Ø Strom</th> <th>Ø Leistung</th><th>Max. Temp.</th> </tr> ${banks .map( (bank) => ` <tr> <td>${bank.targetRpm} U/min</td> <td>${profileCell(averageAt(outputPercent, bank.indexes), 1, "%")}</td> <td>${ currentCarriesData ? profileCell(averageAt(currentAmps, bank.indexes), 1, " A") : "—" }</td> <td>${ currentCarriesData ? profileCell(averageAt(wattValues, bank.indexes), 0, " W") : "—" }</td> <td>${ temperatureValues ? profileCell(maximumAt(temperatureValues, bank.indexes), 0, " °C") : "—" }</td> </tr>` ) .join("")} `;
 }
 
 function renderAllCharts(dataset) {
@@ -5186,7 +5060,7 @@ function renderAllCharts(dataset) {
       chartSpectrum, chartGovernor, chartEsc, chartBattery
     ]) {
       element.innerHTML =
-        '<p class="chart-empty">No plottable telemetry found in this log.</p>';
+        '<p class="chart-empty">In diesem Log wurde keine darstellbare Telemetrie gefunden.</p>';
     }
 
     droopContextCard.hidden = true;
@@ -5208,27 +5082,27 @@ function renderAllCharts(dataset) {
     chartHeadspeed,
     dataset,
     [/headspeed/i, /^rpm/i, /governor/i],
-    { yLabel: "rpm" }
+    { yLabel: "U/min" }
   );
 
   renderScaledChart(
     chartThrottle,
     dataset,
     [
-      { patterns: [/^motor\[0\]/i], label: "main motor %", convert: toThrottlePercent },
-      { patterns: [/^motor\[1\]/i], label: "motor 2 %", convert: toThrottlePercent }
+      { patterns: [/^motor\[0\]/i], label: "Hauptmotor %", convert: toThrottlePercent },
+      { patterns: [/^motor\[1\]/i], label: "Motor 2 %", convert: toThrottlePercent }
     ],
-    "throttle (%)"
+    "Gas (%)"
   );
 
   renderScaledChart(
     chartPower,
     dataset,
     [
-      { patterns: [/^vbat/i], label: "pack voltage (V)", convert: toVolts },
-      { patterns: [/amperage/i, /^Ibat/i, /current/i], label: "current (A)", convert: toAmps }
+      { patterns: [/^vbat/i], label: "Packspannung (V)", convert: toVolts },
+      { patterns: [/amperage/i, /^Ibat/i, /current/i], label: "Strom (A)", convert: toAmps }
     ],
-    "volts · amps"
+    "Volt · Ampere"
   );
 
   {
@@ -5246,19 +5120,19 @@ function renderAllCharts(dataset) {
 
     if (governorChartTitle) {
       governorChartTitle.textContent = hasTarget
-        ? "Headspeed vs Target"
-        : "Headspeed Over Time";
+        ? "Headspeed gegen Ziel"
+        : "Headspeed im Zeitverlauf";
     }
 
     if (governorChartHint) {
       governorChartHint.textContent = hasTarget
-        ? "Zoom into collective inputs: dips below the target line are droop."
-        : "View rotor-speed stability throughout the flight. Governor target telemetry was not available, so tracking error and droop cannot be measured.";
+        ? "Zoome in Kollektiv-Eingaben: Einbrüche unter die Ziellinie sind Droop."
+        : "Sieh dir die Rotordrehzahl-Stabilität über den ganzen Flug an. Governor-Ziel-Telemetrie war nicht verfügbar, daher lassen sich Nachführfehler und Droop nicht messen.";
     }
 
     if (governorColumns.length === 0) {
       chartGovernor.innerHTML =
-        '<p class="chart-empty">This log has no data for this chart.</p>';
+        '<p class="chart-empty">Dieses Log hat keine Daten für dieses Diagramm.</p>';
     } else {
       renderTimeSeriesChart(chartGovernor, {
         timeSeconds: decimate(dataset.timeSeconds),
@@ -5267,15 +5141,15 @@ function renderAllCharts(dataset) {
           values: decimate(dataset.columnValues(name)),
           color: CHART_COLORS[index % CHART_COLORS.length]
         })),
-        yLabel: "rpm",
+        yLabel: "U/min",
         markers: dataset.labs.governor
           ? [
               {
                 x: dataset.labs.governor.droopTimeSeconds,
                 label:
                   dataset.labs.governor.capability === "full"
-                    ? "worst droop"
-                    : "largest swing"
+                    ? "schlimmster Droop"
+                    : "größte Schwankung"
               }
             ]
           : []
@@ -5287,10 +5161,10 @@ function renderAllCharts(dataset) {
     chartEsc,
     dataset,
     [
-      { patterns: [/^motor\[0\]/i], label: "main motor %", convert: toThrottlePercent },
-      { patterns: [/^motor\[1\]/i], label: "motor 2 %", convert: toThrottlePercent }
+      { patterns: [/^motor\[0\]/i], label: "Hauptmotor %", convert: toThrottlePercent },
+      { patterns: [/^motor\[1\]/i], label: "Motor 2 %", convert: toThrottlePercent }
     ],
-    "throttle (%)"
+    "Gas (%)"
   );
 
  renderScaledChart(
@@ -5299,11 +5173,11 @@ function renderAllCharts(dataset) {
   [
     {
      patterns: dataset.voltagePatterns,
-      label: "pack voltage (V)",
+      label: "Packspannung (V)",
       convert: toVolts
     }
   ],
-  "pack voltage (V)"
+  "Packspannung (V)"
 );
 
   if (dataset.spectra.length > 0) {
@@ -5311,13 +5185,7 @@ function renderAllCharts(dataset) {
       markers: dataset.markers
     });
   } else {
-    chartSpectrum.innerHTML = `<p class="chart-empty">${
-      dataset.spectraUnavailableReason === "no-stable-run"
-        ? "No uninterrupted stable-flight stretch long enough for a spectrum window: the flight's stable phase was too fragmented. Gyro data itself is present; the verdict's peak numbers come from the filter analysis, which reads shorter windows."
-        : dataset.spectraUnavailableReason === "no-rate"
-          ? "The logging rate could not be determined, so the spectrum's frequency axis cannot be computed."
-          : "No gyro data in this log for a spectrum."
-    }</p>`;
+    chartSpectrum.innerHTML = `<p class="chart-empty">${ dataset.spectraUnavailableReason === "no-stable-run" ? "Keine ununterbrochene stabile Flugstrecke, die für ein Spektrumfenster lang genug wäre: Die stabile Phase des Fluges war zu zerstückelt. Die Gyro-Daten selbst sind vorhanden; die Spitzenwerte des Urteils stammen aus der Filter-Analyse, die kürzere Fenster liest." : dataset.spectraUnavailableReason === "no-rate" ? "Die Logging-Rate ließ sich nicht bestimmen, daher kann die Frequenzachse des Spektrums nicht berechnet werden." : "Keine Gyro-Daten in diesem Log für ein Spektrum." }</p>`;
   }
 
   renderGovernorEvidence(dataset);
@@ -5396,24 +5264,7 @@ function renderFilterAdvisor(dataset) {
     document.body.classList.contains("advanced-mode");
 
   if (advice.rows.length > 0) {
-    filterAdvisorTable.innerHTML = `
-      <tr>
-        <th>Peak</th><th>Likely source</th><th>Raw</th>
-        <th>Filtered peak</th><th>Peak reduction</th>
-      </tr>
-      ${advice.rows
-        .map(
-          (row) => `
-        <tr>
-          <td>${row.hz} Hz</td>
-          <td>${row.source}</td>
-          <td>${row.magnitude}</td>
-          <td>${row.filteredMagnitude ?? "—"}</td>
-          <td>${row.reductionPercent !== null ? row.reductionPercent + "%" : "—"}</td>
-        </tr>`
-        )
-        .join("")}
-    `;
+    filterAdvisorTable.innerHTML = ` <tr> <th>Spitze</th><th>Wahrscheinliche Quelle</th><th>Roh</th> <th>Gefilterte Spitze</th><th>Spitzen-Reduktion</th> </tr> ${advice.rows .map( (row) => ` <tr> <td>${row.hz} Hz</td> <td>${row.source}</td> <td>${row.magnitude}</td> <td>${row.filteredMagnitude ?? "—"}</td> <td>${row.reductionPercent !== null ? row.reductionPercent + "%" : "—"}</td> </tr>` ) .join("")} `;
   } else {
     filterAdvisorTable.innerHTML = "";
   }
@@ -5423,13 +5274,7 @@ function renderFilterAdvisor(dataset) {
   advice.recommendations.forEach((recommendation, index) => {
     const item = document.createElement("div");
     item.className = `advisor-recommendation priority-${recommendation.priority}`;
-    item.innerHTML = `<span>${
-      recommendation.priority === "first"
-        ? "Do this first:"
-        : recommendation.priority === "filters"
-          ? "Filters:"
-          : "Worth knowing:"
-    }</span> ${recommendation.text}`;
+    item.innerHTML = `<span>${ recommendation.priority === "first" ? "Das zuerst:" : recommendation.priority === "filters" ? "Filter:" : "Gut zu wissen:" }</span> ${recommendation.text}`;
     filterAdvisorRecommendations.appendChild(item);
   });
 }
@@ -5482,34 +5327,7 @@ function renderPidProfileBreakdown(pidAnalysis, lines) {
     Number.isFinite(value) ? `${value.toFixed(digits)}${suffix}` : "—";
 
   pidProfileCard.hidden = false;
-  pidProfileTable.innerHTML = `
-    <tr>
-      <th>Bank</th><th>Axis</th><th>Avg tracking error</th>
-      <th>Overshoot rate</th><th>Peak overshoot</th>
-    </tr>
-    ${usableProfiles
-      .map((profile) => {
-        const response = responseByRpm.get(profile.targetRpm);
-
-        return (profile.axisResults ?? [])
-          .map((axisResult, axisIndex) => {
-            const axisResponse = response?.axisResults?.find(
-              (candidate) => candidate.axis === axisResult.axis
-            );
-
-            return `
-        <tr>
-          <td>${axisIndex === 0 ? `${profile.targetRpm} rpm` : ""}</td>
-          <td>${axisResult.axis}</td>
-          <td>${numberCell(axisResult.averageAbsoluteError, 2)}</td>
-          <td>${numberCell(axisResponse?.exceedanceRatePercent, 1, "%")}</td>
-          <td>${numberCell(axisResponse?.peakExceedancePercent, 0, "%")}</td>
-        </tr>`;
-          })
-          .join("");
-      })
-      .join("")}
-  `;
+  pidProfileTable.innerHTML = ` <tr> <th>Bank</th><th>Achse</th><th>Ø Nachführfehler</th> <th>Überschwing-Rate</th><th>Spitzen-Überschwingen</th> </tr> ${usableProfiles .map((profile) => { const response = responseByRpm.get(profile.targetRpm); return (profile.axisResults ?? []) .map((axisResult, axisIndex) => { const axisResponse = response?.axisResults?.find( (candidate) => candidate.axis === axisResult.axis ); return ` <tr> <td>${axisIndex === 0 ? `${profile.targetRpm} U/min` : ""}</td> <td>${axisResult.axis}</td> <td>${numberCell(axisResult.averageAbsoluteError, 2)}</td> <td>${numberCell(axisResponse?.exceedanceRatePercent, 1, "%")}</td> <td>${numberCell(axisResponse?.peakExceedancePercent, 0, "%")}</td> </tr>`; }) .join(""); }) .join("")} `;
 
   const best = usableProfiles.reduce((a, b) =>
     a.averageTrackingError <= b.averageTrackingError ? a : b
@@ -5534,8 +5352,8 @@ function renderPidProfileBreakdown(pidAnalysis, lines) {
     best.targetRpm === worst.targetRpm
       ? ""
       : underSampled(best) || underSampled(worst)
-        ? `${best.targetRpm} rpm showed the lowest observed tracking error, but the headspeeds carry very different amounts of evidence — collect more flight time at the thin one before deciding which tracks best. Overshoot rate = share of commanded samples where the response exceeded the target beyond a small deadband.`
-        : `${best.targetRpm} rpm tracked best overall; ${worst.targetRpm} rpm tracked worst. Overshoot rate = share of commanded samples where the response exceeded the target beyond a small deadband.`;
+        ? `${best.targetRpm} U/min zeigte den niedrigsten beobachteten Nachführfehler, aber die Headspeeds tragen sehr unterschiedlich viel Beleg — sammle mehr Flugzeit bei der dünnen, bevor du entscheidest, welche am besten nachführt. Überschwing-Rate = Anteil der kommandierten Samples, bei denen die Antwort das Ziel über eine kleine Totzone hinaus überschritt.`
+        : `${best.targetRpm} U/min führte insgesamt am besten nach; ${worst.targetRpm} U/min am schlechtesten. Überschwing-Rate = Anteil der kommandierten Samples, bei denen die Antwort das Ziel über eine kleine Totzone hinaus überschritt.`;
 }
 
 function renderFilterProfileBreakdown(dataset) {
@@ -5552,15 +5370,15 @@ function renderFilterProfileBreakdown(dataset) {
   for (const bank of banks) {
     const heading = document.createElement("h4");
     heading.textContent = bank.insufficient
-      ? `${bank.targetRpm} rpm bank`
-      : `${bank.targetRpm} rpm bank (flown at ~${bank.actualRpm} rpm)`;
+      ? `${bank.targetRpm} U/min-Bank`
+      : `${bank.targetRpm} U/min-Bank (geflogen mit ~${bank.actualRpm} U/min)`;
     filterProfileBlocks.appendChild(heading);
 
     if (bank.insufficient) {
       const note = document.createElement("p");
       note.className = "chart-hint";
       note.textContent =
-        "Not enough continuous stable time at this headspeed for a spectrum. Fly a longer steady stretch in this bank to analyze it.";
+        "Nicht genug zusammenhängende stabile Zeit bei dieser Headspeed für ein Spektrum. Fliege in dieser Bank eine längere gleichmäßige Strecke, um sie zu analysieren.";
       filterProfileBlocks.appendChild(note);
       continue;
     }
@@ -5579,26 +5397,7 @@ function renderFilterProfileBreakdown(dataset) {
     if (advice && advice.rows.length > 0) {
       const table = document.createElement("table");
       table.className = "history-table";
-      table.innerHTML = `
-        <tr>
-          <th>Peak</th><th>Likely source</th>
-          <th>Peak reduction</th>
-        </tr>
-        ${advice.rows
-          .map(
-            (row) => `
-          <tr>
-            <td>${row.hz} Hz</td>
-            <td>${row.source}</td>
-            <td>${
-              row.reductionPercent !== null
-                ? row.reductionPercent + "%"
-                : "—"
-            }</td>
-          </tr>`
-          )
-          .join("")}
-      `;
+      table.innerHTML = ` <tr> <th>Spitze</th><th>Wahrscheinliche Quelle</th> <th>Spitzen-Reduktion</th> </tr> ${advice.rows .map( (row) => ` <tr> <td>${row.hz} Hz</td> <td>${row.source}</td> <td>${ row.reductionPercent !== null ? row.reductionPercent + "%" : "—" }</td> </tr>` ) .join("")} `;
 
       const scroll = document.createElement("div");
       scroll.className = "table-scroll";
@@ -5647,7 +5446,7 @@ function analyzeFlight(flightIndex) {
       : "";
 
   decodeInfo.textContent = flight.decodeInfo
-    ? `Binary .bbl decoded natively: ${flight.decodeInfo}`
+    ? `Binäres .bbl nativ dekodiert: ${flight.decodeInfo}`
     : fileType;
 
   const {
@@ -5718,7 +5517,7 @@ function analyzeFlight(flightIndex) {
     currentDataset?.labs.governor,
     governorStory,
     governorMetrics,
-    "Headspeed data is present, but governor-target telemetry is unavailable. Rotor-speed can still be viewed, but governor tracking and droop cannot be scored."
+    "Headspeed-Daten sind vorhanden, aber Governor-Ziel-Telemetrie fehlt. Die Rotordrehzahl lässt sich weiterhin ansehen, aber Governor-Nachführung und Droop können nicht bewertet werden."
   );
   renderGovernorEvents(currentDataset);
   renderGovernorSettings(currentDataset);
@@ -5796,19 +5595,19 @@ function analyzeFlight(flightIndex) {
     currentDataset?.labs.esc,
     escStory,
     escMetrics,
-    "This log has no motor data to analyze."
+    "Dieses Log hat keine Motordaten zur Analyse."
   );
   renderLab(
     currentDataset?.labs.battery,
     batteryStory,
     batteryMetrics,
-    "This log has no voltage data to analyze."
+    "Dieses Log hat keine Spannungsdaten zur Analyse."
   );
 
   buildReportButton.disabled = !currentDataset;
   reportStatus.textContent = currentDataset
-    ? "Ready: the report includes whatever the Labs found."
-    : "Open a log first.";
+    ? "Bereit: Der Bericht enthält, was die Labore gefunden haben."
+    : "Öffne zuerst ein Log.";
 
   // ---- file this flight in the craft's health record ----
   const rawCraftName = getMetadataValue(currentFlightLines, "Craft name");
@@ -5947,14 +5746,14 @@ function pidLabForReport(analysis) {
 
   const describeCheck = (checkResult, flagged) =>
     `${checkResult.axis} ${checkResult.check}${
-      flagged ? " flagged for review" : ` (${checkResult.status})`
+      flagged ? " zur Prüfung markiert" : ` (${checkResult.status})`
     }` +
     (checkResult.evidence ? ` (${checkResult.evidence}` : "") +
     (checkResult.evidence && checkResult.stat
       ? `, ${checkResult.check === "settling" ? "median " : ""}${checkResult.stat}`
       : "") +
     (checkResult.evidence && checkResult.confidence
-      ? `, ${checkResult.confidence} confidence)`
+      ? `, ${checkResult.confidence} Sicherheit)`
       : checkResult.evidence
         ? ")"
         : "") +
@@ -5971,9 +5770,7 @@ function pidLabForReport(analysis) {
 
   const nextFlightStep =
     reviewedAxisList.length > 0
-      ? `Repeat several deliberate ${reviewedAxisList.join(
-          " and "
-        )} inputs with clean stops and reversals at the same headspeed. If the same response pattern returns, those confirmed events determine the tuning change — this flight alone does not earn one.`
+      ? `Wiederhole mehrere bewusste ${reviewedAxisList.join( " und " )}-Eingaben mit sauberen Stopps und Umkehrungen bei derselben Headspeed. Kehrt dasselbe Antwortmuster zurück, bestimmen diese bestätigten Ereignisse die Tuning-Änderung — dieser Flug allein verdient keine.`
       : null;
 
   return {
@@ -5988,38 +5785,38 @@ function pidLabForReport(analysis) {
       .join(" "),
     metrics: [
       Number.isFinite(analysis.score) && {
-        label: "Tracking score",
+        label: "Nachführ-Punktzahl",
         value: `${analysis.score}/100`
       },
       analysis.confidence?.level && {
-        label: "Confidence",
+        label: "Sicherheit",
         value:
           `${analysis.confidence.level}` +
           (analysis.confidence.demand === "gentle"
-            ? ": gentle flight demand"
+            ? ": geringe Flug-Anforderung"
             : "")
       },
-      { label: "Overall status", value: analysis.overallStatus ?? "—" },
+      { label: "Gesamtstatus", value: analysis.overallStatus ?? "—" },
       behaviorReviews.length > 0 && {
-        label: "Response behavior",
+        label: "Antwortverhalten",
         value: behaviorReviews
           .map(
             (checkResult) =>
-              `${checkResult.axis} ${checkResult.check}: Review` +
+              `${checkResult.axis} ${checkResult.check}: zu prüfen` +
               (checkResult.evidence ? ` (${checkResult.evidence})` : "")
           )
           .join("; ")
       },
       nextFlightStep && {
-        label: "Next flight",
+        label: "Nächster Flug",
         value: nextFlightStep
       },
       recommendations.length > 0 && {
-        label: "Top recommendation",
+        label: "Wichtigste Empfehlung",
         value:
           recommendations[0] +
           (recommendations.length > 1
-            ? ` (+${recommendations.length - 1} more in the app)`
+            ? ` (+${recommendations.length - 1} weitere in der App)`
             : "")
       }
     ].filter(Boolean)
@@ -6038,22 +5835,22 @@ function filterLabForReport(analysis, advice = null) {
     (recommendation) => ({
       label:
         recommendation.priority === "first"
-          ? "Do this first"
+          ? "Das zuerst"
           : recommendation.priority === "filters"
-            ? "Filters"
-            : "Worth knowing",
+            ? "Filter"
+            : "Gut zu wissen",
       value: recommendation.text
     })
   );
   const advisorRows = (advice?.rows ?? []).slice(0, 4).map((row) => ({
-    label: `Peak ${row.hz} Hz`,
+    label: `Spitze ${row.hz} Hz`,
     value:
-      `${row.source} \u00b7 raw ${row.magnitude}` +
+      `${row.source} · roh ${row.magnitude}` +
       (row.filteredMagnitude !== null && row.filteredMagnitude !== undefined
-        ? ` \u2192 filtered ${row.filteredMagnitude}`
+        ? ` → gefiltert ${row.filteredMagnitude}`
         : "") +
       (row.reductionPercent !== null && row.reductionPercent !== undefined
-        ? ` (${row.reductionPercent}% reduction)`
+        ? ` (${row.reductionPercent} % Reduktion)`
         : "")
   }));
 
@@ -6072,22 +5869,22 @@ function filterLabForReport(analysis, advice = null) {
       .join(" "),
     metrics: [
       Number.isFinite(analysis.score) && {
-        label: "Filter score",
+        label: "Filter-Punktzahl",
         value: `${analysis.score}/100`
       },
       analysis.confidence?.label && {
-        label: "Confidence",
+        label: "Sicherheit",
         value: `${analysis.confidence.label} (${analysis.confidence.score}/100)`
       },
       { label: "Status", value: String(analysis.status ?? "—") },
       ...advisorRows,
       ...advisorMetrics,
       recommendations.length > 0 && {
-        label: "Key recommendation",
+        label: "Wichtigste Empfehlung",
         value:
           recommendations[0] +
           (recommendations.length > 1
-            ? ` (+${recommendations.length - 1} more in the app)`
+            ? ` (+${recommendations.length - 1} weitere in der App)`
             : "")
       }
     ].filter(Boolean)
@@ -6120,49 +5917,49 @@ buildReportButton.addEventListener("click", () => {
       currentDataset.flightEvents?.summary?.sentence ?? null,
     labs: [
       {
-        title: "Filter Lab",
+        title: "Filter-Labor",
         wide: true,
         analysis: filterLabForReport(
           currentFilterAnalysisResult,
           currentDataset.filterAdvice
         )
       },
-      { title: "PID Lab", wide: true, analysis: pidLabForReport(currentPidAnalysisResult) },
+      { title: "PID-Labor", wide: true, analysis: pidLabForReport(currentPidAnalysisResult) },
       {
-        title: "Governor Lab",
+        title: "Governor-Labor",
         analysis: currentDataset.labs.governor,
         absent: el("governorStory")?.textContent?.trim() ?? null
       },
       {
-        title: "ESC Lab",
+        title: "ESC-Labor",
         analysis: currentDataset.labs.esc,
         absent: el("escStory")?.textContent?.trim() ?? null
       },
       {
-        title: "Battery Lab",
+        title: "Akku-Labor",
         analysis: currentDataset.labs.battery,
         absent: el("batteryStory")?.textContent?.trim() ?? null
       },
       {
-        title: "Signal Lab",
+        title: "Signal-Labor",
         analysis: currentDataset.signalLab,
         absent: el("signalStory")?.textContent?.trim() ?? null
       },
       {
-        title: "BEC Lab",
+        title: "BEC-Labor",
         analysis: currentDataset.becLab,
         absent: el("becStory")?.textContent?.trim() ?? null
       }
     ],
     chartElements: [
-      { title: "Noise Spectrum", element: chartSpectrum, wide: true },
+      { title: "Rauschspektrum", element: chartSpectrum, wide: true },
       { title: "Gyro", element: chartGyro },
-      { title: "Roll: Target vs Gyro", element: chartTracking },
-      { title: "Pitch: Target vs Gyro", element: chartTrackingPitch },
-      { title: "Yaw: Target vs Gyro", element: chartTrackingYaw },
+      { title: "Roll: Ziel gegen Gyro", element: chartTracking },
+      { title: "Nick: Ziel gegen Gyro", element: chartTrackingPitch },
+      { title: "Gier: Ziel gegen Gyro", element: chartTrackingYaw },
       { title: "Headspeed & Governor", element: chartGovernor },
-      { title: "Throttle", element: chartThrottle },
-      { title: "Battery & Current", element: chartPower }
+      { title: "Gas (Throttle)", element: chartThrottle },
+      { title: "Akku & Strom", element: chartPower }
     ]
   });
 
@@ -6174,33 +5971,33 @@ buildReportButton.addEventListener("click", () => {
   // spike) the self-contained HTML download stays.
   if (window.blackboxLab?.exportReportPdf) {
     buildReportButton.disabled = true;
-    reportStatus.textContent = "Rendering the PDF\u2026";
+    reportStatus.textContent = "Erzeuge das PDF…";
     window.blackboxLab
       .exportReportPdf(html, `blackbox-lab-report-${baseName}.pdf`)
       .then((result) => {
         if (result?.ok) {
           reportStatus.textContent = "";
-          const text = document.createTextNode(`Report saved: ${result.path} `);
+          const text = document.createTextNode(`Bericht gespeichert: ${result.path} `);
           const reveal = document.createElement("button");
           reveal.type = "button";
           reveal.className = "ghost";
-          reveal.textContent = "Show in folder";
+          reveal.textContent = "Im Ordner anzeigen";
           reveal.addEventListener("click", () => {
             window.blackboxLab.revealPath?.(result.path);
           });
           reportStatus.appendChild(text);
           reportStatus.appendChild(reveal);
         } else if (result?.canceled) {
-          reportStatus.textContent = "Report not saved.";
+          reportStatus.textContent = "Bericht nicht gespeichert.";
         } else {
           reportStatus.textContent =
-            `The PDF could not be written${result?.error ? `: ${result.error}` : ""}. Saving the HTML version instead.`;
+            `Das PDF konnte nicht geschrieben werden${result?.error ? `: ${result.error}` : ""}. Stattdessen wird die HTML-Version gespeichert.`;
           downloadReport(html, `blackbox-lab-report-${baseName}.html`);
         }
       })
       .catch(() => {
         reportStatus.textContent =
-          "The PDF could not be written. Saving the HTML version instead.";
+          "Das PDF konnte nicht geschrieben werden. Stattdessen wird die HTML-Version gespeichert.";
         downloadReport(html, `blackbox-lab-report-${baseName}.html`);
       })
       .finally(() => {
@@ -6211,7 +6008,7 @@ buildReportButton.addEventListener("click", () => {
 
   downloadReport(html, `blackbox-lab-report-${baseName}.html`);
   reportStatus.textContent =
-    "Report saved: check your downloads folder.";
+    "Bericht gespeichert: Prüfe deinen Download-Ordner.";
 });
 
 
@@ -6313,7 +6110,7 @@ function refreshCompareButtons() {
   compareBaselineInfo.textContent = ready
     ? `Before: ${summaryFileName.textContent}` +
       (currentFlightSummary ? `, ${currentFlightSummary}` : "")
-    : 'No baseline yet: open a log first (Home screen).';
+    : 'Noch keine Ausgangsbasis: Öffne zuerst ein Log (Startbildschirm).';
 
   const sameFileHint = el("compareSameFileHint");
   if (sameFileHint) {
@@ -6381,16 +6178,16 @@ function renderComparison(comparisonDataset, comparisonName, opts = {}) {
 
   if (sameFlight) {
     result.summary =
-      "Self-check: the same flight is loaded on both sides. Every measure should read unchanged; a difference here would be measurement noise, not a tuning change. Load a different flight as the After side for a real comparison.";
+      "Selbsttest: Auf beiden Seiten ist derselbe Flug geladen. Jede Messgröße sollte unverändert lauten; ein Unterschied hier wäre Messrauschen, keine Tuning-Änderung. Lade einen anderen Flug als Nachher-Seite für einen echten Vergleich.";
   }
 
   compareResultCard.hidden = false;
   const pairText =
-    `Before: ${beforeSide.name} · After: ${afterSide.name}` +
+    `Vorher: ${beforeSide.name} · Nachher: ${afterSide.name}` +
     (sameFlight
-      ? " — SAME FLIGHT ON BOTH SIDES (self-check)"
+      ? " — DERSELBE FLUG AUF BEIDEN SEITEN (Selbsttest)"
       : compareSwapped
-        ? " (ordered by the logs' own start times)"
+        ? " (geordnet nach den eigenen Startzeiten der Logs)"
         : "");
   if (comparePairInfo) {
     comparePairInfo.textContent = pairText;
@@ -6412,19 +6209,19 @@ function renderComparison(comparisonDataset, comparisonName, opts = {}) {
       if (show) {
         el("compareComparabilityHead").textContent =
           comparability.level === "comparable"
-            ? "Like-for-like check: these flights can carry a verdict"
+            ? "Vergleichbarkeits-Check: Diese Flüge können ein Urteil tragen"
             : comparability.level === "partial"
-              ? "Like-for-like check: partial — read the results as observations"
-              : "Like-for-like check: weak — these flights measured different things";
+              ? "Vergleichbarkeits-Check: teilweise — lies die Ergebnisse als Beobachtungen"
+              : "Vergleichbarkeits-Check: schwach — diese Flüge haben Verschiedenes gemessen";
 
         const confidenceEl = el("compareComparabilityConfidence");
         if (confidenceEl) {
           const level = comparability.confidence ?? null;
           confidenceEl.dataset.level = level ?? "";
           confidenceEl.textContent = level
-            ? `Verdict confidence: ${level}` +
+            ? `Urteils-Sicherheit: ${level}` +
               (comparability.reducedBy?.length
-                ? ` — reduced by ${comparability.reducedBy.join(", ")}`
+                ? ` — reduziert durch ${comparability.reducedBy.join(", ")}`
                 : "")
             : "";
         }
@@ -6432,7 +6229,7 @@ function renderComparison(comparisonDataset, comparisonName, opts = {}) {
         const verdictWord = {
           match: "comparable",
           partial: "partly",
-          mismatch: "not comparable"
+          mismatch: "nicht vergleichbar"
         };
         const table = el("compareComparabilityTable");
         if (table) {
@@ -6440,17 +6237,7 @@ function renderComparison(comparisonDataset, comparisonName, opts = {}) {
             ? `<tr><th>Dimension</th><th>Before</th><th>After</th><th>Verdict</th></tr>` +
               rows
                 .map(
-                  (row) => `
-              <tr data-verdict="${row.verdict ?? "unknown"}">
-                <td class="dim">${escapeHtml(row.dimension)}${
-                  row.note ? `<span class="note">${escapeHtml(row.note)}</span>` : ""
-                }</td>
-                <td>${escapeHtml(row.before ?? "—")}</td>
-                <td>${escapeHtml(row.after ?? "—")}</td>
-                <td class="verdict"><span class="status-dot"></span>${
-                  row.verdict ? verdictWord[row.verdict] : "not judged"
-                }</td>
-              </tr>`
+                  (row) => ` <tr data-verdict="${row.verdict ?? "unknown"}"> <td class="dim">${escapeHtml(row.dimension)}${ row.note ? `<span class="note">${escapeHtml(row.note)}</span>` : "" }</td> <td>${escapeHtml(row.before ?? "—")}</td> <td>${escapeHtml(row.after ?? "—")}</td> <td class="verdict"><span class="status-dot"></span>${ row.verdict ? verdictWord[row.verdict] : "nicht beurteilt" }</td> </tr>`
                 )
                 .join("")
             : "";
@@ -6473,24 +6260,7 @@ function renderComparison(comparisonDataset, comparisonName, opts = {}) {
     rowElement.className = `compare-row direction-${
       row.gated ? "observed" : row.direction
     }`;
-    rowElement.innerHTML = `
-      <div class="compare-row-top">
-        <span class="compare-row-title">${row.title}</span>
-        <span class="compare-row-delta">${
-          row.gated
-            ? "observed — not comparable enough to judge"
-            : row.direction === "better"
-              ? "improved"
-              : row.direction === "worse"
-                ? "got worse"
-                : row.direction === "unknown"
-                  ? "not comparable"
-                  : "unchanged"
-        }</span>
-      </div>
-      <div class="compare-row-sentence">${row.sentence}</div>
-      <div class="compare-row-values">before: ${row.before} · after: ${row.after}</div>
-    `;
+    rowElement.innerHTML = ` <div class="compare-row-top"> <span class="compare-row-title">${row.title}</span> <span class="compare-row-delta">${ row.gated ? "beobachtet — nicht vergleichbar genug zum Urteilen" : row.direction === "better" ? "verbessert" : row.direction === "worse" ? "schlechter geworden" : row.direction === "unknown" ? "nicht vergleichbar" : "unverändert" }</span> </div> <div class="compare-row-sentence">${row.sentence}</div> <div class="compare-row-values">vorher: ${row.before} · nachher: ${row.after}</div> `;
     compareRows.appendChild(rowElement);
   }
 
@@ -6510,17 +6280,17 @@ function renderComparison(comparisonDataset, comparisonName, opts = {}) {
     const chartHint = el("compareChartHint");
     if (chartHint) {
       chartHint.textContent = result.sameAircraft
-        ? "Two flights, one picture. Shrinking peaks = progress."
-        : "Two machines, shown side by side for reference: their spectra are not directly comparable.";
+        ? "Zwei Flüge, ein Bild. Schrumpfende Spitzen = Fortschritt."
+        : "Zwei Maschinen, zur Orientierung nebeneinander gezeigt: Ihre Spektren sind nicht direkt vergleichbar.";
     }
     renderSpectrumChart(chartCompareSpectrum, [
       {
-        label: `Before (${beforeSide.name})`,
+        label: `Vorher (${beforeSide.name})`,
         spectrum: beforeSpectrum,
         color: CHART_COLORS[1]
       },
       {
-        label: `After (${afterSide.name})`,
+        label: `Nachher (${afterSide.name})`,
         spectrum: afterSpectrum,
         color: CHART_COLORS[0]
       }
@@ -6559,11 +6329,11 @@ compareFileInput.addEventListener("change", async () => {
       renderComparison(result.dataset, result.name, { setup: result.setup });
     } else {
       compareBaselineInfo.textContent =
-        "Could not read flight data from the comparison log.";
+        "Aus dem Vergleichs-Log konnten keine Flugdaten gelesen werden.";
     }
   } catch (error) {
     compareBaselineInfo.textContent =
-      "Something went wrong: " + error.message;
+      "Etwas ist schiefgelaufen: " + error.message;
   }
 
   compareFileInput.value = "";
@@ -6619,7 +6389,7 @@ function refreshHistoryScreen(selectedCraft) {
 
   if (craftNames.length === 0) {
     historyNote.textContent =
-      "No flights recorded yet: every log you open is filed here automatically.";
+      "Noch keine Flüge aufgezeichnet: Jedes Log, das du öffnest, wird hier automatisch abgelegt.";
     historyFindings.innerHTML = "";
     historyTrendCard.hidden = true;
     historyTableCard.hidden = true;
@@ -6629,7 +6399,7 @@ function refreshHistoryScreen(selectedCraft) {
   for (const name of craftNames) {
     const option = document.createElement("option");
     option.value = name;
-    option.textContent = `${name} (${history[name].length} flights)`;
+    option.textContent = `${name} (${history[name].length} Flüge)`;
     historyCraftSelect.appendChild(option);
   }
 
@@ -6648,14 +6418,7 @@ function refreshHistoryScreen(selectedCraft) {
   for (const finding of trends.findings) {
     const findingElement = document.createElement("div");
     findingElement.className = "verdict-item status-attention";
-    findingElement.innerHTML = `
-      <div class="verdict-item-top">
-        <span class="status-dot"></span>
-        <span class="verdict-item-title">Trend</span>
-        <span class="verdict-item-status">Needs attention</span>
-      </div>
-      <div class="verdict-item-detail">${finding.sentence}</div>
-    `;
+    findingElement.innerHTML = ` <div class="verdict-item-top"> <span class="status-dot"></span> <span class="verdict-item-title">Trend</span> <span class="verdict-item-status">Braucht Aufmerksamkeit</span> </div> <div class="verdict-item-detail">${finding.sentence}</div> `;
     historyFindings.appendChild(findingElement);
   }
 
@@ -6669,7 +6432,7 @@ function refreshHistoryScreen(selectedCraft) {
 
     if (values.filter((value) => value !== null).length < 2) {
       element.innerHTML =
-        '<p class="chart-empty">Not enough flights yet for a trend.</p>';
+        '<p class="chart-empty">Noch nicht genug Flüge für einen Trend.</p>';
       return;
     }
 
@@ -6686,7 +6449,7 @@ function refreshHistoryScreen(selectedCraft) {
         }
       ],
       yLabel,
-      xLabel: "Flight #",
+      xLabel: "Flug Nr.",
       height: 200,
       formatX: (value) => `Flight ${Math.round(value)}`
     });
@@ -6698,22 +6461,22 @@ function refreshHistoryScreen(selectedCraft) {
   if (historyComparability.notes.length > 0) {
     historyNote.textContent +=
       historyComparability.level === "mixed"
-        ? ` These flights asked different things of the machine — ${historyComparability.notes.join("; ")}. Read the charts below as context, not as a trend.`
-        : ` Comparability caveats: ${historyComparability.notes.join("; ")}.`;
+        ? ` Diese Flüge verlangten der Maschine Unterschiedliches ab — ${historyComparability.notes.join("; ")}. Lies die Diagramme unten als Kontext, nicht als Trend.`
+        : ` Hinweise zur Vergleichbarkeit: ${historyComparability.notes.join("; ")}.`;
   }
 
   const vibrationTrendHint = el("trendVibrationHint");
   if (vibrationTrendHint) {
     vibrationTrendHint.textContent =
       entries.length < 4
-        ? `Single flights, shown as dots for reference: a direction becomes meaningful after 4 comparable flights (${entries.length} so far).`
+        ? `Einzelne Flüge, zur Orientierung als Punkte gezeigt: Eine Richtung wird nach 4 vergleichbaren Flügen aussagekräftig (bisher ${entries.length}).`
         : historyComparability.level === "mixed"
-          ? "A rising line means something mechanical is changing — but these flights differ (see the note above), so read it as context."
-          : "A rising line means something mechanical is changing.";
+          ? "Eine steigende Linie bedeutet, dass sich etwas Mechanisches verändert — aber diese Flüge unterscheiden sich (siehe Hinweis oben), lies sie daher als Kontext."
+          : "Eine steigende Linie bedeutet, dass sich etwas Mechanisches verändert.";
   }
 
   historyTrendCard.hidden = false;
-  trendChart(chartTrendVibration, "vibrationPeak", "vibration peak");
+  trendChart(chartTrendVibration, "vibrationPeak", "Vibrations-Spitze");
 
   // Title, hint and axis follow what these flights measured:
   // target-relative droop only when every charted flight had a
@@ -6725,17 +6488,17 @@ function refreshHistoryScreen(selectedCraft) {
   if (trendDroopHint) {
     trendDroopHint.textContent =
       entries.length < 4
-        ? `Single flights, shown as dots for reference: a direction becomes meaningful after 4 comparable flights (${entries.length} so far).`
+        ? `Einzelne Flüge, zur Orientierung als Punkte gezeigt: Eine Richtung wird nach 4 vergleichbaren Flügen aussagekräftig (bisher ${entries.length}).`
         : historyComparability.level === "mixed"
-          ? `${rotorWording.hint} These flights differ (see the note above): read it as context.`
+          ? `${rotorWording.hint} Diese Flüge unterscheiden sich (siehe Hinweis oben): lies es als Kontext.`
           : rotorWording.hint;
   }
   trendChart(
     chartTrendDroop,
     "droopRpm",
     rotorWording.label === "Governor droop"
-      ? "worst droop (rpm)"
-      : "largest RPM deviation"
+      ? "schlimmster Droop (U/min)"
+      : "größte RPM-Abweichung"
   );
 
   // ---- flights table ----
@@ -6744,33 +6507,7 @@ function refreshHistoryScreen(selectedCraft) {
   const cell = (value, suffix = "") =>
     value === null || value === undefined ? "—" : `${value}${suffix}`;
 
-  historyTable.innerHTML = `
-    <tr>
-      <th>Date</th><th>Log</th><th>Length</th><th>Vibration</th>
-      <th>RPM dev.</th><th>Tracking</th><th>Sag</th><th>IR est.</th><th></th>
-    </tr>
-    ${entries
-      .map(
-        (entry, index) => `
-      <tr>
-        <td>${
-          isPlausibleFlightDate(entry.flightDateMs)
-            ? new Date(entry.flightDateMs).toLocaleDateString()
-            : "Date unavailable"
-        }</td>
-        <td>${entry.fileName}</td>
-        <td>${cell(entry.durationSeconds, " s")}</td>
-        <td>${cell(entry.vibrationPeak)}${entry.vibrationHz ? ` @ ${entry.vibrationHz} Hz` : ""}</td>
-        <td>${cell(entry.droopRpm, " rpm")}</td>
-        <td>${cell(entry.trackingScore, "/100")}</td>
-        <td>${cell(entry.batterySagPercent, "%")}</td>
-        <td>${cell(entry.internalResistance, " mΩ")}</td>
-        <td><button class="history-remove" data-index="${index}"
-          title="Remove this flight from the record">✕</button></td>
-      </tr>`
-      )
-      .join("")}
-  `;
+  historyTable.innerHTML = ` <tr> <th>Datum</th><th>Log</th><th>Dauer</th><th>Vibration</th> <th>RPM-Abw.</th><th>Nachführung</th><th>Sag</th><th>IR-Schätzung</th><th></th> </tr> ${entries .map( (entry, index) => ` <tr> <td>${ isPlausibleFlightDate(entry.flightDateMs) ? new Date(entry.flightDateMs).toLocaleDateString() : "Datum nicht verfügbar" }</td> <td>${entry.fileName}</td> <td>${cell(entry.durationSeconds, " s")}</td> <td>${cell(entry.vibrationPeak)}${entry.vibrationHz ? ` @ ${entry.vibrationHz} Hz` : ""}</td> <td>${cell(entry.droopRpm, " U/min")}</td> <td>${cell(entry.trackingScore, "/100")}</td> <td>${cell(entry.batterySagPercent, "%")}</td> <td>${cell(entry.internalResistance, " mΩ")}</td> <td><button class="history-remove" data-index="${index}" title="Diesen Flug aus dem Protokoll entfernen">✕</button></td> </tr>` ) .join("")} `;
 }
 
 // The table is rebuilt on every refresh, so one delegated
@@ -6794,7 +6531,7 @@ historyTable.addEventListener("click", (event) => {
 
   if (
     confirm(
-      `Remove "${entry.fileName}" from the health record? Trends recompute without it.`
+      `„${entry.fileName}“ aus dem Zustandsprotokoll entfernen? Die Trends werden ohne ihn neu berechnet.`
     )
   ) {
     deleteFlight(localStorage, craft, entry.fileName);
@@ -6807,7 +6544,7 @@ historyCraftSelect.addEventListener("change", () => {
 });
 
 clearHistoryButton.addEventListener("click", () => {
-  if (confirm("Delete the entire health record on this computer?")) {
+  if (confirm("Das gesamte Zustandsprotokoll auf diesem Computer löschen?")) {
     clearHistory(localStorage);
     refreshHistoryScreen();
   }
@@ -6937,18 +6674,13 @@ async function maybeContributeFlight(flight, fileType, key, extras = {}) {
     if (hasContributed(localStorage, contribution.contentHash)) {
       if (contributeStatus) {
         contributeStatus.textContent =
-          "This flight was already shared earlier: not sent again.";
+          "Dieser Flug wurde schon früher geteilt: wird nicht erneut gesendet.";
       }
       return;
     }
 
     if (contributeStatus) {
-      contributeStatus.textContent = `Sharing: ${describeContribution({
-        fields: contribution.frames.fields,
-        frames: contribution.frames.frames,
-        gps: contribution.frames.gps,
-        categories: contribution.payload.categories
-      })} …`;
+      contributeStatus.textContent = `Teile: ${describeContribution({ fields: contribution.frames.fields, frames: contribution.frames.frames, gps: contribution.frames.gps, categories: contribution.payload.categories })} …`;
     }
 
     const result = await uploadContributionV1(
@@ -6962,13 +6694,13 @@ async function maybeContributeFlight(flight, fileType, key, extras = {}) {
 
     if (contributeStatus) {
       contributeStatus.textContent = result.ok
-        ? "Last log shared anonymously. Thank you for helping the tool learn. ✓"
-        : `Sharing failed (server said ${result.status}). The tool keeps working normally.`;
+        ? "Letztes Log anonym geteilt. Danke, dass du dem Werkzeug beim Lernen hilfst. ✓"
+        : `Teilen fehlgeschlagen (Server meldete ${result.status}). Das Werkzeug arbeitet normal weiter.`;
     }
   } catch {
     if (contributeStatus) {
       contributeStatus.textContent =
-        "Sharing failed (no connection). The tool keeps working normally.";
+        "Teilen fehlgeschlagen (keine Verbindung). Das Werkzeug arbeitet normal weiter.";
     }
   }
 }
@@ -7065,7 +6797,7 @@ function openCraftCardPanel(craftName, prefill) {
   if (!craftCardAsk) return;
 
   craftCardTarget = craftName;
-  craftCardTitle.textContent = `About your ${craftName}`;
+  craftCardTitle.textContent = `Über dein ${craftName}`;
 
   const card = getCraftCard(localStorage, craftName) ?? prefill ?? {};
 
@@ -7090,8 +6822,8 @@ function openCraftCardPanel(craftName, prefill) {
   if (existingDump) {
     showDumpResult(
       null,
-      "This model already has its settings on file.",
-      `${existingDump.stats.kept} settings kept. Read a dump again only to replace them.`
+      "Dieses Modell hat seine Einstellungen schon gespeichert.",
+      `${existingDump.stats.kept} Einstellungen behalten. Lies einen Dump nur dann erneut ein, um sie zu ersetzen.`
     );
   } else {
     craftDumpStatus.hidden = true;
@@ -7137,8 +6869,8 @@ function stageCraftDump(text) {
     stagedCraftDump = null;
     showDumpResult(
       "warn",
-      "That doesn't look like a Rotorflight `dump all` yet.",
-      "Paste (or pick) the whole output of the `dump all` CLI command."
+      "Das sieht noch nicht wie ein Rotorflight-`dump all` aus.",
+      "Füge die gesamte Ausgabe des CLI-Befehls `dump all` ein (oder wähle sie aus)."
     );
     return;
   }
@@ -7173,29 +6905,29 @@ function stageCraftDump(text) {
   }
 
   const detail =
-    `${stagedCraftDump.stats.kept} settings kept, ` +
-    `${stagedCraftDump.stats.dropped} scrubbed away` +
+    `${stagedCraftDump.stats.kept} Einstellungen behalten, ` +
+    `${stagedCraftDump.stats.dropped} entfernt` +
     (stagedCraftDump.report.length > 0
       ? ` (${stagedCraftDump.report.join(", ")})`
       : "") +
     "." +
     (filled.length > 0
-      ? ` Filled in: ${filled.join(" + ")}.`
+      ? ` Ausgefüllt: ${filled.join(" + ")}.`
       : "") +
-    " Nothing is saved yet: press Save model below to keep these settings.";
+    " Noch nichts ist gespeichert: Drücke unten auf „Modell speichern“, um diese Einstellungen zu behalten.";
 
   if (who && !matches) {
     showDumpResult(
       "warn",
-      `✓ Configuration read, but it says "${who}", and this panel is about "${craftCardTarget}". Right file?`,
+      `✓ Konfiguration gelesen, aber sie nennt „${who}“, und dieses Panel handelt von „${craftCardTarget}“. Richtige Datei?`,
       detail
     );
   } else {
     showDumpResult(
       "good",
       who
-        ? `✓ Configuration read: ${who}. That's this model.`
-        : "✓ Configuration read.",
+        ? `✓ Konfiguration gelesen: ${who}. Das ist dieses Modell.`
+        : "✓ Konfiguration gelesen.",
       detail
     );
 
@@ -7230,8 +6962,8 @@ if (craftDumpReadButton) {
     if (craftDumpPaste.value.trim().length === 0) {
       showDumpResult(
         "warn",
-        "Nothing to read yet.",
-        "Paste your `dump all` above, or use the file button."
+        "Noch nichts zu lesen.",
+        "Füge oben deinen `dump all` ein oder nutze die Datei-Schaltfläche."
       );
       return;
     }
@@ -7300,9 +7032,7 @@ if (craftCardSave) {
         renderGovernorSettings(currentDataset);
         refreshPackCard();
         if (fileStatus) {
-          fileStatus.textContent = `Settings dump saved for ${savedFor}${
-            Number.isFinite(savedCount) ? ` — ${savedCount} settings on file` : ""
-          }.`;
+          fileStatus.textContent = `Einstellungs-Dump gespeichert für ${savedFor}${ Number.isFinite(savedCount) ? ` — ${savedCount} Einstellungen gespeichert` : "" }.`;
         }
       }
     }
@@ -7457,8 +7187,8 @@ function setAcademyRevealOpen(open) {
   academyReveal.hidden = !open;
   academyRevealButton.hidden = false;
   academyRevealButton.textContent = open
-    ? "Hide the diagnosis"
-    : "Reveal the diagnosis";
+    ? "Diagnose ausblenden"
+    : "Diagnose aufdecken";
   academyRevealButton.setAttribute("aria-expanded", String(open));
 }
 
@@ -7485,12 +7215,12 @@ if (academyDumpCopyButton) {
     );
     if (!text) {
       academyDumpCopyButton.textContent =
-        "Could not read the paired dump";
+        "Der zugehörige Dump konnte nicht gelesen werden";
       return;
     }
     await navigator.clipboard.writeText(text);
     academyDumpCopyButton.textContent =
-      "Copied — paste it via Add CLI settings";
+      "Kopiert — füge ihn über „CLI-Einstellungen hinzufügen“ ein";
   });
 }
 
@@ -7505,28 +7235,28 @@ if (academyFreshDumpButton) {
     );
     if (!text) {
       academyFreshDumpButton.textContent =
-        "Could not read the fresh dump";
+        "Der aktuelle Dump konnte nicht gelesen werden";
       return;
     }
     await navigator.clipboard.writeText(text);
     academyFreshDumpButton.textContent =
-      "Copied — paste it via Update the saved settings dump";
+      "Kopiert — füge ihn über „Gespeicherten Einstellungs-Dump aktualisieren“ ein";
   });
 }
 
 async function loadAcademyEntry(entry) {
   if (!window.blackboxLab) {
     fileStatus.textContent =
-      "Academy flights are available when running the desktop app.";
+      "Akademie-Flüge sind nur in der Desktop-App verfügbar.";
     return;
   }
 
-  fileStatus.textContent = `Loading: ${entry.title}...`;
+  fileStatus.textContent = `Lade: ${entry.title}...`;
 
   const bytes = await window.blackboxLab.readSampleLog(entry.file);
 
   if (!bytes) {
-    fileStatus.textContent = "Could not load that academy flight.";
+    fileStatus.textContent = "Dieser Akademie-Flug konnte nicht geladen werden.";
     return;
   }
 
@@ -7535,7 +7265,7 @@ async function loadAcademyEntry(entry) {
   );
 
   setAcademyEntry(entry);
-  fileStatus.textContent = `Loaded: ${entry.title} — find the problem, then reveal.`;
+  fileStatus.textContent = `Geladen: ${entry.title} — finde das Problem, dann decke es auf.`;
 }
 
 // The shelf lives in three places — the welcome's fourth item,
@@ -7565,13 +7295,13 @@ function renderAcademyLists() {
       if (isActive) {
         const tag = document.createElement("span");
         tag.className = "academy-loaded-tag";
-        tag.textContent = "Loaded";
+        tag.textContent = "Geladen";
         row.appendChild(tag);
       } else {
         const loadButton = document.createElement("button");
         loadButton.type = "button";
         loadButton.className = "secondary-button academy-load";
-        loadButton.textContent = "Load";
+        loadButton.textContent = "Laden";
         loadButton.addEventListener("click", () => {
           loadAcademyEntry(entry);
         });
@@ -7616,7 +7346,7 @@ window.addEventListener("drop", async (event) => {
     await loadFromFile(file);
   } catch (error) {
     setLoadStatus(
-      "Something went wrong reading this log: " + error.message
+      "Beim Lesen dieses Logs ist etwas schiefgelaufen: " + error.message
     );
     finishLoadProgress(false);
   }
@@ -7634,7 +7364,7 @@ checkForUpdate(APP_VERSION).then((update) => {
   if (localStorage.getItem(UPDATE_DISMISS_KEY) === update.version) return;
 
   el("updateBannerText").textContent =
-    `A new version of Blackbox Lab is out (${update.version}, you have v${APP_VERSION}).`;
+    `Eine neue Version von Blackbox Lab ist da (${update.version}, du hast v${APP_VERSION}).`;
   updateBanner.hidden = false;
 
   el("updateBannerButton").addEventListener("click", () => {
@@ -7708,8 +7438,8 @@ function showErrorReport(error) {
   errorReportSend.hidden = !canSend;
   errorReportSend.disabled = sentBefore;
   errorReportSend.textContent = sentBefore
-    ? "Report already sent. Thank you!"
-    : "Send report";
+    ? "Bericht schon gesendet. Danke!"
+    : "Bericht senden";
 
   errorReportOverlay.hidden = false;
 }
@@ -7730,9 +7460,9 @@ if (errorReportCopy) {
       await navigator.clipboard.writeText(
         formatBundleText(currentErrorBundle)
       );
-      errorReportCopy.textContent = "Copied!";
+      errorReportCopy.textContent = "Kopiert!";
       setTimeout(() => {
-        errorReportCopy.textContent = "Copy details";
+        errorReportCopy.textContent = "Details kopieren";
       }, 2000);
     } catch {
       // No clipboard available — the dialog stays usable.
@@ -7747,7 +7477,7 @@ if (errorReportSend) {
     }
 
     errorReportSend.disabled = true;
-    errorReportSend.textContent = "Sending…";
+    errorReportSend.textContent = "Wird gesendet…";
 
     const result = await sendErrorReport(
       CONTRIBUTE_ENDPOINT,
@@ -7759,10 +7489,10 @@ if (errorReportSend) {
         localStorage,
         bundleFingerprint(currentErrorBundle)
       );
-      errorReportSend.textContent = "Sent. Thank you!";
+      errorReportSend.textContent = "Gesendet. Danke!";
     } else {
       errorReportSend.disabled = false;
-      errorReportSend.textContent = "Send failed: use Copy details";
+      errorReportSend.textContent = "Senden fehlgeschlagen: nutze „Details kopieren“";
     }
   });
 }

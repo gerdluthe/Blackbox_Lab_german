@@ -122,9 +122,9 @@ ipcMain.handle('export-report-pdf', async (event, payload) => {
   const { canceled, filePath } = smokeDirectory
     ? { canceled: false, filePath: path.join(smokeDirectory, suggestedName) }
     : await dialog.showSaveDialog(owner, {
-        title: 'Save flight report',
+        title: 'Flug-Bericht speichern',
         defaultPath: path.join(defaultDirectory, suggestedName),
-        filters: [{ name: 'PDF report', extensions: ['pdf'] }]
+        filters: [{ name: 'PDF-Bericht', extensions: ['pdf'] }]
       });
 
   if (canceled || !filePath) {
