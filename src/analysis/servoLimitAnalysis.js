@@ -33,8 +33,8 @@ export function servoDisplayName(name) {
   if (!match) return name;
 
   const index = Number(match[1]);
-  if (index <= 2) return `Cyclic servo ${index + 1}`;
-  if (index === 3) return "Tail servo";
+  if (index <= 2) return `Zyklus-Servo ${index + 1}`;
+  if (index === 3) return "Heck-Servo";
   return `Servo ${index + 1}`;
 }
 
@@ -336,13 +336,8 @@ export function analyzeServoLimits({
 
   const summary =
     affected.length === 0
-      ? `No servo command sat frozen at its travel edge in flight: all ${perServo.length} active servos used their range freely.`
-      : `${affected
-          .map(
-            (servo) =>
-              `${servoDisplayName(servo.name)} pinned at its ${servo.events[0].side === "max" ? "upper" : "lower"} edge ${servo.events.length}× (longest ${servo.longestMs} ms)`
-          )
-          .join("; ")}. A command frozen at the edge of its own travel means the flight controller was asking for more than the setup allows. Check servo travel/limit settings, or read it alongside the saturation findings as genuine control saturation.`;
+      ? `Kein Servo-Kommando saß im Flug eingefroren an seinem Wegendpunkt: Alle ${perServo.length} aktiven Servos nutzten ihren Bereich frei.`
+      : `${affected .map( (servo) => `${servoDisplayName(servo.name)} an seinem ${servo.events[0].side === "max" ? "oberen" : "unteren"} Endpunkt eingefroren ${servo.events.length}× (längste Dauer ${servo.longestMs} ms)` ) .join("; ")}. Ein an seinem eigenen Wegendpunkt eingefrorenes Kommando bedeutet, dass die Flugsteuerung mehr verlangte, als das Setup erlaubt. Prüfe Servo-Weg-/Limit-Einstellungen oder lies es zusammen mit den Sättigungsbefunden als echte Steuerungssättigung.`;
 
   return {
     servos: perServo,

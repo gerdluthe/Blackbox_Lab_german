@@ -117,20 +117,20 @@ function worst(verdicts) {
 // "Roll, Pitch and Yaw" — never "Roll and Pitch and Yaw".
 function listWords(items) {
   if (items.length <= 1) return items.join("");
-  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+  return `${items.slice(0, -1).join(", ")} und ${items[items.length - 1]}`;
 }
 
 const SHORT_LABEL = {
-  demand: "flight demand",
-  rates: "stick demand",
-  coverage: "maneuver coverage",
+  demand: "Flug-Anforderung",
+  rates: "Stick-Anforderung",
+  coverage: "Manöver-Abdeckung",
   headspeed: "headspeed",
-  collective: "collective work",
-  duration: "flight length",
-  evidence: "evidence quality"
+  collective: "Kollektiv-Arbeit",
+  duration: "Flugdauer",
+  evidence: "Beleg-Qualität"
 };
 
-const fmtRpm = (rpm) => (Number.isFinite(rpm) ? `${Math.round(rpm)} rpm` : "not logged");
+const fmtRpm = (rpm) => (Number.isFinite(rpm) ? `${Math.round(rpm)} U/min` : "nicht geloggt");
 const fmtRate = (rate) => (Number.isFinite(rate) ? `${Math.round(rate)}°/s` : "—");
 
 // One row per dimension: before, after, verdict, and the sentence
@@ -146,13 +146,13 @@ export function compareDemand(beforeSignature, afterSignature) {
     const same = b.demandLevel === a.demandLevel;
     rows.push({
       key: "demand",
-      dimension: "Flight demand",
-      before: b.demandLevel === "gentle" ? "gentle" : "real inputs",
-      after: a.demandLevel === "gentle" ? "gentle" : "real inputs",
+      dimension: "Flug-Anforderung",
+      before: b.demandLevel === "gentle" ? "sanft" : "echte Eingaben",
+      after: a.demandLevel === "gentle" ? "sanft" : "echte Eingaben",
       verdict: same ? "match" : "mismatch",
       note: same
         ? null
-        : "One flight was flown gently, the other much harder: the measurements describe different flying, not the change."
+        : "Ein Flug wurde sanft geflogen, der andere deutlich härter: Die Messungen beschreiben unterschiedliches Fliegen, nicht die Änderung."
     });
   }
 
@@ -169,14 +169,14 @@ export function compareDemand(beforeSignature, afterSignature) {
     const verdict = worst(rateVerdicts);
     rows.push({
       key: "rates",
-      dimension: "Stick demand per axis",
+      dimension: "Stick-Anforderung pro Achse",
       before: rateParts.map((p) => p.split(" vs ")[0]).join(" · "),
       after: rateParts.map((p) => `${p.split(" ")[0]} ${p.split(" vs ")[1]}`).join(" · "),
       verdict,
       note:
         verdict === "match" || verdict === null
           ? null
-          : "An axis was worked much harder on one side: its tracking numbers measure different demand."
+          : "Eine Achse wurde auf einer Seite deutlich härter gearbeitet: Ihre Nachführungs-Zahlen messen unterschiedliche Anforderung."
     });
   }
 
@@ -198,14 +198,14 @@ export function compareDemand(beforeSignature, afterSignature) {
     const thin = coverage.filter((c) => c.verdict !== "match").map((c) => c.axis);
     rows.push({
       key: "coverage",
-      dimension: "Maneuver coverage (clean commands per axis)",
+      dimension: "Manöver-Abdeckung (saubere Kommandos pro Achse)",
       before: coverage.map((c) => `${c.axis} ${c.before}`).join(" · "),
       after: coverage.map((c) => `${c.axis} ${c.after}`).join(" · "),
       verdict,
       note:
         verdict === "match"
           ? null
-          : `${listWords(thin)}: fewer than ${ADEQUATE_AXIS_EVENTS} clean commands on one side — ${thin.length === 1 ? "that axis is" : "those axes are"} not judged.`
+          : `${listWords(thin)}: weniger als ${ADEQUATE_AXIS_EVENTS} saubere Kommandos auf einer Seite — ${thin.length === 1 ? "diese Achse wird" : "diese Achsen werden"} nicht beurteilt.`
     });
   }
 
@@ -215,15 +215,15 @@ export function compareDemand(beforeSignature, afterSignature) {
     rows.push({
       key: "headspeed",
       dimension: "Headspeed",
-      before: fmtRpm(b.headspeedRpm) + (b.headspeedBanks.length > 1 ? ` (${b.headspeedBanks.length} banks)` : ""),
-      after: fmtRpm(a.headspeedRpm) + (a.headspeedBanks.length > 1 ? ` (${a.headspeedBanks.length} banks)` : ""),
+      before: fmtRpm(b.headspeedRpm) + (b.headspeedBanks.length > 1 ? ` (${b.headspeedBanks.length} Bänke)` : ""),
+      after: fmtRpm(a.headspeedRpm) + (a.headspeedBanks.length > 1 ? ` (${a.headspeedBanks.length} Bänke)` : ""),
       verdict,
       note:
         verdict === "match"
           ? null
           : verdict === null
-            ? "Headspeed is not logged on one side, so the flights cannot be matched on it."
-            : "Different headspeeds change the machine's response on their own — a tuning change cannot be told apart from the bank change."
+            ? "Die Headspeed ist auf einer Seite nicht geloggt, deshalb lassen sich die Flüge nicht danach abgleichen."
+            : "Unterschiedliche Headspeeds verändern die Antwort der Maschine von allein — eine Tuning-Änderung lässt sich von der Bank-Änderung nicht unterscheiden."
     });
   }
 
@@ -233,14 +233,14 @@ export function compareDemand(beforeSignature, afterSignature) {
     const fmt = (v) => (Number.isFinite(v) ? `${Math.round(v)}/s` : "—");
     rows.push({
       key: "collective",
-      dimension: "Collective work",
+      dimension: "Kollektiv-Arbeit",
       before: fmt(b.collectiveWork),
       after: fmt(a.collectiveWork),
       verdict,
       note:
         verdict === "match" || verdict === null
           ? null
-          : "One flight worked the collective much harder: governor and power figures answer different loads."
+          : "Ein Flug arbeitete das Kollektiv deutlich härter: Governor- und Leistungszahlen antworten auf unterschiedliche Lasten."
     });
   }
 
@@ -249,14 +249,14 @@ export function compareDemand(beforeSignature, afterSignature) {
     const verdict = ratioVerdict(b.durationSeconds, a.durationSeconds, { match: 0.6, partial: 0.4 });
     rows.push({
       key: "duration",
-      dimension: "Flight length",
+      dimension: "Flugdauer",
       before: `${Math.round(b.durationSeconds)} s`,
       after: `${Math.round(a.durationSeconds)} s`,
       verdict,
       note:
         verdict === "match"
           ? null
-          : "The longer flight simply had more chances to show events."
+          : "Der längere Flug hatte schlicht mehr Gelegenheiten, Ereignisse zu zeigen."
     });
   }
 
@@ -273,14 +273,14 @@ export function compareDemand(beforeSignature, afterSignature) {
             : "match";
     rows.push({
       key: "evidence",
-      dimension: "Evidence quality (score confidence)",
+      dimension: "Beleg-Qualität (Sicherheit der Punktzahl)",
       before: b.evidence ?? "—",
       after: a.evidence ?? "—",
       verdict,
       note:
         verdict === "match" || verdict === null
           ? null
-          : `${thin(b.evidence) && thin(a.evidence) ? "Both scores are" : thin(b.evidence) ? "The earlier score is" : "The later score is"} thin on clean command responses.`
+          : `${thin(b.evidence) && thin(a.evidence) ? "Beide Punktzahlen sind" : thin(b.evidence) ? "Die frühere Punktzahl ist" : "Die spätere Punktzahl ist"} dünn an sauberen Kommando-Antworten.`
     });
   }
 

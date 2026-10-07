@@ -160,14 +160,14 @@ export function analyzeSignalLab({
         startSeconds: timeSeconds[run.startIndex],
         endSeconds: timeSeconds[run.endIndex],
         durationMs: Math.round(seconds(run.startIndex, run.endIndex) * 1000),
-        detail: "Firmware entered failsafe: the control link was lost long enough for the failsafe stage to engage."
+        detail: "Firmware ist in Failsafe gegangen: Die Steuerverbindung war lang genug unterbrochen, damit die Failsafe-Stufe anspringt."
       });
     }
   }
 
   const lossFlags = [
-    { values: rxSignalReceived, label: "no signal received" },
-    { values: rxFlightChannelsValid, label: "flight channels invalid" }
+    { values: rxSignalReceived, label: "kein Signal empfangen" },
+    { values: rxFlightChannelsValid, label: "Flugkanäle ungültig" }
   ];
 
   for (const flag of lossFlags) {
@@ -194,7 +194,7 @@ export function analyzeSignalLab({
         startSeconds: timeSeconds[run.startIndex],
         endSeconds: timeSeconds[run.endIndex],
         durationMs: Math.round(seconds(run.startIndex, run.endIndex) * 1000),
-        detail: `Receiver reported ${flag.label}.`
+        detail: `Empfänger meldete ${flag.label}.`
       });
     }
   }
@@ -266,7 +266,7 @@ export function analyzeSignalLab({
           durationMs: Math.round(
             seconds(run.startIndex, run.endIndex) * 1000
           ),
-          detail: `Signal fell to ${Math.round(lowest)} (typical for this flight: ${Math.round(typicalRssi)})${deep ? ", a deep dip" : ""}, then recovered.`
+          detail: `Signal fiel auf ${Math.round(lowest)} (typisch für diesen Flug: ${Math.round(typicalRssi)})${deep ? ", ein tiefer Einbruch" : ""}, erholte sich dann.`
         });
       }
     } else {
@@ -291,64 +291,64 @@ export function analyzeSignalLab({
   // ---- metrics: only what the log actually carries ----
   if (typicalRssi !== null) {
     metrics.push({
-      label: "Typical link strength (as logged)",
+      label: "Typische Verbindungsstärke (wie geloggt)",
       value: `${Math.round(typicalRssi)}`
     });
     metrics.push({
-      label: "Weakest moment (as logged)",
+      label: "Schwächster Moment (wie geloggt)",
       value: `${Math.round(minimumRssi)}`
     });
   } else {
     metrics.push({
-      label: "Link strength",
-      value: "Not logged. Link state read from receiver flags only"
+      label: "Verbindungsstärke",
+      value: "Nicht geloggt. Verbindungszustand nur aus Empfänger-Flags gelesen"
     });
   }
 
   metrics.push({
-    label: "Failsafe events",
+    label: "Failsafe-Ereignisse",
     value: Array.isArray(failsafePhase)
       ? String(failsafeEventCount)
-      : "Not logged"
+      : "Nicht geloggt"
   });
 
   metrics.push({
-    label: "Link-loss indications",
+    label: "Verbindungsverlust-Meldungen",
     value:
       Array.isArray(rxSignalReceived) ||
       Array.isArray(rxFlightChannelsValid)
         ? String(linkLossEventCount)
-        : "Not logged"
+        : "Nicht geloggt"
   });
 
   if (typicalRssi !== null) {
     metrics.push({
-      label: "Signal dips (relative to this flight)",
-      value: `${degradedEventCount + deepEventCount}${deepEventCount > 0 ? ` (${deepEventCount} deep)` : ""}`
+      label: "Signaleinbrüche (relativ zu diesem Flug)",
+      value: `${degradedEventCount + deepEventCount}${deepEventCount > 0 ? ` (${deepEventCount} tief)` : ""}`
     });
   }
 
   // ---- the story ----
   const story =
     failsafeEventCount > 0
-      ? `The firmware entered failsafe ${failsafeEventCount === 1 ? "once" : `${failsafeEventCount} times`} in flight: the control link was genuinely interrupted. The event times below mark each interruption; on the hardware side, antenna placement, orientation and condition are the usual sources.`
+      ? `Die Firmware ist im Flug ${failsafeEventCount === 1 ? "einmal" : `${failsafeEventCount} Mal`} in Failsafe gegangen: Die Steuerverbindung wurde tatsächlich unterbrochen. Die Ereigniszeiten unten markieren jede Unterbrechung; auf der Hardware-Seite sind Antennenplatzierung, Ausrichtung und Zustand die üblichen Quellen.`
       : linkLossEventCount > 0
-        ? `The receiver reported ${linkLossEventCount === 1 ? "a moment" : `${linkLossEventCount} moments`} of lost or invalid signal. The flight continued, but this is the firmware's own account of the link; antennas, wiring and receiver placement are the usual sources.`
+        ? `Der Empfänger meldete ${linkLossEventCount === 1 ? "einen Moment" : `${linkLossEventCount} Momente`} mit verlorenem oder ungültigem Signal. Der Flug ging weiter, aber das ist der eigene Bericht der Firmware über die Verbindung; Antennen, Verkabelung und Empfängerplatzierung sind die üblichen Quellen.`
         : deepEventCount > 0
-          ? `The link held, but it dipped deeply ${deepEventCount === 1 ? "once" : `${deepEventCount} times`} relative to this flight's typical level. One deep dip can be orientation shading; repeated dips point at antenna placement or damage.`
+          ? `Die Verbindung hielt, aber sie brach ${deepEventCount === 1 ? "einmal" : `${deepEventCount} Mal`} tief relativ zum typischen Niveau dieses Fluges ein. Ein tiefer Einbruch kann Orientierungsabschattung sein; wiederholte Einbrüche weisen auf Antennenplatzierung oder -beschädigung hin.`
           : degradedEventCount > 0
-            ? `Signal strength dipped briefly ${degradedEventCount === 1 ? "once" : `${degradedEventCount} times`} but stayed clear of trouble and the receiver never reported a problem: normal for orientation changes at range.`
+            ? `Die Signalstärke brach kurz ${degradedEventCount === 1 ? "einmal" : `${degradedEventCount} Mal`} ein, blieb aber von Problemen entfernt und der Empfänger meldete nie ein Problem: normal bei Ausrichtungsänderungen auf Distanz.`
             : capability === "flags-only"
-              ? "No signal-strength telemetry was logged, but the receiver's own flags stayed healthy the whole flight: no failsafe, no invalid-signal moments."
-              : "The link stayed strong and steady the whole flight: no failsafe, no loss indications, no meaningful dips below this flight's own typical level.";
+              ? "Keine Signalstärke-Telemetrie geloggt, aber die eigenen Flags des Empfängers blieben den ganzen Flug gesund: kein Failsafe, keine Momente mit ungültigem Signal."
+              : "Die Verbindung blieb den ganzen Flug stark und stabil: kein Failsafe, keine Verlustmeldungen, keine nennenswerten Einbrüche unter das typische Niveau dieses Fluges.";
 
   if (typicalRssi !== null) {
     findings.push(
-      "Signal readings are compared against this flight's own typical level, never against absolute thresholds: different receivers and protocols scale these numbers differently."
+      "Signalmessungen werden gegen das typische Niveau dieses Fluges verglichen, nie gegen absolute Schwellwerte: Verschiedene Empfänger und Protokolle skalieren diese Zahlen unterschiedlich."
     );
   }
   findings.push(
-    "A telemetry interruption is never read as loss of control: only the receiver's own failsafe and signal flags speak for the control link."
+    "Eine Telemetrie-Unterbrechung wird nie als Steuerungsverlust gelesen: Nur der eigene Failsafe und die Signalflaggen des Empfängers sprechen für die Steuerverbindung."
   );
 
   return {

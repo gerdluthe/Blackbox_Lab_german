@@ -15,7 +15,7 @@
 //
 // ======================================================
 
-export function packSnippet(pack, { packLabel = "change pack" } = {}) {
+export function packSnippet(pack, { packLabel = "Änderungspaket" } = {}) {
   if (!pack?.members?.length) {
     return null;
   }
@@ -25,8 +25,8 @@ export function packSnippet(pack, { packLabel = "change pack" } = {}) {
 
   const lines = [
     `# Blackbox Lab — ${packLabel}`,
-    "# Apply on the bench, never while armed. Save a dump first.",
-    "# First flight after: hover check with abort criteria before any full maneuver."
+    "# Nur auf der Werkbank einspielen, nie im armierten Zustand. Vorher einen Dump speichern.",
+    "# Erster Flug danach: Hover-Check mit Abbruchkriterien vor jedem vollen Manöver."
   ];
 
   for (const member of pack.members) {
@@ -34,7 +34,7 @@ export function packSnippet(pack, { packLabel = "change pack" } = {}) {
       lines.push(`set ${member.setting} = ${member.to}`);
     } else {
       lines.push(
-        `# ${member.setting}: one ${member.magnitudeClass} ${member.direction} (${member.numericNote})`
+        `# ${member.setting}: ein ${member.magnitudeClass} ${member.direction} (${member.numericNote})`
       );
     }
   }
@@ -43,13 +43,13 @@ export function packSnippet(pack, { packLabel = "change pack" } = {}) {
   return lines.join("\n");
 }
 
-export function revertSnippet(pack, { packLabel = "change pack" } = {}) {
+export function revertSnippet(pack, { packLabel = "Änderungspaket" } = {}) {
   if (!pack?.members?.length) {
     return null;
   }
 
   const lines = [
-    `# Blackbox Lab — revert ${packLabel} (restore previous values)`
+    `# Blackbox Lab — ${packLabel} rückgängig machen (vorherige Werte wiederherstellen)`
   ];
 
   let restorable = 0;
@@ -59,7 +59,7 @@ export function revertSnippet(pack, { packLabel = "change pack" } = {}) {
       restorable += 1;
     } else {
       lines.push(
-        `# ${member.setting}: previous value not on file — restore from your saved dump`
+        `# ${member.setting}: vorheriger Wert nicht gespeichert — aus deinem gespeicherten Dump wiederherstellen`
       );
     }
   }

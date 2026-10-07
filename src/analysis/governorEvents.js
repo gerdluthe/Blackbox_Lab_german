@@ -238,27 +238,27 @@ function classifyEvent({ kind, outputMaxPercent, collectiveBefore, tuning }) {
 }
 
 function eventStory(event) {
-  const direction = event.kind === "under" ? "below" : "above";
+  const direction = event.kind === "under" ? "unter" : "über";
 
   const core =
-    `The rotor ran ${Math.round(event.peakErrorRpm)} rpm ` +
-    `(${event.peakErrorPercent.toFixed(1)}%) ${direction} its ` +
-    `${Math.round(event.targetRpm)} rpm target for ` +
+    `Der Rotor lief ${Math.round(event.peakErrorRpm)} U/min ` +
+    `(${event.peakErrorPercent.toFixed(1)} %) ${direction} seinem ` +
+    `${Math.round(event.targetRpm)}-U/min-Ziel für ` +
     `${(event.durationMs / 1000).toFixed(1)} s.`;
 
   const cause =
     event.cause === "power-limit"
-      ? " The motor output was at its ceiling: the power system had nothing left to give here, whatever the governor asked. See the ESC Lab."
+      ? " Der Motorausgang stand an seiner Obergrenze: Das Antriebssystem hatte hier nichts mehr zu geben, was auch immer der Governor verlangte. Siehe ESC-Labor."
       : event.cause === "load"
-        ? " It followed a collective increase: the load arrived faster than the drive could answer."
+        ? " Es folgte einer Kollektiv-Erhöhung: Die Last kam schneller, als der Antrieb antworten konnte."
         : event.cause === "collective-drop"
-          ? " It followed a sharp collective drop: the drive kept pushing power the load no longer needed, which is where governor feedforward/precomp does its work."
+          ? " Es folgte einem scharfen Kollektiv-Abfall: Der Antrieb schob weiter Leistung, die die Last nicht mehr brauchte; genau dort leistet die Governor-Vorsteuerung/Precomp ihre Arbeit."
           : event.kind === "under"
-            ? " No collective move or output ceiling explains it from this log alone."
-            : " No preceding collective drop explains it from this log alone.";
+            ? " Aus diesem Log allein erklärt es weder eine Kollektiv-Bewegung noch eine Ausgangsgrenze."
+            : " Aus diesem Log allein erklärt es kein vorausgehender Kollektiv-Abfall.";
 
   const hunting = event.hunting
-    ? " Afterwards the headspeed circled its target instead of returning to it. Watch the error trace hunting around zero."
+    ? " Danach kreiste die Headspeed um ihr Ziel, statt zu ihm zurückzukehren. Beobachte die Fehlerkurve, die um null pendelt."
     : "";
 
   return core + cause + hunting;
@@ -625,22 +625,22 @@ export function detectGovernorEvents({
 
   const sentence =
     events.length === 0
-      ? "No sustained over- or under-target excursions found in flight: the rotor stayed inside the event band the whole time."
-      : `${qualified.length} headspeed excursion${qualified.length === 1 ? "" : "s"} found: ` +
-        `${counts.under} below target` +
-        (counts.over > 0 ? `, ${counts.over} above target` : "") +
+      ? "Keine anhaltenden Über- oder Unterschreitungen des Ziels im Flug gefunden: Der Rotor blieb die ganze Zeit innerhalb des Ereignisbands."
+      : `${qualified.length} Headspeed-Abweichung${qualified.length === 1 ? "" : "en"} gefunden: ` +
+        `${counts.under} unter dem Ziel` +
+        (counts.over > 0 ? `, ${counts.over} über dem Ziel` : "") +
         (counts.powerLimit > 0
-          ? `, ${counts.powerLimit} at the power-system limit`
+          ? `, ${counts.powerLimit} an der Grenze des Antriebssystems`
           : "") +
         (counts.hunting > 0
-          ? `, ${counts.hunting} with hunting afterwards`
+          ? `, ${counts.hunting} mit anschließendem Pendeln`
           : "") +
         "." +
         (worst
-          ? ` Worst: ${worst.peakErrorPercent.toFixed(1)}% ${worst.kind === "under" ? "below" : "above"} target at ${worst.tPeak ?? worst.t} s.`
+          ? ` Schlimmste: ${worst.peakErrorPercent.toFixed(1)} % ${worst.kind === "under" ? "unter" : "über"} dem Ziel bei ${worst.tPeak ?? worst.t} s.`
           : "") +
         (dropped > 0
-          ? ` (${dropped} milder excursion${dropped === 1 ? "" : "s"} not shown.)`
+          ? ` (${dropped} mildere Abweichung${dropped === 1 ? "" : "en"} nicht gezeigt.)`
           : "");
 
   return {

@@ -302,7 +302,7 @@ export function explainLoadEvent({
     return {
       cause: "headroom-limit",
       sentence:
-        "Output sat at maximum for a meaningful part of this event: the power system had nothing left to give here. Consider more headroom (lower headspeed, a fresher pack, or gearing/Kv matched to your target headspeed) before blaming the tune."
+        "Der Ausgang stand für einen bedeutenden Teil dieses Ereignisses am Maximum: Das Antriebssystem hatte hier nichts mehr zu geben. Erwäge mehr Reserve (niedrigere Headspeed, einen frischeren Akku oder Übersetzung/Kv passend zu deiner Ziel-Headspeed), bevor du dem Tuning die Schuld gibst."
     };
   }
 
@@ -314,8 +314,8 @@ export function explainLoadEvent({
     return {
       cause: "collective-load",
       sentence: sagged
-        ? "Collective demand rose sharply at the same time as current, power and ESC output. This is consistent with a hard pitch pump or other demanding collective maneuver. The battery sag was a response to the load, not necessarily evidence of a weak pack."
-        : "Collective demand rose sharply at the same time as current, power and ESC output. This is consistent with a hard pitch pump or other demanding collective maneuver: the power system followed the demand with voltage holding up well."
+        ? "Der Kollektiv-Bedarf stieg gleichzeitig mit Strom, Leistung und ESC-Ausgang stark an. Das passt zu einem harten Pitch-Pump oder einem anderen fordernden Kollektiv-Manöver. Der Akku-Einbruch war eine Antwort auf die Last, nicht unbedingt ein Beleg für einen schwachen Akku."
+        : "Der Kollektiv-Bedarf stieg gleichzeitig mit Strom, Leistung und ESC-Ausgang stark an. Das passt zu einem harten Pitch-Pump oder einem anderen fordernden Kollektiv-Manöver: Das Antriebssystem folgte dem Bedarf, und die Spannung hielt gut."
     };
   }
 
@@ -323,14 +323,14 @@ export function explainLoadEvent({
     return {
       cause: "battery-sag",
       sentence:
-        "Pack voltage fell well below its level from just before this event, so the governor needed extra throttle to deliver the same power. The demand is real, but the battery is amplifying it: the table shows the exact before → during voltages."
+        "Die Packspannung fiel deutlich unter ihren Wert kurz vor diesem Ereignis, deshalb brauchte der Governor zusätzliches Gas, um dieselbe Leistung zu liefern. Der Bedarf ist echt, aber der Akku verstärkt ihn: Die Tabelle zeigt die genauen Spannungen vorher → währenddessen."
     };
   }
 
   return {
     cause: "normal-load",
     sentence:
-      "High output with headroom to spare and steady voltage: this looks like a genuinely demanding moment handled as designed."
+      "Hoher Ausgang mit Reserve und stabiler Spannung: Das sieht nach einem tatsächlich fordernden Moment aus, der wie vorgesehen bewältigt wurde."
   };
 }
 

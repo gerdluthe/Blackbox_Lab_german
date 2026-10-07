@@ -77,18 +77,18 @@ export function assessVibrationConclusion({
 
   // ---- the four sentences ----
 
-  const detected = `Vibration detected at ${hzLabel} Hz (raw amplitude ${raw.toFixed(1)}). Frequency territory: ${source}. This is an observation, not a diagnosis.`;
+  const detected = `Vibration bei ${hzLabel} Hz erkannt (Rohbetrag ${raw.toFixed(1)}). Frequenzgebiet: ${source}. Das ist eine Beobachtung, keine Diagnose.`;
 
   const filtering = filteringKnown
-    ? `Rotorflight filtering reduces this peak ${Math.round(reductionPercent)}% (${raw.toFixed(1)} raw → ${residualMagnitude.toFixed(1)} filtered).`
-    : "This log carries no separate filtered gyro trace, so filter effectiveness at this peak cannot be measured.";
+    ? `Rotorflight-Filterung reduziert diese Spitze um ${Math.round(reductionPercent)} % (${raw.toFixed(1)} roh → ${residualMagnitude.toFixed(1)} gefiltert).`
+    : "Dieses Log enthält keine separate gefilterte Gyro-Kurve, deshalb lässt sich die Filterwirkung an dieser Spitze nicht messen.";
 
   const impact =
     controlImpact === true
-      ? "Residual vibration reaches the filtered gyro and may be affecting control response."
+      ? "Restliche Vibration erreicht den gefilterten Gyro und beeinflusst möglicherweise die Steuerantwort."
       : controlImpact === false
-        ? "No meaningful filtered-gyro or control-loop impact detected."
-        : "Control-loop impact could not be assessed from this log.";
+        ? "Keine nennenswerte Auswirkung auf gefilterten Gyro oder Regelkreis festgestellt."
+        : "Die Auswirkung auf den Regelkreis ließ sich aus diesem Log nicht beurteilen.";
 
   // ---- severity ladder: strong words need agreeing signals ----
 
@@ -117,14 +117,14 @@ export function assessVibrationConclusion({
 
   const recommendation =
     level === "observed" && raw > RAW_MODERATE
-      ? "Vibration is present, but it is being managed successfully. No change recommended. Worth reviewing mechanically only if this peak grows across flights or begins reaching the filtered gyro."
+      ? "Vibration ist vorhanden, wird aber erfolgreich beherrscht. Keine Änderung empfohlen. Nur mechanisch prüfen, wenn diese Spitze über die Flüge wächst oder beginnt, den gefilterten Gyro zu erreichen."
       : level === "observed"
-        ? "No action needed: a clean, well-balanced machine."
+        ? "Kein Handlungsbedarf: eine saubere, gut gewuchtete Maschine."
         : level === "review"
-          ? "Worth reviewing at the bench when convenient; re-log after any mechanical change to compare."
+          ? "Bei Gelegenheit an der Werkbank prüfen; nach jeder mechanischen Änderung erneut loggen und vergleichen."
           : level === "suspected"
-            ? "Mechanical review suggested: balance, tracking, damping and bearings in the named frequency territory, then re-log. Filters suppress what the gyro sees; they do not remove the physical vibration."
-            : "Multiple signals agree: strong raw vibration, filters not containing it, and control impact. Inspect the mechanics in the named frequency territory before further flights, then re-log.";
+            ? "Mechanische Prüfung empfohlen: Wucht, Spurlauf, Dämpfung und Lager im genannten Frequenzgebiet, dann erneut loggen. Filter unterdrücken, was der Gyro sieht; sie entfernen nicht die physische Vibration."
+            : "Mehrere Signale stimmen überein: starke Rohvibration, Filter beherrschen sie nicht, und Auswirkung auf den Regelkreis. Mechanik im genannten Frequenzgebiet vor weiteren Flügen prüfen, dann erneut loggen.";
 
   return {
     level,

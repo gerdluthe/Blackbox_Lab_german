@@ -318,10 +318,10 @@ function buildPidRecommendations({
       commandBalanceReviewAxes.includes(axis);
 
     const finding =
-      `${axis} reached its target but settled slowly on ` +
-      `${slowEvents.length} of ${cleanResponses.length} measured commands` +
+      `${axis} hat sein Ziel erreicht, aber auf ` +
+      `${slowEvents.length} von ${cleanResponses.length} gemessenen Kommandos langsam eingeschwungen` +
       (huntingMajority
-        ? ", circling the setpoint before coming to rest"
+        ? ", kreiste den Setpoint ein, bevor es zur Ruhe kam"
         : "") +
       ".";
 
@@ -347,40 +347,40 @@ function buildPidRecommendations({
 
     if (vibrationConcern) {
       hypothesis = huntingMajority
-        ? "The response circles its setpoint before resting. But this flight also carries an open vibration finding, and gyro vibration can produce exactly this signature."
-        : "The response creeps to its target. But this flight also carries an open vibration finding, which has to be resolved first.";
+        ? "Die Antwort kreist ihren Setpoint ein, bevor sie zur Ruhe kommt. Aber dieser Flug trägt auch einen offenen Vibrationsbefund, und Gyro-Vibration kann genau diese Signatur erzeugen."
+        : "Die Antwort schleicht zu ihrem Ziel. Aber dieser Flug trägt auch einen offenen Vibrationsbefund, der zuerst gelöst werden muss.";
       gatedReason =
-        "Filters come before PIDs: resolve the vibration finding, fly again, and re-read this page.";
+        "Filter kommen vor PIDs: Löse den Vibrationsbefund, fliege erneut und lies diese Seite neu.";
     } else if (confidence !== "High") {
       hypothesis = huntingMajority
-        ? "The slow settles hunt around the setpoint, which usually points at damping. But there are not enough clean commands in this log to call it."
-        : "The slow settles creep to target without hunting. But there are not enough clean commands in this log to call it.";
-      gatedReason = `Evidence confidence is ${confidence} (${cleanResponses.length} clean command${cleanResponses.length === 1 ? "" : "s"}). Fly a log with more distinct stick inputs and re-read this page.`;
+        ? "Die langsamen Einschwingungen pendeln um den Setpoint, was gewöhnlich auf Dämpfung hinweist. Aber es gibt nicht genug saubere Kommandos in diesem Log, um es zu bestätigen."
+        : "Die langsamen Einschwingungen schleichen zum Ziel ohne zu pendeln. Aber es gibt nicht genug saubere Kommandos in diesem Log, um es zu bestätigen.";
+      gatedReason = `Beleg-Sicherheit ist ${confidence} (${cleanResponses.length} sauberes Kommando${cleanResponses.length === 1 ? "" : "s"}). Fliege ein Log mit mehr verschiedenen Stick-Eingaben und lies diese Seite neu.`;
     } else if (huntingMajority) {
       hypothesis =
-        "Reaching the target and then circling it is the classic underdamped signature: the axis has the drive to get there but not the damping to stop there.";
+        "Das Ziel zu erreichen und es dann einzukreisen ist die klassische unterdämpfte Signatur: Die Achse hat den Antrieb, um dorthin zu kommen, aber nicht die Dämpfung, um dort zu stoppen.";
       suggestion = {
         family: AXIS_SETTING_FAMILY[axis].damping,
         direction: "up",
-        magnitudeClass: "small step"
+        magnitudeClass: "kleiner Schritt"
       };
-      expectedResult = `${axis} settling times drop back toward the clean events on this page, without new oscillation on fast moves.`;
-      verifyMetric = `the ${axis} slow-settle count in Flight Events`;
+      expectedResult = `${axis}-Einschwingzeiten sinken zurück zu den sauberen Ereignissen auf dieser Seite, ohne neue Schwingungen bei schnellen Bewegungen.`;
+      verifyMetric = `die ${axis}-Langsam-Einschwing-Zahl in Flug-Ereignissen`;
     } else if (driveSide) {
       hypothesis =
-        "The axis creeps to its target while the I-term carries the command. In Rotorflight, feedforward is supposed to do that work.";
+        "Die Achse schleicht zu ihrem Ziel, während der I-Anteil das Kommando trägt. In Rotorflight soll Feedforward diese Arbeit leisten.";
       suggestion = {
         family: AXIS_SETTING_FAMILY[axis].drive,
         direction: "up",
-        magnitudeClass: "small step"
+        magnitudeClass: "kleiner Schritt"
       };
-      expectedResult = `${axis} responses reach target with less I-term build-up, and the command-balance finding clears.`;
-      verifyMetric = `the ${axis} slow-settle count in Flight Events`;
+      expectedResult = `${axis}-Antworten erreichen das Ziel mit weniger I-Anteil-Aufbau, und der Kommando-Balance-Befund bereinigt sich.`;
+      verifyMetric = `die ${axis}-Langsam-Einschwing-Zahl in Flug-Ereignissen`;
     } else {
       hypothesis =
-        "The slow settles carry neither a clear hunting signature nor an I-dominance finding, so damping and drive cannot be told apart from this log alone.";
+        "Die langsamen Einschwingungen tragen weder eine klare Pendel-Signatur noch einen I-Dominanz-Befund, deshalb lassen sich Dämpfung und Antrieb aus diesem Log allein nicht unterscheiden.";
       gatedReason =
-        "Mixed signature: confirm the pattern with another log before changing values.";
+        "Gemischte Signatur: Bestätige das Muster mit einem weiteren Log, bevor Werte geändert werden.";
     }
 
     recommendations.push({
@@ -451,9 +451,9 @@ function buildOvershootRecommendation({
   }
 
   const finding =
-    `${axis} overshot its target by ${gate.OVERSHOOT_REVIEW_PERCENT}%+ on ` +
-    `${big.length} of ${cleanResponses.length} measured commands ` +
-    `(median ${Math.round(medianBig)}% past the target).`;
+    `${axis} hat sein Ziel überschossen (${gate.OVERSHOOT_REVIEW_PERCENT} %+) bei ` +
+    `${big.length} von ${cleanResponses.length} gemessenen Kommandos ` +
+    `(Median ${Math.round(medianBig)} % am Ziel vorbei).`;
 
   const evidence = big.slice(0, 6).map((event) => ({
     kind: "command-event",
@@ -483,9 +483,9 @@ function buildOvershootRecommendation({
     return {
       ...base,
       hypothesis:
-        "Repeated overshoot with an open vibration finding is unreadable: gyro vibration can push a response past its target all by itself.",
+        "Wiederholtes Überschwingen mit einem offenen Vibrationsbefund ist nicht lesbar: Gyro-Vibration kann eine Antwort allein über das Ziel hinaus drücken.",
       gatedReason:
-        "Filters come before PIDs: resolve the vibration finding, fly again, and re-read this page."
+        "Filter kommen vor PIDs: Löse den Vibrationsbefund, fliege erneut und lies diese Seite neu."
     };
   }
 
@@ -493,8 +493,8 @@ function buildOvershootRecommendation({
     return {
       ...base,
       hypothesis:
-        "The overshoots repeat, but there are not enough clean commands in this log to read what drives them.",
-      gatedReason: `Evidence confidence is ${confidence} (${cleanResponses.length} clean command${cleanResponses.length === 1 ? "" : "s"}). Fly a log with more distinct stick inputs and re-read this page.`
+        "Die Überschwingungen wiederholen sich, aber es gibt nicht genug saubere Kommandos in diesem Log, um zu lesen, was sie antreibt.",
+      gatedReason: `Beleg-Sicherheit ist ${confidence} (${cleanResponses.length} sauberes Kommando${cleanResponses.length === 1 ? "" : "s"}). Fliege ein Log mit mehr verschiedenen Stick-Eingaben und lies diese Seite neu.`
     };
   }
 
@@ -510,14 +510,14 @@ function buildOvershootRecommendation({
       ...base,
       dampingSide: true,
       hypothesis:
-        "The overshoots ring: the axis blows past its target and oscillates before resting. The drive is winning against the damping.",
+        "Die Überschwingungen klingen: Die Achse schießt über ihr Ziel hinaus und schwingt, bevor sie zur Ruhe kommt. Der Antrieb gewinnt gegen die Dämpfung.",
       suggestion: {
         family: AXIS_SETTING_FAMILY[axis].damping,
         direction: "up",
-        magnitudeClass: "small step"
+        magnitudeClass: "kleiner Schritt"
       },
-      expectedResult: `${axis} overshoot events shrink and stop ringing, without the response turning sluggish.`,
-      verifyMetric: `the ${axis} overshoot count in Flight Events`
+      expectedResult: `${axis}-Überschwing-Ereignisse schrumpfen und hören auf zu schwingen, ohne dass die Antwort träge wird.`,
+      verifyMetric: `die ${axis}-Überschwing-Zahl in Flug-Ereignissen`
     };
   }
 
@@ -528,9 +528,9 @@ function buildOvershootRecommendation({
     return {
       ...base,
       hypothesis:
-        "The overshoots repeat without ringing, but too few responses crossed the target to read whether command speed or command size drives them.",
+        "Die Überschwingungen wiederholen sich ohne zu schwingen, aber zu wenige Antworten kreuzten das Ziel, um zu lesen, ob Kommandogeschwindigkeit oder -größe sie antreibt.",
       gatedReason:
-        "Confirm the pattern with another log carrying more measured overshoots before changing values."
+        "Bestätige das Muster mit einem weiteren Log mit mehr gemessenen Überschwingungen, bevor Werte geändert werden."
     };
   }
 
@@ -571,14 +571,14 @@ function buildOvershootRecommendation({
     return {
       ...base,
       hypothesis:
-        "Overshoot grows with how FAST the command moved: the feedforward signature. It pushes in proportion to stick speed, and here it pushes past the target.",
+        "Überschwingen wächst damit, wie SCHNELL das Kommando sich bewegt: die Feedforward-Signatur. Es drückt proportional zur Stick-Geschwindigkeit, und hier drückt es über das Ziel hinaus.",
       suggestion: {
         family: AXIS_SETTING_FAMILY[axis].drive,
         direction: "down",
-        magnitudeClass: "small step"
+        magnitudeClass: "kleiner Schritt"
       },
-      expectedResult: `${axis} overshoot shrinks on fast inputs first: exactly where it is worst now.`,
-      verifyMetric: `the ${axis} overshoot count in Flight Events`
+      expectedResult: `${axis}-Überschwingen schrumpft zuerst bei schnellen Eingaben: genau dort, wo es jetzt am schlimmsten ist.`,
+      verifyMetric: `die ${axis}-Überschwing-Zahl in Flug-Ereignissen`
     };
   }
 
@@ -586,28 +586,28 @@ function buildOvershootRecommendation({
     return {
       ...base,
       hypothesis:
-        "Overshoot grows with how BIG the command was, not how fast: the proportional-drive signature.",
+        "Überschwingen wächst damit, wie GROSS das Kommando war, nicht wie schnell: die Proportionalanteil-Signatur.",
       suggestion: {
         family: AXIS_SETTING_FAMILY[axis].proportional,
         direction: "down",
-        magnitudeClass: "small step"
+        magnitudeClass: "kleiner Schritt"
       },
-      expectedResult: `${axis} overshoot shrinks on large inputs first: exactly where it is worst now.`,
-      verifyMetric: `the ${axis} overshoot count in Flight Events`
+      expectedResult: `${axis}-Überschwingen schrumpft zuerst bei großen Eingaben: genau dort, wo es jetzt am schlimmsten ist.`,
+      verifyMetric: `die ${axis}-Überschwing-Zahl in Flug-Ereignissen`
     };
   }
 
   return {
     ...base,
     hypothesis:
-      "The overshoots are real but their driver is not separable from this log: they grow with neither command speed nor command size clearly enough to name one knob.",
+      "Die Überschwingungen sind real, aber ihr Treiber lässt sich aus diesem Log nicht trennen: Sie wachsen weder mit Kommandogeschwindigkeit noch -größe klar genug, um einen Regler zu nennen.",
     suggestion: {
       family: `${AXIS_SETTING_FAMILY[axis].drive}, then ${AXIS_SETTING_FAMILY[axis].proportional}`,
       direction: "down",
-      magnitudeClass: "small step"
+      magnitudeClass: "kleiner Schritt"
     },
-    expectedResult: `${axis} overshoot count drops. In Rotorflight, feedforward does most of the commanded work, so it is the likelier driver: step it first, and only touch ${AXIS_SETTING_FAMILY[axis].proportional} if the next log still overshoots.`,
-    verifyMetric: `the ${axis} overshoot count in Flight Events`
+    expectedResult: `${axis}-Überschwing-Zahl sinkt. In Rotorflight leistet Feedforward die meiste kommandierte Arbeit, deshalb ist er der wahrscheinlichere Treiber: Zuerst diesen anpassen, und ${AXIS_SETTING_FAMILY[axis].proportional} nur anfassen, wenn das nächste Log noch überschwingt.`,
+    verifyMetric: `die ${axis}-Überschwing-Zahl in Flug-Ereignissen`
   };
 }
 
@@ -638,7 +638,7 @@ function buildGovernorRecommendations({
           expectedResult: null,
           verifyMetric: null,
           gatedReason:
-            "This flight carries an open vibration finding, and vibration can fake exactly these signals. Filters come first: resolve it, fly again, and re-read this page."
+            "Dieser Flug trägt einen offenen Vibrationsbefund, und Vibration kann genau diese Signale fälschen. Filter kommen zuerst: Löse ihn, fliege erneut und lies diese Seite neu."
         }
       : recommendation;
 
@@ -657,10 +657,10 @@ function buildGovernorRecommendations({
       id: "governor:power-limit",
       lab: "governor",
       finding:
-        `${powerLimitEvents.length} excursion${powerLimitEvents.length === 1 ? "" : "s"} happened with the motor output at its ceiling: ` +
-        "the power system had nothing left to give at those moments.",
+        `${powerLimitEvents.length} Ausreißer${powerLimitEvents.length === 1 ? "" : ""} mit dem Motorausgang an seiner Obergrenze: ` +
+        "Das Antriebssystem hatte in diesen Momenten nichts mehr zu geben.",
       hypothesis:
-        "A dip with no output headroom is a power-system limit, not a governor-tune problem: no gain or precomp value can add power that is not there.",
+        "Ein Einbruch ohne Ausgangsreserve ist eine Antriebssystem-Grenze, kein Governor-Tune-Problem: Kein Gain- oder Precomp-Wert kann Leistung hinzufügen, die nicht vorhanden ist.",
       evidence: powerLimitEvents.slice(0, 6).map((event) => ({
         kind: "governor-event",
         eventId: event.id,
@@ -674,7 +674,7 @@ function buildGovernorRecommendations({
       expectedResult: null,
       verifyMetric: null,
       gatedReason:
-        "See the ESC Lab for the headroom story (headspeed, gearing, pack) before touching governor values."
+        "Sieh dir das ESC-Labor für die Reserve-Geschichte (Headspeed, Übersetzung, Akku) an, bevor du Governor-Werte anfasst."
     });
   }
 
@@ -698,13 +698,13 @@ function buildGovernorRecommendations({
       id: "governor:precomp-overshoot",
       lab: "governor",
       finding:
-        `The rotor ran over its target right after a sharp collective drop on ${collectiveDropEvents.length} occasions` +
+        `Der Rotor lief nach einem scharfen Kollektiv-Abfall auf ${collectiveDropEvents.length} Gelegenheiten über sein Ziel hinaus` +
         (huntingCount > 0
-          ? `, ${huntingCount} of them hunting around the target afterwards`
+          ? `, ${huntingCount} davon pendelten danach um das Ziel`
           : "") +
         ".",
       hypothesis:
-        "Overspeed that follows a collective drop is the governor's feedforward/precomp still pushing power the load no longer needs. Less collective precomp asks for less of that power; more governor damping absorbs it instead. The smaller change first.",
+        "Überdrehzahl, die einem Kollektiv-Abfall folgt, ist die Governor-Vorsteuerung/Precomp, die noch Leistung einspeist, die die Last nicht mehr braucht. Weniger Kollektiv-Precomp fordert weniger davon an; mehr Governor-Dämpfung absorbiert es stattdessen. Zuerst die kleinere Änderung.",
       evidence: collectiveDropEvents.slice(0, 6).map((event) => ({
         kind: "governor-event",
         eventId: event.id,
@@ -719,16 +719,16 @@ function buildGovernorRecommendations({
         : {
             family: "gov_f_gain",
             direction: "down",
-            magnitudeClass: "small step"
+            magnitudeClass: "kleiner Schritt"
           },
       expectedResult: gated
         ? null
-        : "Collective drops stop producing over-target excursions, and the events above disappear from this page.",
+        : "Kollektiv-Abfälle erzeugen keine Über-Ziel-Ausreißer mehr, und die Ereignisse oben verschwinden von dieser Seite.",
       verifyMetric: gated
         ? null
-        : "over-target events after collective drops in the Governor Lab",
+        : "Über-Ziel-Ereignisse nach Kollektiv-Abfällen im Governor-Labor",
       gatedReason: gated
-        ? `Two occurrences is a hint, not a pattern (confidence ${confidence}). Fly another log with the same moves and re-read this page.`
+        ? `Zwei Vorkommen sind ein Hinweis, kein Muster (Sicherheit ${confidence}). Fliege ein weiteres Log mit denselben Bewegungen und lies diese Seite neu.`
         : null
     });
   }
@@ -752,7 +752,7 @@ function buildGovernorRecommendations({
     powerLimitEvents.length === 0 &&
     !eventRecAlreadyFired
   ) {
-    const sideCounts = `${governorBalance.riseCount} rises / ${governorBalance.dropCount} drops`;
+    const sideCounts = `${governorBalance.riseCount} Anstiege / ${governorBalance.dropCount} Abfälle`;
 
     const confidence =
       governorBalance.riseCount >= 2 * gate.MINIMUM_EVENTS &&
@@ -766,9 +766,9 @@ function buildGovernorRecommendations({
       recommendations.push({
         id: "governor:precomp-low",
         lab: "governor",
-        finding: `Fast collective rises pull the rotor a median ${governorBalance.riseDroopPercent}% under target while drops stay clean (${sideCounts} measured).`,
+        finding: `Schnelle Kollektiv-Anstiege ziehen den Rotor um einen Median von ${governorBalance.riseDroopPercent} % unter das Ziel, während Abfälle sauber bleiben (${sideCounts} gemessen).`,
         hypothesis:
-          "Droop that only appears when load ARRIVES is anticipation running behind: the governor waits to see the error instead of feeding power with the collective. More collective precomp asks for the power before the load does.",
+          "Droop, der nur beim Eintreffen der Last erscheint, ist Vorwegnahme, die hinterher hinkt: Der Governor wartet, den Fehler zu sehen, statt Leistung mit dem Kollektiv einzuspeisen. Mehr Kollektiv-Precomp fordert die Leistung an, bevor die Last es tut.",
         evidence: [
           {
             kind: "precomp-balance",
@@ -785,25 +785,25 @@ function buildGovernorRecommendations({
           : {
               family: "gov_f_gain",
               direction: "up",
-              magnitudeClass: "small step"
+              magnitudeClass: "kleiner Schritt"
             },
         expectedResult: gated
           ? null
-          : "The rise-side droop in the Precomp Balance read shrinks, without new overspeed appearing on drops.",
+          : "Der anstiegsseitige Droop im Precomp-Balance-Bericht schrumpft, ohne dass neue Überdrehzahl bei Abfällen erscheint.",
         verifyMetric: gated
           ? null
-          : "the rise-droop number in the Governor Lab's Precomp Balance",
+          : "die Anstiegs-Droop-Zahl im Precomp-Balance des Governor-Labors",
         gatedReason: gated
-          ? `Not enough collective moves in both directions yet (${sideCounts}). Fly a log with a few honest pumps each way and re-read this page.`
+          ? `Noch nicht genug Kollektiv-Bewegungen in beide Richtungen (${sideCounts}). Fliege ein Log mit einigen ehrlichen Pumpen in jede Richtung und lies diese Seite neu.`
           : null
       });
     } else if (governorBalance.balance === "high") {
       recommendations.push({
         id: "governor:precomp-high",
         lab: "governor",
-        finding: `Fast collective drops push the rotor a median ${governorBalance.dropOvershootPercent}% over target while rises stay clean (${sideCounts} measured).`,
+        finding: `Schnelle Kollektiv-Abfälle drücken den Rotor um einen Median von ${governorBalance.dropOvershootPercent} % über das Ziel, während Anstiege sauber bleiben (${sideCounts} gemessen).`,
         hypothesis:
-          "Overspeed that only appears when load LEAVES is anticipation overshooting: the precomp keeps feeding power the load no longer needs. Less collective precomp, or more governor damping, absorbs it. The smaller change first.",
+          "Überdrehzahl, die nur beim Abgehen der Last erscheint, ist Vorwegnahme, die zu weit schießt: Der Precomp speist weiter Leistung ein, die die Last nicht mehr braucht. Weniger Kollektiv-Precomp, oder mehr Governor-Dämpfung, absorbiert es. Zuerst die kleinere Änderung.",
         evidence: [
           {
             kind: "precomp-balance",
@@ -820,25 +820,25 @@ function buildGovernorRecommendations({
           : {
               family: "gov_f_gain",
               direction: "down",
-              magnitudeClass: "small step"
+              magnitudeClass: "kleiner Schritt"
             },
         expectedResult: gated
           ? null
-          : "The drop-side overspeed in the Precomp Balance read shrinks, without new droop appearing on rises.",
+          : "Die abfallseitige Überdrehzahl im Precomp-Balance-Bericht schrumpft, ohne dass neuer Droop bei Anstiegen erscheint.",
         verifyMetric: gated
           ? null
-          : "the drop-overspeed number in the Governor Lab's Precomp Balance",
+          : "die Abfall-Überdrehzahl-Zahl im Precomp-Balance des Governor-Labors",
         gatedReason: gated
-          ? `Not enough collective moves in both directions yet (${sideCounts}). Fly a log with a few honest pumps each way and re-read this page.`
+          ? `Noch nicht genug Kollektiv-Bewegungen in beide Richtungen (${sideCounts}). Fliege ein Log mit einigen ehrlichen Pumpen in jede Richtung und lies diese Seite neu.`
           : null
       });
     } else if (governorBalance.balance === "lagging") {
       recommendations.push({
         id: "governor:response-lag",
         lab: "governor",
-        finding: `The rotor misses its target both ways around collective moves: droop ${governorBalance.riseDroopPercent}% on rises AND overspeed ${governorBalance.dropOvershootPercent}% on drops (${sideCounts} measured).`,
+        finding: `Der Rotor verfehlt sein Ziel in beide Richtungen bei Kollektiv-Bewegungen: Droop ${governorBalance.riseDroopPercent} % bei Anstiegen UND Überdrehzahl ${governorBalance.dropOvershootPercent} % bei Abfällen (${sideCounts} gemessen).`,
         hypothesis:
-          "Missing in both directions is not a precomp balance problem: precomp trades one side against the other. A governor late both ways is a response-speed story, and that lives in its gain and the power system's headroom together.",
+          "In beide Richtungen zu verfehlen ist kein Precomp-Balance-Problem: Precomp tauscht eine Seite gegen die andere. Ein Governor, der in beide Richtungen spät ist, ist ein Antwortgeschwindigkeits-Thema, das in seinem Gain und der Leistungsreserve des Antriebssystems zusammen liegt.",
         evidence: [
           {
             kind: "precomp-balance",
@@ -854,7 +854,7 @@ function buildGovernorRecommendations({
         expectedResult: null,
         verifyMetric: null,
         gatedReason:
-          "Two-sided lag needs the ESC Lab's headroom read next to it before any governor value moves. Check that page first."
+          "Zweiseitiger Lag braucht den Leistungsreserve-Bericht des ESC-Labors daneben, bevor ein Governor-Wert bewegt wird. Diese Seite zuerst prüfen."
       });
     }
   }
@@ -866,9 +866,9 @@ function buildGovernorRecommendations({
     recommendations.push({
       id: "governor:tail-coupling",
       lab: "governor",
-      finding: `Collective moves kick the tail ${tailBalance.kickRatio}× harder than its ordinary error (median ${tailBalance.transientError} deg/s across ${tailBalance.kickCount} moves, ${Math.round(tailBalance.consistency * 100)}% in a consistent direction).`,
+      finding: `Kollektiv-Bewegungen kicken das Heck ${tailBalance.kickRatio}× stärker als seinen gewöhnlichen Fehler (Median ${tailBalance.transientError} °/s über ${tailBalance.kickCount} Bewegungen, ${Math.round(tailBalance.consistency * 100)} % in einer konsistenten Richtung).`,
       hypothesis:
-        "A tail that only misbehaves during collective transients is torque anticipation, not tail tuning: the collective feedforward into yaw is not matching the torque change. The knob is the collective-to-yaw precomp. But its direction depends on rotor rotation, which a log does not state.",
+        "Ein Heck, das sich nur bei Kollektiv-Transienten falsch verhält, ist Drehmoment-Vorwegnahme, kein Heck-Tuning: Der Kollektiv-Feedforward in Gier passt nicht zur Drehmomentänderung. Der Regler ist der Kollektiv-zu-Gier-Precomp. Aber seine Richtung hängt von der Rotordrehung ab, die ein Log nicht angibt.",
       evidence: [
         {
           kind: "tail-coupling",
@@ -880,13 +880,13 @@ function buildGovernorRecommendations({
       ],
       confidence:
         tailBalance.kickCount >= 2 * gate.MINIMUM_EVENTS
-          ? "High"
-          : "Medium",
+          ? "Hoch"
+          : "Mittel",
       suggestion: null,
       expectedResult: null,
       verifyMetric: null,
       gatedReason:
-        "Step yaw_collective_ff_gain one small step in either direction and fly the same pumps: if the kick grows, go the other way. The Precomp Balance read here is the before/after judge."
+        "yaw_collective_ff_gain einen kleinen Schritt in eine Richtung verstellen und dieselben Pumps fliegen: Wenn der Kick wächst, die andere Richtung wählen. Der Precomp-Balance-Bericht hier ist der Vorher/Nachher-Richter."
     });
   }
 

@@ -50,25 +50,25 @@ export function assessLogQuality({
     capabilities.push({
       name: "Vibration & filters",
       level: "missing",
-      note: "No gyro data in this log."
+      note: "Keine Gyro-Daten in diesem Log."
     });
   } else if (!sampleRateHz || sampleRateHz < 400) {
     capabilities.push({
       name: "Vibration & filters",
       level: "partial",
-      note: `Logging rate ~${Math.round(sampleRateHz || 0)} Hz is too slow for tail-frequency vibration. Raise the Blackbox rate for the full picture.`
+      note: `Log-Rate ~${Math.round(sampleRateHz || 0)} Hz ist zu langsam für Heck-Frequenz-Vibration. Erhöhe die Blackbox-Rate für das vollständige Bild.`
     });
   } else if (sampleRateHz < 1000) {
     capabilities.push({
       name: "Vibration & filters",
       level: "partial",
-      note: `Logging rate ~${Math.round(sampleRateHz)} Hz covers main-rotor and tail vibration; only very high motor/bearing frequencies are out of view.`
+      note: `Log-Rate ~${Math.round(sampleRateHz)} Hz erfasst Hauptrotor- und Heckvibration; nur sehr hohe Motor-/Lagerfrequenzen liegen außerhalb des Sichtbereichs.`
     });
   } else if (!hasUnfilteredGyro) {
     capabilities.push({
       name: "Vibration & filters",
       level: "partial",
-      note: "Only filtered gyro is logged: noise is visible after filtering, so real vibration is underestimated and filter effectiveness can't be measured. Enable unfiltered gyro logging (gyro_raw) for the full picture."
+      note: "Nur gefilterter Gyro wird geloggt: Rauschen ist nach der Filterung sichtbar, deshalb wird echte Vibration unterschätzt und Filterwirkung lässt sich nicht messen. Aktiviere ungefilterte Gyro-Protokollierung (gyro_raw) für das vollständige Bild."
     });
   } else {
     capabilities.push({
@@ -76,8 +76,8 @@ export function assessLogQuality({
       level: "full",
       note:
         hasFilteredGyro
-          ? "Unfiltered + filtered gyro at a healthy rate: full noise and filter-effectiveness analysis."
-          : "Unfiltered gyro at a healthy rate. Also logging the filtered gyro would let the Filter Advisor measure your filters' real effect."
+          ? "Ungefilterter + gefilterter Gyro mit gesunder Rate: vollständige Rausch- und Filterwirkungs-Analyse."
+          : "Ungefilterter Gyro mit gesunder Rate. Wenn auch der gefilterte Gyro geloggt wird, kann der Filter-Berater die echte Wirkung deiner Filter messen."
     });
   }
 
@@ -86,19 +86,19 @@ export function assessLogQuality({
     capabilities.push({
       name: "Governor",
       level: "full",
-      note: "Headspeed and target present: droop and tracking fully measurable."
+      note: "Headspeed und Ziel vorhanden: Droop und Nachführung vollständig messbar."
     });
   } else if (hasHeadspeed) {
     capabilities.push({
       name: "Governor",
       level: "partial",
-      note: "Headspeed is logged but no governor target: stability is visible, droop-vs-target is not."
+      note: "Headspeed wird geloggt, aber kein Governor-Ziel: Stabilität ist sichtbar, Droop gegen Ziel nicht."
     });
   } else {
     capabilities.push({
       name: "Governor",
       level: "missing",
-      note: "No headspeed in this log. Enable RPM telemetry to unlock governor analysis."
+      note: "Keine Headspeed in diesem Log. Aktiviere RPM-Telemetrie, um die Governor-Analyse freizuschalten."
     });
   }
 
@@ -107,19 +107,19 @@ export function assessLogQuality({
     capabilities.push({
       name: "Battery & ESC",
       level: "full",
-      note: "Voltage and current present: sag, consumption and resistance estimates available."
+      note: "Spannung und Strom vorhanden: Einbruch, Verbrauch und Widerstandsschätzungen verfügbar."
     });
   } else if (hasVbat) {
     capabilities.push({
       name: "Battery & ESC",
       level: "partial",
-      note: "Voltage only: sag is visible; consumption and internal resistance need a current sensor."
+      note: "Nur Spannung: Einbruch ist sichtbar; Verbrauch und Innenwiderstand brauchen einen Stromsensor."
     });
   } else {
     capabilities.push({
       name: "Battery & ESC",
       level: "missing",
-      note: "No electrical telemetry in this log."
+      note: "Keine elektrische Telemetrie in diesem Log."
     });
   }
 
@@ -128,19 +128,19 @@ export function assessLogQuality({
     capabilities.push({
       name: "Signal & link",
       level: "full",
-      note: "Signal strength and receiver flags present: link health fully measurable."
+      note: "Signalstärke und Empfänger-Flags vorhanden: Verbindungsqualität vollständig messbar."
     });
   } else if (hasLinkFlags) {
     capabilities.push({
       name: "Signal & link",
       level: "partial",
-      note: "Receiver flags only: failsafe and signal-valid state are visible, but no signal-strength trace was logged."
+      note: "Nur Empfänger-Flags: Failsafe- und Signal-valid-Zustand sind sichtbar, aber keine Signalstärke-Kurve wurde geloggt."
     });
   } else {
     capabilities.push({
       name: "Signal & link",
       level: "missing",
-      note: "No link telemetry in this log. Enable RSSI telemetry for signal analysis."
+      note: "Keine Link-Telemetrie in diesem Log. Aktiviere RSSI-Telemetrie für Signalanalyse."
     });
   }
 
@@ -149,26 +149,26 @@ export function assessLogQuality({
     capabilities.push({
       name: "BEC output",
       level: "full",
-      note: "BEC voltage present: receiver-power stability, dips and their servo context are measurable."
+      note: "BEC-Spannung vorhanden: Empfänger-Spannungsstabilität, Einbrüche und ihr Servo-Zusammenhang sind messbar."
     });
   } else {
     capabilities.push({
       name: "BEC output",
       level: "missing",
-      note: "No BEC voltage in this log. Enable BEC voltage telemetry for receiver-power analysis."
+      note: "Keine BEC-Spannung in diesem Log. Aktiviere BEC-Spannungs-Telemetrie für Empfänger-Spannungsanalyse."
     });
   }
 
   // ---- general warnings ----
   if (durationSeconds && durationSeconds < 20) {
     warnings.push(
-      `Short flight (${durationSeconds.toFixed(0)} s): trends and averages are less reliable; treat scores as indicative.`
+      `Kurzer Flug (${durationSeconds.toFixed(0)} s): Trends und Mittelwerte sind weniger verlässlich; Punktzahlen als Richtwerte verstehen.`
     );
   }
 
   if (totalFrames > 0 && corruptFrames / totalFrames > 0.02) {
     warnings.push(
-      `${((corruptFrames / totalFrames) * 100).toFixed(1)}% of frames were corrupt and skipped. Consider a faster/better flash or SD card.`
+      `${((corruptFrames / totalFrames) * 100).toFixed(1)} % der Frames waren korrupt und wurden übersprungen. Erwäge einen schnelleren/besseren Flash- oder SD-Speicher.`
     );
   }
 
@@ -179,10 +179,10 @@ export function assessLogQuality({
   // analyses rate their own confidence from what they measure.
   const summary =
     missing === 0 && partial === 0 && warnings.length === 0
-      ? "This log is excellent: every analysis has the data it needs."
+      ? "Dieses Log ist ausgezeichnet: jede Analyse hat die Daten, die sie braucht."
       : missing === 0
-        ? "Good log: a few analyses run with reduced confidence (details below)."
-        : "This log limits some analyses: the notes below say what to enable for the full picture.";
+        ? "Gutes Log: Ein paar Analysen laufen mit reduzierter Sicherheit (Details unten)."
+        : "Dieses Log schränkt einige Analysen ein: Die Hinweise unten sagen, was zu aktivieren ist für das vollständige Bild.";
 
   return { capabilities, warnings, summary };
 }

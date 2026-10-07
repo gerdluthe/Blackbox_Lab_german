@@ -26,7 +26,7 @@ function analyzeEscOutput(averageEscOutputRaw, profile) {
     return {
       score: 0,
       status: "Unavailable",
-      finding: "ESC output data was not found.",
+      finding: "ESC-Ausgangsdaten wurden nicht gefunden.",
       severity: "warning"
     };
   }
@@ -41,8 +41,8 @@ function analyzeEscOutput(averageEscOutputRaw, profile) {
       score: 70,
       status: "Detected",
       finding:
-        `Average ESC output was ${averagePercent.toFixed(1)}%, ` +
-        "but no aircraft target range is available.",
+        `Die durchschnittliche ESC-Ausgabe lag bei ${averagePercent.toFixed(1)} %, ` +
+        "aber es ist kein Zielbereich für das Fluggerät verfügbar.",
       severity: "info"
     };
   }
@@ -58,8 +58,8 @@ function analyzeEscOutput(averageEscOutputRaw, profile) {
       score: 100,
       status: "Excellent",
       finding:
-        `Average ESC output was ${averagePercent.toFixed(1)}%, ` +
-        `inside the aircraft target of ${minimum}-${maximum}%.`,
+        `Die durchschnittliche ESC-Ausgabe lag bei ${averagePercent.toFixed(1)} %, ` +
+        `innerhalb des Ziels des Fluggeräts von ${minimum}-${maximum} %.`,
       severity: "good"
     };
   }
@@ -73,8 +73,8 @@ function analyzeEscOutput(averageEscOutputRaw, profile) {
       score: 90,
       status: "Very Good",
       finding:
-        `Average ESC output was ${averagePercent.toFixed(1)}%, ` +
-        `slightly outside the preferred ${minimum}-${maximum}% range.`,
+        `Die durchschnittliche ESC-Ausgabe lag bei ${averagePercent.toFixed(1)} %, ` +
+        `leicht außerhalb des bevorzugten Bereichs von ${minimum}-${maximum} %.`,
       severity: "good"
     };
   }
@@ -84,8 +84,8 @@ function analyzeEscOutput(averageEscOutputRaw, profile) {
       score: 75,
       status: "Acceptable",
       finding:
-        `Average ESC output was ${averagePercent.toFixed(1)}%. ` +
-        `The preferred range is ${minimum}-${maximum}%.`,
+        `Die durchschnittliche ESC-Ausgabe lag bei ${averagePercent.toFixed(1)} %. ` +
+        `Der bevorzugte Bereich ist ${minimum}-${maximum} %.`,
       severity: "caution"
     };
   }
@@ -94,8 +94,8 @@ function analyzeEscOutput(averageEscOutputRaw, profile) {
     score: 50,
     status: "Needs Review",
     finding:
-      `Average ESC output was ${averagePercent.toFixed(1)}%, ` +
-      `well outside the preferred ${minimum}-${maximum}% range.`,
+      `Die durchschnittliche ESC-Ausgabe lag bei ${averagePercent.toFixed(1)} %, ` +
+      `deutlich außerhalb des bevorzugten Bereichs von ${minimum}-${maximum} %.`,
     severity: "warning"
   };
 }export { analyzeEscOutput };

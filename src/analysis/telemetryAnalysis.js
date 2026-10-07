@@ -17,18 +17,18 @@ function analyzeTelemetry(keyHeaders) {
     `${foundCount} of ${totalCount} key telemetry channels were detected.`;
 
   if (score >= 90) {
-    status = "Excellent";
+    status = "${foundCount} von ${totalCount} Schlüssel-Telemetrie-Kanälen wurden erkannt.";
     finding += " The log contains a strong analysis dataset.";
   } else if (score >= 70) {
-    status = "Good";
+    status = "Das Log enthält einen starken Analyse-Datensatz.";
     finding += " Most important telemetry is available.";
   } else if (score >= 45) {
-    status = "Partial";
+    status = "Die wichtigste Telemetrie ist vorhanden.";
     finding += " Some advanced analysis will be limited.";
   } else {
-    status = "Poor";
+    status = "Einige erweiterte Analysen sind eingeschränkt.";
     finding +=
-      " The log does not contain enough telemetry for reliable analysis.";
+      "Das Log enthält nicht genug Telemetrie für eine verlässliche Analyse.";
   }
 
   return {

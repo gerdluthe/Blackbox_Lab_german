@@ -111,21 +111,21 @@ export function bankEvidence(sampleCount, sampleRate) {
 // report so both carry the same evidence story.
 export function describeBank(bank) {
   return (
-    `avg ${bank.averageRpm} rpm · dip ${Math.round(bank.droopRpm)} rpm` +
+    `Ø ${bank.averageRpm} U/min · Einbruch ${Math.round(bank.droopRpm)} U/min` +
     (Number.isFinite(bank.droopPercent)
       ? ` (${bank.droopPercent.toFixed(1)}%)`
       : "") +
     (Number.isFinite(bank.rmsError)
-      ? ` · RMS ${bank.rmsError.toFixed(1)} rpm`
+      ? ` · RMS ${bank.rmsError.toFixed(1)} U/min`
       : "") +
     (Number.isFinite(bank.durationSeconds)
-      ? ` · ${bank.durationSeconds} s of evidence`
+      ? ` · ${bank.durationSeconds} s Beleg`
       : Number.isFinite(bank.sampleCount)
-        ? ` · ${bank.sampleCount.toLocaleString()} samples`
+        ? ` · ${bank.sampleCount.toLocaleString()} Samples`
         : "") +
-    (bank.confidence ? ` · ${bank.confidence} confidence` : "") +
+    (bank.confidence ? ` · Sicherheit ${bank.confidence}` : "") +
     (bank.limited
-      ? " — limited evidence: not compared against better-sampled banks until more time is flown at this headspeed"
+      ? " — begrenzter Beleg: wird erst mit besser abgetasteten Bänken verglichen, wenn mehr Zeit bei dieser Headspeed geflogen wurde"
       : "")
   );
 }
@@ -181,10 +181,10 @@ export function analyzeGovernorLab({
         flightPhase.movedDuringRecording ?? null,
       story:
         flightPhase.movedDuringRecording === false
-          ? "The airframe did not move during this recording, and no rotor speed was logged, so there is no flight to assess."
+          ? "Das Fluggerät hat sich während dieser Aufzeichnung nicht bewegt, und es wurde keine Rotordrehzahl geloggt, deshalb gibt es keinen Flug zu bewerten."
           : flightPhase.hasRotorSpeedData === false
-            ? "This log contains no rotor-speed data, so governor behaviour cannot be assessed. Governor scoring needs an RPM sensor feeding headspeed."
-            : "No stable governed-flight section was long enough for a reliable governor assessment.",
+            ? "Dieses Log enthält keine Rotordrehzahl-Daten, deshalb lässt sich das Governor-Verhalten nicht bewerten. Die Governor-Bewertung braucht einen RPM-Sensor, der die Headspeed liefert."
+            : "Kein stabiler Governor-Flugabschnitt war lang genug für eine verlässliche Governor-Bewertung.",
       droopRpm: null,
       droopPercent: null,
       droopTimeSeconds: null,
@@ -195,14 +195,14 @@ export function analyzeGovernorLab({
         flightPhase.segments ?? [],
       metrics: [
         {
-          label: "Stable samples",
+          label: "Stabile Samples",
           value: String(
             flightPhase.stableSampleCount ?? 0
           )
         },
         {
-          label: "Governor result",
-          value: "Insufficient stable-flight data"
+          label: "Governor-Ergebnis",
+          value: "Zu wenig Daten aus stabilem Flug"
         }
       ]
     };
@@ -507,7 +507,7 @@ export function analyzeGovernorLab({
 
   const droopTimeText =
     Number.isFinite(droopTime)
-      ? ` at ${droopTime.toFixed(1)} s`
+      ? ` bei ${droopTime.toFixed(1)} s`
       : "";
 
   // The same discrimination the whole-flight dip already makes:
@@ -521,10 +521,8 @@ export function analyzeGovernorLab({
     stableDipOutputPercent >= 95;
 
   const stableDipAdvice = stableDipAtPowerLimit
-    ? ` The motor output was at ${Math.round(
-        stableDipOutputPercent
-      )}% during that dip: a power-system limit, not a governor-gain problem. The ESC Lab carries the full power picture.`
-    : ` The matching event below shows the demand and output of that moment: what was asked, and what the system had left.`;
+    ? ` Der Motorausgang stand bei diesem Einbruch bei ${Math.round( stableDipOutputPercent )} %: eine Grenze des Antriebssystems, kein Governor-Gain-Problem. Das ESC-Labor trägt das volle Leistungsbild.`
+    : ` Das passende Ereignis unten zeigt Bedarf und Ausgang dieses Moments: was verlangt wurde und was dem System noch blieb.`;
 
   // Banks worth reporting held for at least ~2 seconds of stable
   // flight; smaller clusters are ramp residue, not a commanded
@@ -561,54 +559,19 @@ export function analyzeGovernorLab({
     .join("/");
 
   const flightDipText = flightDipSevere
-    ? ` Under load the rotor fell ${Math.round(
-        flightDip.droopRpm
-      )} rpm below target (${flightDip.droopPercent.toFixed(
-        1
-      )}%) at ${flightDip.timeSeconds.toFixed(1)} s${
-        Number.isFinite(flightDip.outputPercent)
-          ? `, with the motor output at ${Math.round(
-              flightDip.outputPercent
-            )}%`
-          : ""
-      }.${
-        Number.isFinite(flightDip.outputPercent) &&
-        flightDip.outputPercent >= 95
-          ? " The output was already at its ceiling: that dip is a power-system limit, not a governor-gain problem. The ESC Lab carries the full power picture."
-          : " The worst-droop event below shows whether load or gain was the driver."
-      }`
+    ? ` Unter Last fiel der Rotor ${Math.round( flightDip.droopRpm )} U/min unter das Ziel (${flightDip.droopPercent.toFixed( 1 )} %) bei ${flightDip.timeSeconds.toFixed(1)} s${ Number.isFinite(flightDip.outputPercent) ? `, bei einem Motorausgang von ${Math.round( flightDip.outputPercent )} %` : "" }.${ Number.isFinite(flightDip.outputPercent) && flightDip.outputPercent >= 95 ? " Der Ausgang stand bereits an seiner Obergrenze: Dieser Einbruch ist eine Grenze des Antriebssystems, kein Governor-Gain-Problem. Das ESC-Labor trägt das volle Leistungsbild." : " Das Ereignis mit dem schlimmsten Droop unten zeigt, ob Last oder Gain der Treiber war." }`
     : "";
 
   const story =
     (status === "good"
       ? multiBank
-        ? `Excellent hold across ${reportableBanks.length} headspeed banks (${bankListText} rpm). Largest sustained dip was ${Math.round(
-            maximumDroop
-          )} rpm against the ${Math.round(
-            droopReferenceTarget
-          )} rpm bank.`
-        : `Excellent hold: average headspeed ${Math.round(
-            averageActual
-          )} rpm against a ${Math.round(
-            averageTarget
-          )} rpm target. Largest sustained dip was ${Math.round(
-            maximumDroop
-          )} rpm.`
+        ? `Hervorragendes Halten über ${reportableBanks.length} Headspeed-Bänke (${bankListText} U/min). Größter anhaltender Einbruch war ${Math.round( maximumDroop )} U/min gegenüber der ${Math.round( droopReferenceTarget )}-U/min-Bank.`
+        : `Hervorragendes Halten: mittlere Headspeed ${Math.round( averageActual )} U/min gegenüber einem Ziel von ${Math.round( averageTarget )} U/min. Größter anhaltender Einbruch war ${Math.round( maximumDroop )} U/min.`
       : status === "watch"
-        ? `The largest sustained dip in stable flight was ${Math.round(
-            maximumDroop
-          )} rpm (${droopPercent.toFixed(
-            1
-          )}%)${droopTimeText}.${stableDipAdvice}`
+        ? `Der größte anhaltende Einbruch im stabilen Flug war ${Math.round( maximumDroop )} U/min (${droopPercent.toFixed( 1 )} %)${droopTimeText}.${stableDipAdvice}`
         : flightDipSevere
-          ? `Stable flight held to a ${Math.round(
-              maximumDroop
-            )} rpm sustained dip (${droopPercent.toFixed(1)}%).`
-          : `The largest sustained dip in stable flight was ${Math.round(
-              maximumDroop
-            )} rpm (${droopPercent.toFixed(
-              1
-            )}%)${droopTimeText}.${stableDipAdvice}`) +
+          ? `Der stabile Flug hielt einen anhaltenden Einbruch von ${Math.round( maximumDroop )} U/min (${droopPercent.toFixed(1)} %).`
+          : `Der größte anhaltende Einbruch im stabilen Flug war ${Math.round( maximumDroop )} U/min (${droopPercent.toFixed( 1 )} %)${droopTimeText}.${stableDipAdvice}`) +
     flightDipText;
 
   return {
@@ -668,49 +631,37 @@ export function analyzeGovernorLab({
       // banks describes nothing the pilot commanded.
       ...(multiBank
         ? reportableBanks.map((bank) => ({
-            label: `Bank ${bank.targetRpm} rpm`,
+            label: `Bank ${bank.targetRpm} U/min`,
             value: describeBank(bank)
           }))
         : [
             {
-              label: "Average headspeed",
-              value: `${Math.round(averageActual)} rpm`
+              label: "Mittlere Headspeed",
+              value: `${Math.round(averageActual)} U/min`
             },
             {
-              label: "Target",
-              value: `${Math.round(averageTarget)} rpm`
+              label: "Ziel",
+              value: `${Math.round(averageTarget)} U/min`
             }
           ]),
       {
-        label: "Largest sustained dip (stable flight)",
-        value: `${Math.round(
-          maximumDroop
-        )} rpm (${droopPercent.toFixed(1)}%${
-          multiBank
-            ? ` of the ${Math.round(droopReferenceTarget)} bank`
-            : ""
-        })`
+        label: "Größter anhaltender Einbruch (stabiler Flug)",
+        value: `${Math.round( maximumDroop )} U/min (${droopPercent.toFixed(1)} %${ multiBank ? ` der ${Math.round(droopReferenceTarget)}-Bank` : "" })`
       },
       ...(flightDip
         ? [
             {
-              label: "Largest sustained dip (whole flight)",
-              value: `${Math.round(flightDip.droopRpm)} rpm${
-                Number.isFinite(flightDip.outputPercent)
-                  ? ` @ ${Math.round(
-                      flightDip.outputPercent
-                    )}% output`
-                  : ""
-              }`
+              label: "Größter anhaltender Einbruch (ganzer Flug)",
+              value: `${Math.round(flightDip.droopRpm)} U/min${ Number.isFinite(flightDip.outputPercent) ? ` @ ${Math.round( flightDip.outputPercent )} % Ausgang` : "" }`
             }
           ]
         : []),
       {
-        label: "RMS tracking error",
-        value: `${rmsError.toFixed(1)} rpm`
+        label: "RMS-Nachführfehler",
+        value: `${rmsError.toFixed(1)} U/min`
       },
       {
-        label: "Stable samples used",
+        label: "Verwendete stabile Samples",
         value: validSampleCount.toLocaleString()
       }
     ]
@@ -771,7 +722,7 @@ function analyzeHeadspeedHold({ timeSeconds, headspeed }) {
       hasRotorSpeedData: false,
       movedDuringRecording: null,
       story:
-        "This log states no governor target and records no usable rotor speed, so rotor-speed hold cannot be assessed.",
+        "Dieses Log nennt kein Governor-Ziel und enthält keine brauchbare Rotordrehzahl, deshalb lässt sich das Rotordrehzahl-Halten nicht bewerten.",
       droopRpm: null,
       droopPercent: null,
       droopTimeSeconds: null,
@@ -807,7 +758,7 @@ function analyzeHeadspeedHold({ timeSeconds, headspeed }) {
       hasRotorSpeedData: true,
       movedDuringRecording: null,
       story:
-        "This log states no governor target, and the rotor never held a level section long enough to judge: the recording is nearly all spool-up, spool-down or headspeed changes.",
+        "Dieses Log nennt kein Governor-Ziel, und der Rotor hielt nie lange genug einen gleichmäßigen Abschnitt, um zu urteilen: Die Aufzeichnung besteht fast nur aus Hochlauf, Auslauf oder Headspeed-Wechseln.",
       droopRpm: null,
       droopPercent: null,
       droopTimeSeconds: null,
@@ -936,22 +887,8 @@ function analyzeHeadspeedHold({ timeSeconds, headspeed }) {
 
   const story =
     status === "good"
-      ? `Without a usable rotor-speed target in the log (none recorded, or a passthrough mode like DIRECT), hold is judged against the rotor's own trend: headspeed averaged ${Math.round(
-          meanRpm
-        )} rpm and stayed within ${Math.round(
-          worstDeviation
-        )} rpm (${deviationPercent.toFixed(
-          1
-        )}%) of it. Deliberate headspeed changes are not counted against this.`
-      : `Without a usable rotor-speed target in the log (none recorded, or a passthrough mode like DIRECT), hold is judged against the rotor's own trend: headspeed averaged ${Math.round(
-          meanRpm
-        )} rpm, with a largest short-term swing of ${Math.round(
-          worstDeviation
-        )} rpm (${deviationPercent.toFixed(1)}%)${
-          Number.isFinite(worstTime)
-            ? ` at ${worstTime.toFixed(1)} s`
-            : ""
-        }. The chart marks that moment.`;
+      ? `Ohne ein brauchbares Rotordrehzahl-Ziel im Log (keines aufgezeichnet oder ein Durchleitungs-Modus wie DIRECT) wird das Halten am eigenen Trend des Rotors beurteilt: Die Headspeed lag im Mittel bei ${Math.round( meanRpm )} U/min und blieb innerhalb von ${Math.round( worstDeviation )} U/min (${deviationPercent.toFixed( 1 )} %) davon. Bewusste Headspeed-Änderungen werden dagegen nicht gezählt.`
+      : `Ohne ein brauchbares Rotordrehzahl-Ziel im Log (keines aufgezeichnet oder ein Durchleitungs-Modus wie DIRECT) wird das Halten am eigenen Trend des Rotors beurteilt: Die Headspeed lag im Mittel bei ${Math.round( meanRpm )} U/min, mit einer größten kurzfristigen Schwankung von ${Math.round( worstDeviation )} U/min (${deviationPercent.toFixed(1)} %)${ Number.isFinite(worstTime) ? ` bei ${worstTime.toFixed(1)} s` : "" }. Das Diagramm markiert diesen Moment.`;
 
   return {
     score: null,
@@ -973,34 +910,32 @@ function analyzeHeadspeedHold({ timeSeconds, headspeed }) {
     stableSegments: [],
     metrics: [
       {
-        label: "Analysis scope",
-        value: "Partial: headspeed stability only"
+        label: "Analyse-Umfang",
+        value: "Teilweise: nur Headspeed-Stabilität"
       },
       {
-        label: "Average headspeed",
-        value: `${Math.round(meanRpm)} rpm`
+        label: "Mittlere Headspeed",
+        value: `${Math.round(meanRpm)} U/min`
       },
       // Observed banks ride along into the export on multi-bank
       // flights (#35): the whole-flight average must not be the
       // only governor number a report's recipient sees.
       ...(perBank.length > 1
         ? perBank.map((bank) => ({
-            label: `Bank ${bank.targetRpm} rpm (observed)`,
+            label: `Bank ${bank.targetRpm} U/min (beobachtet)`,
             value: describeBank(bank)
           }))
         : []),
       {
-        label: "Governor target",
-        value: "not logged"
+        label: "Governor-Ziel",
+        value: "nicht geloggt"
       },
       {
-        label: "Largest short-term swing",
-        value: `${Math.round(
-          worstDeviation
-        )} rpm (${deviationPercent.toFixed(1)}%)`
+        label: "Größte kurzfristige Schwankung",
+        value: `${Math.round( worstDeviation )} U/min (${deviationPercent.toFixed(1)} %)`
       },
       {
-        label: "In-flight samples used",
+        label: "Verwendete Samples im Flug",
         value: meanCount.toLocaleString()
       }
     ]

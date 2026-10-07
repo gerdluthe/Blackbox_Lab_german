@@ -324,7 +324,7 @@ export function assessHistoryComparability(entries) {
 
   const demands = [...new Set(known("demand"))];
   if (demands.length > 1) {
-    notes.push("flight demand differs (gentle and real-input flights are mixed)");
+    notes.push("Flug-Anforderung weicht ab (sanfte und echte Eingaben-Flüge sind gemischt)");
     demote("mixed");
   }
 
@@ -333,26 +333,26 @@ export function assessHistoryComparability(entries) {
     const min = Math.min(...speeds);
     const max = Math.max(...speeds);
     if (min > 0 && min / max < 0.95) {
-      notes.push(`headspeed differs across flights (${Math.round(min)}–${Math.round(max)} rpm)`);
+      notes.push(`Headspeed weicht zwischen den Flügen ab (${Math.round(min)}–${Math.round(max)} U/min)`);
       demote("mixed");
     }
   }
 
   const thin = known("evidence").filter((v) => v === "Low" || v === "Insufficient").length;
   if (thin > 0) {
-    notes.push(`${thin} flight${thin === 1 ? " is" : "s are"} thin on clean-command evidence`);
+    notes.push(`${thin} ${thin === 1 ? "Flug ist" : "Flüge sind"} dünn an Belegen sauberer Kommandos`);
     demote("partial");
   }
 
   const durations = known("durationSeconds").filter((v) => Number.isFinite(v) && v > 0);
   if (durations.length >= 2 && Math.min(...durations) / Math.max(...durations) < 0.4) {
-    notes.push("flight lengths are very unbalanced");
+    notes.push("Flugdauern sind stark unausgewogen");
     demote("partial");
   }
 
   const unrecorded = rows.filter((r) => r.demand === undefined || r.demand === null).length;
   if (unrecorded > 0) {
-    notes.push(`${unrecorded} older flight${unrecorded === 1 ? "" : "s"} carry no comparability data`);
+    notes.push(`${unrecorded} ältere${unrecorded === 1 ? "r Flug trägt" : " Flüge tragen"} keine Vergleichbarkeitsdaten`);
     demote("partial");
   }
 
@@ -782,7 +782,7 @@ function assessMetric(
 
   return {
     status: "attention",
-    sentence: `${label} has ${lowerIsBetter ? "risen" : "fallen"} ~${changePercent}% across your last flights (${earlier.toFixed(1)} → ${recent.toFixed(1)}${unit}). ${adviceUp}`
+    sentence: `${label} ist ${lowerIsBetter ? "gestiegen" : "gefallen"} um ~${changePercent} % über deine letzten Flüge (${earlier.toFixed(1)} → ${recent.toFixed(1)}${unit}). ${adviceUp}`
   };
 }
 
@@ -807,18 +807,18 @@ export function rotorTrendWording(entries = []) {
 
   return targetRelative
     ? {
-        title: "Governor Droop Across Flights",
-        hint: "A rising line means the rotor falls further below its target over time. Read it alongside output, voltage and load before blaming any one part.",
+        title: "Governor-Droop über die Flüge",
+        hint: "Eine steigende Linie bedeutet: Der Rotor fällt mit der Zeit weiter unter sein Ziel. Lies sie zusammen mit Ausgang, Spannung und Last, bevor du einem einzelnen Teil die Schuld gibst.",
         label: "Governor droop",
         adviceUp:
-          "The rotor is falling further below target across flights. Aging pack, dirty pinion or a slipping gear are the usual suspects. Confirm against the output and voltage picture before changing the tune."
+          "Der Rotor fällt über die Flüge weiter unter das Ziel. Alternder Akku, schmutziges Ritzel oder ein rutschendes Zahnrad sind die üblichen Verdächtigen. Bestätige es am Ausgangs- und Spannungsbild, bevor du das Tuning änderst."
       }
     : {
-        title: "Rotor-Speed Stability Across Flights",
-        hint: "A rising line means the rotor is holding less steadily across flights, worth investigating.",
-        label: "Rotor-speed deviation",
+        title: "Rotordrehzahl-Stabilität über die Flüge",
+        hint: "Eine steigende Linie bedeutet: Der Rotor hält über die Flüge weniger stabil, einen Blick wert.",
+        label: "Rotordrehzahl-Abweichung",
         adviceUp:
-          "The rotor is holding less steadily across flights. Worth checking mechanics, power and setup before it grows."
+          "Der Rotor hält über die Flüge weniger stabil. Prüfe Mechanik, Antrieb und Setup, bevor es wächst."
       };
 }
 
@@ -828,8 +828,8 @@ export function assessTrends(entries) {
       findings: [],
       note:
         entries && entries.length > 0
-          ? `Keep flying: trends appear after 4 logged flights (${entries.length} so far).`
-          : "No flights recorded for this craft yet."
+          ? `Weiterfliegen: Trends erscheinen nach 4 geloggten Flügen (bisher ${entries.length}).`
+          : "Für dieses Modell sind noch keine Flüge aufgezeichnet."
     };
   }
 
@@ -839,50 +839,50 @@ export function assessTrends(entries) {
       lowerIsBetter: true,
       unit: "",
       adviceUp:
-        "Something mechanical is changing: check bearings, blade balance and links before it grows."
+        "Etwas Mechanisches verändert sich: Prüfe Lager, Blattwucht und Gestänge, bevor es wächst."
     }),
     assessMetric(entries, "droopRpm", {
       label: rotorTrendWording(entries).label,
       lowerIsBetter: true,
-      unit: " rpm",
+      unit: " U/min",
       adviceUp: rotorTrendWording(entries).adviceUp
     }),
     assessMetric(entries, "internalResistance", {
-      label: "Pack internal resistance",
+      label: "Innenwiderstand des Akkus",
       lowerIsBetter: true,
       unit: " mΩ",
-      adviceUp: "The battery is aging: expect softer punch and more sag."
+      adviceUp: "Der Akku altert: Erwarte weniger Punch und mehr Einbruch."
     }),
     assessMetric(entries, "trackingScore", {
-      label: "Tracking score",
+      label: "Nachführ-Punktzahl",
       lowerIsBetter: false,
       unit: "",
       adviceUp:
-        "The tune is drifting: mechanics wearing in, or settings changed along the way."
+        "Das Tuning driftet: Mechanik läuft sich ein oder Einstellungen haben sich unterwegs geändert."
     }),
     assessMetric(entries, "tailKickRatio", {
-      label: "Tail kick on collective moves",
+      label: "Heck-Kick bei Kollektiv-Bewegungen",
       lowerIsBetter: true,
       unit: "×",
       minimumRecent: 3,
       adviceUp:
-        "The collective-to-yaw anticipation no longer matches the torque: either the precomp drifted or the tail drive is wearing. The Governor Lab's Precomp Balance shows the current read."
+        "Die Kollektiv-zu-Gier-Vorwegnahme passt nicht mehr zum Drehmoment: Entweder ist der Precomp gedriftet oder der Heckantrieb verschleißt. Die Precomp-Bilanz im Governor-Labor zeigt den aktuellen Stand."
     }),
     assessMetric(entries, "precompRiseDroopPercent", {
-      label: "Droop on collective rises",
+      label: "Droop bei Kollektiv-Anstiegen",
       lowerIsBetter: true,
       unit: "%",
       minimumRecent: 2.5,
       adviceUp:
-        "The governor's load anticipation is losing ground across flights: an aging pack shrinking headroom, or precomp no longer matching the machine."
+        "Die Lastvorwegnahme des Governors verliert über die Flüge an Boden: ein alternder Akku, der die Reserve schrumpfen lässt, oder ein Precomp, der nicht mehr zur Maschine passt."
     }),
     assessMetric(entries, "precompDropOvershootPercent", {
-      label: "Overspeed on collective drops",
+      label: "Überdrehzahl bei Kollektiv-Abfällen",
       lowerIsBetter: true,
       unit: "%",
       minimumRecent: 2.5,
       adviceUp:
-        "Collective drops overspeed the rotor more than they used to. Worth re-reading the Precomp Balance before it becomes audible."
+        "Kollektiv-Abfälle überdrehen den Rotor mehr als früher. Lies die Precomp-Bilanz noch einmal, bevor es hörbar wird."
     })
   ].filter(Boolean);
 
@@ -890,7 +890,7 @@ export function assessTrends(entries) {
     findings,
     note:
       findings.length === 0
-        ? `All trends stable across ${entries.length} flights. That's a healthy machine.`
-        : `${findings.length} trend(s) deserve a look.`
+        ? `Alle Trends stabil über ${entries.length} Flüge. Das ist eine gesunde Maschine.`
+        : `${findings.length} Trend(s) verdienen einen Blick.`
   };
 }

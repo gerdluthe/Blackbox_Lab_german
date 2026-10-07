@@ -129,10 +129,10 @@ export function buildPack({
       queued.push({
         rec,
         reason:
-          "this flight held " +
-          `${sustainedBanks.length} different headspeed banks — ` +
-          "its evidence mixes two regimes, so tuning changes wait " +
-          "for a single-bank flight"
+          "dieser Flug hielt " +
+          `${sustainedBanks.length} verschiedene Headspeed-Bänke — ` +
+          "seine Belege mischen zwei Regime, deshalb warten Tuning-Änderungen " +
+          "auf einen Einbank-Flug"
       });
       continue;
     }
@@ -148,10 +148,10 @@ export function buildPack({
         queued.push({
           rec,
           reason:
-            "this flight flew " +
-            `${flownProfiles.length} PID profiles and this change's ` +
-            "evidence carries no row anchors — it cannot say which " +
-            "profile earned it, so it waits for a single-profile flight"
+            "dieser Flug flog " +
+            `${flownProfiles.length} PID-Profile und die Belege dieser Änderung ` +
+            "tragen keine Zeilen-Anker — es lässt sich nicht sagen, welches " +
+            "Profil sie verdient hat, deshalb wartet sie auf einen Einprofil-Flug"
         });
         continue;
       }
@@ -165,11 +165,11 @@ export function buildPack({
           rec,
           reason:
             owners.profiles.length > 1
-              ? `its evidence spans ${names} — mixed-profile evidence ` +
-                "cannot be attributed, so it waits for a " +
-                "single-profile flight"
-              : "part of its evidence falls outside every profile " +
-                "segment — it waits for a single-profile flight"
+              ? `ihre Belege erstrecken sich über ${names} — gemischte Profil-Belege ` +
+                "lassen sich nicht zuordnen, deshalb wartet sie auf einen " +
+                "Einprofil-Flug"
+              : "ein Teil ihrer Belege liegt außerhalb jedes Profil-Segments " +
+                "— wartet auf einen Einprofil-Flug"
         });
         continue;
       }
@@ -182,9 +182,9 @@ export function buildPack({
         queued.push({
           rec,
           reason:
-            `earned in ${profileName(memberProfile)} — this pack ` +
-            `verifies ${profileName(packProfile)}, so it waits for ` +
-            "its own pack"
+            `verdient in ${profileName(memberProfile)} — dieses Paket ` +
+            `prüft ${profileName(packProfile)}, deshalb wartet sie auf ` +
+            "ihr eigenes Paket"
         });
         continue;
       }
@@ -200,13 +200,13 @@ export function buildPack({
     if (clash) {
       queued.push({
         rec,
-        reason: `shares the ${clash.group} instrument with the ${clash.setting} change — next pack`
+        reason: `teilt das ${clash.group}-Instrument mit der ${clash.setting}-Änderung — nächstes Paket`
       });
       continue;
     }
 
     if (members.length >= packCap) {
-      queued.push({ rec, reason: "pack is full — next pack" });
+      queued.push({ rec, reason: "Paket ist voll — nächstes Paket" });
       continue;
     }
 
@@ -239,18 +239,18 @@ export function buildPack({
     if (!step) {
       if (!numbersDescribeThisProfile) {
         numericNote =
-          `the log's headers describe the profile it started in, not ` +
-          `${profileName(memberProfile)} — direction only until a ` +
-          `log flown in ${profileName(memberProfile)} from the start`;
+          `die Log-Header beschreiben das Profil, mit dem das Log startete, nicht ` +
+          `${profileName(memberProfile)} — nur Richtung, bis ein ` +
+          `Log geflogen wird, das in ${profileName(memberProfile)} startet`;
       } else if (!numericAllowed) {
-        numericNote = `numeric values need a firmware ${CARDS_FIRMWARE_PIN} log — direction only`;
+        numericNote = `numerische Werte brauchen ein Firmware-${CARDS_FIRMWARE_PIN}-Log — nur Richtung`;
       } else if (craftDumpParsed == null) {
-        numericNote = "no CLI dump on file for this craft — direction only";
+        numericNote = "kein CLI-Dump für dieses Fluggerät gespeichert — nur Richtung";
       } else if (!Number.isFinite(Number(current))) {
-        numericNote = "the saved dump does not carry this setting — direction only";
+        numericNote = "der gespeicherte Dump enthält diese Einstellung nicht — nur Richtung";
       } else {
         numericNote =
-          "the current value already sits at the fleet band edge — direction only, and worth a second look before pushing further";
+          "der aktuelle Wert liegt bereits am Flottenband-Grenzwert — nur Richtung, und einen zweiten Blick wert, bevor man weiter drückt";
       }
     }
 
@@ -262,9 +262,7 @@ export function buildPack({
       !dumpFreshness.fresh
     ) {
       freshnessNote =
-        `the saved dump disagrees with this flight on ${dumpFreshness.mismatches.length} setting${
-          dumpFreshness.mismatches.length === 1 ? "" : "s"
-        } — refresh it before trusting dump-only numbers like this one`;
+        `der gespeicherte Dump stimmt bei ${dumpFreshness.mismatches.length} Einstellung${ dumpFreshness.mismatches.length === 1 ? "" : "en" } nicht mit diesem Flug überein — aktualisiere ihn, bevor du nur-Dump-Zahlen wie dieser vertraust`;
     }
 
     members.push({
@@ -326,7 +324,7 @@ export function buildPack({
       : null,
     withheld: multiBankWithheld
       ? {
-          reason: "multi-bank flight",
+          reason: "Mehrbank-Flug",
           banks: sustainedBanks.map(
             (bank) => bank.averageRpm ?? bank.targetRpm
           )

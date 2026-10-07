@@ -169,7 +169,7 @@ export function analyzeBecLab({
   const briefDipNote =
     Number.isFinite(rawMinimumVolts) &&
     minimumVolts - rawMinimumVolts > 0.015
-      ? ` The chart's briefest raw samples reach ${rawMinimumVolts.toFixed(2)} V; readings are judged on a ${smoothingMs} ms sustained view, and none of those brief samples lasted long enough to count as a dip.`
+      ? ` Die kürzesten Rohwerte des Diagramms reichen bis ${rawMinimumVolts.toFixed(2)} V; bewertet wird anhand einer ${smoothingMs} ms langen anhaltenden Ansicht, und keiner dieser kurzen Werte hielt lange genug, um als Einbruch zu zählen.`
       : "";
   const spreadVolts =
     toVolts(quantileRaw(0.95), scale) - toVolts(quantileRaw(0.05), scale);
@@ -336,11 +336,11 @@ export function analyzeBecLab({
           ((medianRaw - lowestRaw) / medianRaw) * 1000
         ) / 10,
       detail:
-        `Voltage fell to ${lowestVolts.toFixed(2)} V (${(((medianRaw - lowestRaw) / medianRaw) * 100).toFixed(1)}% below this flight's ${referenceVolts.toFixed(2)} V median) for ${Math.round(durationSeconds * 1000)} ms` +
+        `Die Spannung fiel auf ${lowestVolts.toFixed(2)} V (${(((medianRaw - lowestRaw) / medianRaw) * 100).toFixed(1)} % unter dem Median dieses Fluges von ${referenceVolts.toFixed(2)} V) für ${Math.round(durationSeconds * 1000)} ms` +
         (demandContext === "high-demand"
-          ? ", during high servo demand, consistent with load."
+          ? ", bei hoher Servo-Anforderung, passend zur Last."
           : demandContext === "quiet"
-            ? ", with the servos comparatively quiet, which points away from simple load."
+            ? ", bei vergleichsweise ruhigen Servos, was von einfacher Last wegweist."
             : ".")
     });
   }
@@ -377,59 +377,59 @@ export function analyzeBecLab({
 
   const story = brownoutTerritory
     ? implausibleBrownout
-      ? `The voltage reading dropped into brownout territory (below ${tuning.BROWNOUT_TERRITORY_VOLTS.toFixed(1)} V). Yet the receiver kept reporting a healthy link the whole time, and a real supply collapse trips failsafe.\n\nThat points at the measurement path (the voltage sensor, its wiring or connector) rather than an actual BEC output loss. Worth a physical inspection of that path; do not replace the BEC on this evidence alone.`
-      : `BEC output entered genuine brownout territory (below ${tuning.BROWNOUT_TERRITORY_VOLTS.toFixed(1)} V): that is where receivers and servos actually let go.\n\nThe usual sources: a BEC set or sized below the servo load, a weak connector or a wiring drop under current, or servo binding driving demand far above normal.`
+      ? `Die Spannungsanzeige fiel in den Brownout-Bereich (unter ${tuning.BROWNOUT_TERRITORY_VOLTS.toFixed(1)} V). Doch der Empfänger meldete die ganze Zeit eine gesunde Verbindung, und ein echter Versorgungszusammenbruch löst Failsafe aus.\n\nDas deutet auf den Messpfad hin (den Spannungssensor, seine Verkabelung oder seinen Stecker) und nicht auf einen echten BEC-Ausgangsverlust. Eine körperliche Prüfung dieses Pfads lohnt sich; tausche das BEC aufgrund dieses Belegs allein nicht aus.`
+      : `Der BEC-Ausgang geriet in echtes Brownout-Gebiet (unter ${tuning.BROWNOUT_TERRITORY_VOLTS.toFixed(1)} V): Dort lassen Empfänger und Servos tatsächlich los.\n\nDie üblichen Quellen: ein BEC, das unterhalb der Servolast eingestellt oder dimensioniert ist, ein schwacher Stecker oder ein Kabelabfall unter Strom, oder klemmende Servos, die den Bedarf weit über das Normale treiben.`
     : sustainedCount > 0
-      ? `Receiver voltage stayed low for an extended stretch ${sustainedCount === 1 ? "once" : `${sustainedCount} times`}: longer than a load transient should last. ${quietDips > 0 ? "At least one dip happened with the servos comparatively quiet, which points at wiring, connectors or the BEC rather than load. " : "The dips line up with servo demand, so start with servo load and mechanical binding. "}The events below name each moment.`
+      ? `Die Empfängerspannung blieb über eine längere Strecke niedrig, ${sustainedCount === 1 ? "einmal" : `${sustainedCount} Mal`}: länger, als ein Lastübergang dauern sollte. ${quietDips > 0 ? "Mindestens ein Einbruch geschah bei vergleichsweise ruhigen Servos, was auf Verkabelung, Stecker oder das BEC statt auf Last hindeutet. " : "Die Einbrüche passen zur Servo-Anforderung, beginne also mit Servolast und mechanischem Klemmen. "}Die Ereignisse unten nennen jeden Moment.`
       : dipCount >= tuning.REPEATED_EVENTS
-        ? `Receiver voltage dipped ${dipCount} times this flight. Each recovered, but repetition is the pattern that matters with power. The events below name each moment; dips that return under similar load usually trace to connectors, wiring or servo load.`
+        ? `Die Empfängerspannung brach in diesem Flug ${dipCount} Mal ein. Jeder erholte sich, aber bei der Stromversorgung zählt das Muster der Wiederholung. Die Ereignisse unten nennen jeden Moment; Einbrüche, die bei ähnlicher Last wiederkehren, gehen meist auf Stecker, Verkabelung oder Servolast zurück.`
         : dipCount > 0
-          ? `${dipCount === 1 ? "One brief" : `${dipCount} brief`} voltage dip${dipCount === 1 ? "" : "s"}, recovered normally: ${quietDips === 0 ? "in step with servo demand, which is a power system doing its job under load." : "worth a glance at the event context below."} Nothing here suggests an unstable supply.`
-          : `BEC output held steady across the analyzed in-flight window: ${referenceVolts.toFixed(2)} V typical, lowest sustained reading ${minimumVolts.toFixed(2)} V, total variation ${(spreadVolts >= 0 ? spreadVolts : 0).toFixed(2)} V. This is what a healthy BEC looks like.${briefDipNote} (Startup and shutdown samples sit outside this window: the chart may show lower readings there.)`;
+          ? `${dipCount === 1 ? "Ein kurzer" : `${dipCount} kurze`} Spannungseinbr${dipCount === 1 ? "uch" : "üche"}, normal erholt: ${quietDips === 0 ? "im Gleichschritt mit der Servo-Anforderung, das ist ein Antriebssystem, das unter Last seine Arbeit tut." : "einen Blick auf den Ereigniskontext unten wert."} Nichts hier deutet auf eine instabile Versorgung hin.`
+          : `Der BEC-Ausgang blieb im analysierten Flugfenster stabil: ${referenceVolts.toFixed(2)} V typisch, niedrigster anhaltender Wert ${minimumVolts.toFixed(2)} V, Gesamtschwankung ${(spreadVolts >= 0 ? spreadVolts : 0).toFixed(2)} V. So sieht ein gesundes BEC aus.${briefDipNote} (Start- und Abschalt-Samples liegen außerhalb dieses Fensters: Das Diagramm kann dort niedrigere Werte zeigen.)`;
 
   const metrics = [
     {
-      label: "Typical voltage (this flight's median)",
+      label: "Typische Spannung (Median dieses Fluges)",
       value: `${referenceVolts.toFixed(2)} V`
     },
     {
-      label: "Range in flight",
-      value: `${minimumVolts.toFixed(2)} – ${maximumVolts.toFixed(2)} V (sustained)`
+      label: "Bereich im Flug",
+      value: `${minimumVolts.toFixed(2)} – ${maximumVolts.toFixed(2)} V (anhaltend)`
     },
     ...(Number.isFinite(rawMinimumVolts) && minimumVolts - rawMinimumVolts > 0.015
       ? [
           {
-            label: "Briefest raw sample",
-            value: `${rawMinimumVolts.toFixed(2)} V — too short to count as a dip`
+            label: "Kürzester Rohwert",
+            value: `${rawMinimumVolts.toFixed(2)} V — zu kurz, um als Einbruch zu zählen`
           }
         ]
       : []),
     {
-      label: "Stability (5th–95th percentile spread)",
+      label: "Stabilität (Streuung 5.–95. Perzentil)",
       value: `${(spreadVolts >= 0 ? spreadVolts : 0).toFixed(2)} V`
     },
     {
-      label: "Voltage dips",
-      value: `${dipCount}${sustainedCount > 0 ? ` (${sustainedCount} sustained)` : ""}`
+      label: "Spannungseinbrüche",
+      value: `${dipCount}${sustainedCount > 0 ? ` (${sustainedCount} anhaltend)` : ""}`
     },
     ...(worst
       ? [
           {
-            label: "Worst event",
-            value: `${worst.lowestVolts.toFixed(2)} V (${worst.depthPercent.toFixed(1)}%) for ${worst.durationMs} ms at ${worst.startSeconds.toFixed(1)} s`
+            label: "Schlimmstes Ereignis",
+            value: `${worst.lowestVolts.toFixed(2)} V (${worst.depthPercent.toFixed(1)} %) für ${worst.durationMs} ms bei ${worst.startSeconds.toFixed(1)} s`
           }
         ]
       : [])
   ];
 
   const findings = [
-    "The reference is this flight's own median voltage: a system deliberately running 6.0 V is never judged against one running 8.4 V.",
-    "Events are judged by depth, duration and repetition together, never by a single lowest sample."
+    "Die Referenz ist die Median-Spannung dieses Fluges: Ein System, das bewusst mit 6,0 V läuft, wird nie an einem mit 8,4 V gemessen.",
+    "Ereignisse werden nach Tiefe, Dauer und Wiederholung zusammen beurteilt, nie nach einem einzelnen niedrigsten Messwert."
   ];
 
   if (servoActivity === null) {
     findings.push(
-      "No usable servo data in this log, so dips could not be read against servo demand."
+      "Keine brauchbaren Servo-Daten in diesem Log, deshalb ließen sich Einbrüche nicht an der Servo-Anforderung ablesen."
     );
   }
 
@@ -500,7 +500,7 @@ export function correlateSignalAndPower(signalResult, becResult) {
 
   return {
     overlaps,
-    signalSentence: ` A receiver-power event occurred at the same time (${at}). The BEC Lab carries the other half of this story.`,
-    becSentence: ` A link event occurred at the same time (${at}). The Signal Lab carries the other half of this story.`
+    signalSentence: ` Zur selben Zeit trat ein Empfängerversorgungs-Ereignis auf (${at}). Das BEC-Labor trägt die andere Hälfte dieser Geschichte.`,
+    becSentence: ` Zur selben Zeit trat ein Link-Ereignis auf (${at}). Das Signal-Labor trägt die andere Hälfte dieser Geschichte.`
   };
 }

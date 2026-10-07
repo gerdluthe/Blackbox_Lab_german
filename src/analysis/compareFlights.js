@@ -53,7 +53,7 @@ function describeChange(before, after, lowerIsBetter, minimumDelta) {
     !Number.isFinite(absoluteDelta) ||
     Math.abs(absoluteDelta) < minimumDelta
   ) {
-    return { direction: "same", word: "about the same" };
+    return { direction: "same", word: "etwa gleich" };
   }
 
   // A zero baseline has no percent — but 0 → 8 is not "the same".
@@ -63,21 +63,21 @@ function describeChange(before, after, lowerIsBetter, minimumDelta) {
     const improved = lowerIsBetter ? after < 0 : after > 0;
     return {
       direction: improved ? "better" : "worse",
-      word: improved ? "better" : "worse"
+      word: improved ? "besser" : "schlechter"
     };
   }
 
   const change = percentChange(before, after);
 
   if (change === null || Math.abs(change) < 5) {
-    return { direction: "same", word: "about the same" };
+    return { direction: "same", word: "etwa gleich" };
   }
 
   const improved = lowerIsBetter ? change < 0 : change > 0;
 
   return {
     direction: improved ? "better" : "worse",
-    word: `${Math.abs(change).toFixed(0)}% ${improved ? "better" : "worse"}`
+    word: `${Math.abs(change).toFixed(0)}% ${improved ? "besser" : "schlechter"}`
   };
 }
 
@@ -113,8 +113,8 @@ export function comparableEvidence(beforeConfidence, afterConfidence) {
       comparable: false,
       reason:
         beforeDemand === "gentle"
-          ? "the earlier flight was flown gently while the later one was flown much harder. The two scores measure different demands, not the change."
-          : "the later flight was flown gently while the earlier one was flown much harder. The two scores measure different demands, not the change."
+          ? "der frühere Flug wurde sanft geflogen, während der spätere deutlich härter geflogen wurde. Die beiden Punktzahlen messen unterschiedliche Anforderungen, nicht die Änderung."
+          : "der spätere Flug wurde sanft geflogen, während der frühere deutlich härter geflogen wurde. Die beiden Punktzahlen messen unterschiedliche Anforderungen, nicht die Änderung."
     };
   }
 
@@ -125,15 +125,15 @@ export function comparableEvidence(beforeConfidence, afterConfidence) {
   if (beforeThin && afterThin) {
     return {
       comparable: false,
-      reason: "neither flight recorded enough clean stick movements to measure tracking from."
+      reason: "keiner der Flüge hat genug saubere Stick-Bewegungen aufgezeichnet, um daran die Nachführung zu messen."
     };
   }
 
   return {
     comparable: false,
     reason: beforeThin
-      ? "the earlier flight did not record enough clean stick movements to measure tracking from."
-      : "the later flight did not record enough clean stick movements to measure tracking from."
+      ? "der frühere Flug hat nicht genug saubere Stick-Bewegungen aufgezeichnet, um daran die Nachführung zu messen."
+      : "der spätere Flug hat nicht genug saubere Stick-Bewegungen aufgezeichnet, um daran die Nachführung zu messen."
   };
 }
 
@@ -274,9 +274,9 @@ export function assessComparability(baseline, comparison) {
   const afterDemand = comparison?.pidConfidence?.demand ?? null;
   if (beforeDemand && afterDemand) {
     if (beforeDemand === afterDemand) {
-      lines.push(`Flight demand: comparable (both flown ${beforeDemand === "gentle" ? "gently" : "with real inputs"}).`);
+      lines.push(`Flug-Anforderung: vergleichbar (beide ${beforeDemand === "gentle" ? "sanft" : "mit echten Eingaben"} geflogen).`);
     } else {
-      lines.push("Flight demand: NOT comparable — one flight was flown gently, the other much harder. The measurements describe different flying, not the change.");
+      lines.push("Flug-Anforderung: NICHT vergleichbar — ein Flug wurde sanft geflogen, der andere deutlich härter. Die Messungen beschreiben unterschiedliches Fliegen, nicht die Änderung.");
       demote("weak");
     }
   }
@@ -287,7 +287,7 @@ export function assessComparability(baseline, comparison) {
   const afterThin = thin(comparison?.pidConfidence);
   if (beforeThin || afterThin) {
     lines.push(
-      `Evidence strength: ${beforeThin && afterThin ? "both flights are" : beforeThin ? "the earlier flight is" : "the later flight is"} thin on clean command responses.`
+      `Beleg-Stärke: ${beforeThin && afterThin ? "beide Flüge sind" : beforeThin ? "der frühere Flug ist" : "der spätere Flug ist"} dünn an sauberen Kommando-Antworten.`
     );
     demote(beforeThin && afterThin ? "weak" : "partial");
   }
@@ -303,10 +303,10 @@ export function assessComparability(baseline, comparison) {
     const after = comparison?.axisEvidence?.[axis] ?? 0;
     const ok = before >= 8 && after >= 8;
     if (ok) comparableAxes += 1;
-    axisLines.push(`${axis} ${before} vs ${after}${ok ? "" : " (too few on one side)"}`);
+    axisLines.push(`${axis} ${before} gegen ${after}${ok ? "" : " (zu wenige auf einer Seite)"}`);
   }
   if (axisLines.length > 0) {
-    lines.push(`Clean command events per axis (before vs after): ${axisLines.join("; ")}.`);
+    lines.push(`Saubere Kommando-Ereignisse pro Achse (vorher gegen nachher): ${axisLines.join("; ")}.`);
     if (comparableAxes === 0) demote("weak");
     else if (comparableAxes < axes.size) demote("partial");
   }
@@ -320,7 +320,7 @@ export function assessComparability(baseline, comparison) {
   if (Number.isFinite(beforeDuration) && Number.isFinite(afterDuration) && beforeDuration > 0 && afterDuration > 0) {
     const ratio = Math.min(beforeDuration, afterDuration) / Math.max(beforeDuration, afterDuration);
     if (ratio < 0.4) {
-      lines.push(`Flight length: unbalanced (${Math.round(beforeDuration)} s vs ${Math.round(afterDuration)} s) — the longer flight simply had more chances to show events.`);
+      lines.push(`Flugdauer: unausgewogen (${Math.round(beforeDuration)} s gegen ${Math.round(afterDuration)} s) — der längere Flug hatte schlicht mehr Gelegenheiten, Ereignisse zu zeigen.`);
       demote("partial");
     }
   }
@@ -345,7 +345,7 @@ export function assessComparability(baseline, comparison) {
     guidance:
       level === "comparable"
         ? null
-        : "Treat differences below as observations, not proof of a tuning change. Repeat the same maneuvers at the same headspeed to confirm them."
+        : "Behandle die Unterschiede unten als Beobachtungen, nicht als Beweis für eine Tuning-Änderung. Wiederhole dieselben Manöver bei derselben Headspeed, um sie zu bestätigen."
   };
 }
 
@@ -374,10 +374,10 @@ export function compareFlights(baseline, comparison, options = {}) {
       after: `${peakAfter.magnitude.toFixed(1)} @ ${peakAfter.hz.toFixed(0)} Hz`,
       sentence:
         described.direction === "same"
-          ? `Biggest vibration peak is about the same (${peakAfter.magnitude.toFixed(1)} at ${peakAfter.hz.toFixed(0)} Hz).`
+          ? `Die größte Vibrationsspitze ist etwa gleich (${peakAfter.magnitude.toFixed(1)} bei ${peakAfter.hz.toFixed(0)} Hz).`
           : causally(
-              `Your change made the biggest vibration peak ${described.word}: ${peakBefore.magnitude.toFixed(1)} → ${peakAfter.magnitude.toFixed(1)} at ~${peakAfter.hz.toFixed(0)} Hz.`,
-              `The biggest vibration peak measured ${described.word} in the later flight: ${peakBefore.magnitude.toFixed(1)} → ${peakAfter.magnitude.toFixed(1)} at ~${peakAfter.hz.toFixed(0)} Hz.`
+              `Deine Änderung hat die größte Vibrationsspitze ${described.word} gemacht: ${peakBefore.magnitude.toFixed(1)} → ${peakAfter.magnitude.toFixed(1)} bei ~${peakAfter.hz.toFixed(0)} Hz.`,
+              `Die größte Vibrationsspitze wurde im späteren Flug ${described.word} gemessen: ${peakBefore.magnitude.toFixed(1)} → ${peakAfter.magnitude.toFixed(1)} bei ~${peakAfter.hz.toFixed(0)} Hz.`
             )
     });
   }
@@ -404,18 +404,18 @@ export function compareFlights(baseline, comparison, options = {}) {
       govAfter.capability === "full";
 
     const measureWord = bothMeasuredDroop
-      ? "worst droop"
-      : "largest swing";
+      ? "schlimmster Droop"
+      : "größte Schwankung";
 
     rows.push({
-      title: "Headspeed hold",
+      title: "Headspeed-Halten",
       direction: described.direction,
-      before: `${Math.round(droopBefore)} rpm ${measureWord}`,
-      after: `${Math.round(droopAfter)} rpm ${measureWord}`,
+      before: `${Math.round(droopBefore)} U/min ${measureWord}`,
+      after: `${Math.round(droopAfter)} U/min ${measureWord}`,
       sentence:
         described.direction === "same"
-          ? `${bothMeasuredDroop ? "Governor hold" : "Headspeed steadiness"} is about the same (${measureWord} ${Math.round(droopAfter)} rpm).`
-          : `${bothMeasuredDroop ? "Headspeed hold" : "Headspeed steadiness"} got ${described.word}: ${measureWord} ${Math.round(droopBefore)} → ${Math.round(droopAfter)} rpm.`
+          ? `${bothMeasuredDroop ? "Governor-Halten" : "Headspeed-Gleichmäßigkeit"} ist etwa gleich (${measureWord} ${Math.round(droopAfter)} U/min).`
+          : `${bothMeasuredDroop ? "Das Headspeed-Halten" : "Die Headspeed-Gleichmäßigkeit"} wurde ${described.word}: ${measureWord} ${Math.round(droopBefore)} → ${Math.round(droopAfter)} U/min.`
     });
   }
 
@@ -444,22 +444,22 @@ export function compareFlights(baseline, comparison, options = {}) {
       );
 
       rows.push({
-        title: "Tracking",
+        title: "Nachführung",
         direction: described.direction,
         before: `${scoreBefore}/100`,
         after: `${scoreAfter}/100`,
         sentence:
           described.direction === "same"
-            ? `Stick tracking is about the same (${scoreAfter}/100).`
-            : `Stick tracking got ${described.word}: ${scoreBefore} → ${scoreAfter} points.`
+            ? `Die Stick-Nachführung ist etwa gleich (${scoreAfter}/100).`
+            : `Die Stick-Nachführung wurde ${described.word}: ${scoreBefore} → ${scoreAfter} Punkte.`
       });
     } else {
       rows.push({
-        title: "Tracking",
+        title: "Nachführung",
         direction: "unknown",
         before: `${scoreBefore}/100`,
         after: `${scoreAfter}/100`,
-        sentence: `Tracking cannot be compared here: ${evidence.reason} Both numbers are shown, but the difference between them would not mean anything.`
+        sentence: `Die Nachführung lässt sich hier nicht vergleichen: ${evidence.reason} Beide Zahlen werden gezeigt, aber der Unterschied zwischen ihnen hätte keine Aussagekraft.`
       });
     }
   }
@@ -495,33 +495,33 @@ export function compareFlights(baseline, comparison, options = {}) {
     // whole event: a rate wiggle without a count change is nothing.
     const described =
       Math.abs(reviewAfter - reviewBefore) < 1
-        ? { direction: "same", word: "about the same" }
+        ? { direction: "same", word: "etwa gleich" }
         : describeChange(rateBefore, rateAfter, true, 0.001);
 
     const describeSide = (summary, review) =>
-      `${review} of ${summary.total} command${summary.total === 1 ? "" : "s"}` +
+      `${review} von ${summary.total} Kommando${summary.total === 1 ? "" : "s"}` +
       (review > 0
-        ? ` (${summary.overshoot} overshot · ${summary.slow} slow` +
+        ? ` (${summary.overshoot} überschwungen · ${summary.slow} langsam` +
           ((summary.oscillation ?? 0) > 0
-            ? ` · ${summary.oscillation} oscillated`
+            ? ` · ${summary.oscillation} geschwungen`
             : "") +
           ((summary.lagging ?? 0) > 0
-            ? ` · ${summary.lagging} late`
+            ? ` · ${summary.lagging} spät`
             : "") +
           `)`
         : "");
 
     rows.push({
-      title: "Stick response events",
+      title: "Stick-Antwort-Ereignisse",
       direction: described.direction,
       before: describeSide(eventsBefore, reviewBefore),
       after: describeSide(eventsAfter, reviewAfter),
       sentence:
         reviewBefore === 0 && reviewAfter === 0
-          ? "Every measured stick command tracked cleanly in both flights."
+          ? "Jedes gemessene Stick-Kommando wurde in beiden Flügen sauber nachgeführt."
           : described.direction === "same"
-            ? `The share of commands needing review is about the same (${reviewAfter} of ${eventsAfter.total}).`
-            : `The share of commands needing review got ${described.word}: ${reviewBefore} of ${eventsBefore.total} → ${reviewAfter} of ${eventsAfter.total}.`
+            ? `Der Anteil der Kommandos, die geprüft werden müssen, ist etwa gleich (${reviewAfter} von ${eventsAfter.total}).`
+            : `Der Anteil der Kommandos, die geprüft werden müssen, wurde ${described.word}: ${reviewBefore} von ${eventsBefore.total} → ${reviewAfter} von ${eventsAfter.total}.`
     });
   }
 
@@ -542,11 +542,11 @@ export function compareFlights(baseline, comparison, options = {}) {
 
     const describeSide = (summary, count) =>
       count === 0
-        ? "none"
-        : `${count} (${summary.under} under · ${summary.over} over)`;
+        ? "keine"
+        : `${count} (${summary.under} darunter · ${summary.over} darüber)`;
 
     rows.push({
-      title: "Headspeed excursions",
+      title: "Headspeed-Abweichungen",
       direction:
         countBefore === 0 && countAfter === 0
           ? "same"
@@ -555,10 +555,10 @@ export function compareFlights(baseline, comparison, options = {}) {
       after: describeSide(govExAfter, countAfter),
       sentence:
         countBefore === 0 && countAfter === 0
-          ? "The rotor stayed inside the event band in both flights."
+          ? "Der Rotor blieb in beiden Flügen innerhalb des Ereignisbands."
           : described.direction === "same"
-            ? `Headspeed excursions are about the same (${countAfter}).`
-            : `Headspeed excursions got ${described.word}: ${countBefore} → ${countAfter}.`
+            ? `Die Headspeed-Abweichungen sind etwa gleich (${countAfter}).`
+            : `Die Headspeed-Abweichungen wurden ${described.word}: ${countBefore} → ${countAfter}.`
     });
   }
 
@@ -570,13 +570,13 @@ export function compareFlights(baseline, comparison, options = {}) {
   const precompRows = [
     {
       key: "riseDroopPercent",
-      title: "Collective-rise droop",
+      title: "Droop bei Kollektiv-Anstieg",
       unit: "%",
       minimumDelta: 1
     },
     {
       key: "dropOvershootPercent",
-      title: "Collective-drop overspeed",
+      title: "Überdrehzahl bei Kollektiv-Abfall",
       unit: "%",
       minimumDelta: 1
     }
@@ -604,8 +604,8 @@ export function compareFlights(baseline, comparison, options = {}) {
       after: `${valueAfter}${unit}`,
       sentence:
         described.direction === "same"
-          ? `${title} is about the same (${valueAfter}${unit}).`
-          : `${title} got ${described.word}: ${valueBefore}${unit} → ${valueAfter}${unit}.`
+          ? `${title} ist etwa gleich (${valueAfter}${unit}).`
+          : `${title} wurde ${described.word}: ${valueBefore}${unit} → ${valueAfter}${unit}.`
     });
   }
 
@@ -621,14 +621,14 @@ export function compareFlights(baseline, comparison, options = {}) {
     );
 
     rows.push({
-      title: "Tail kick on collective moves",
+      title: "Heck-Kick bei Kollektiv-Bewegungen",
       direction: described.direction,
-      before: `${kickBefore}× baseline`,
-      after: `${kickAfter}× baseline`,
+      before: `${kickBefore}× Basislinie`,
+      after: `${kickAfter}× Basislinie`,
       sentence:
         described.direction === "same"
-          ? `The tail's reaction to collective moves is about the same (${kickAfter}× its baseline error).`
-          : `The tail's reaction to collective moves got ${described.word}: ${kickBefore}× → ${kickAfter}× its baseline error.`
+          ? `Die Reaktion des Hecks auf Kollektiv-Bewegungen ist etwa gleich (${kickAfter}× seines Basisfehlers).`
+          : `Die Reaktion des Hecks auf Kollektiv-Bewegungen wurde ${described.word}: ${kickBefore}× → ${kickAfter}× seines Basisfehlers.`
     });
   }
 
@@ -645,14 +645,14 @@ export function compareFlights(baseline, comparison, options = {}) {
     );
 
     rows.push({
-      title: "Battery sag",
+      title: "Akku-Einbruch",
       direction: described.direction,
       before: `${sagBefore.toFixed(1)}%`,
       after: `${sagAfter.toFixed(1)}%`,
       sentence:
         described.direction === "same"
-          ? `Battery sag is about the same (${sagAfter.toFixed(1)}%).`
-          : `Battery sag got ${described.word}: ${sagBefore.toFixed(1)}% → ${sagAfter.toFixed(1)}%.`
+          ? `Der Akku-Einbruch ist etwa gleich (${sagAfter.toFixed(1)} %).`
+          : `Der Akku-Einbruch wurde ${described.word}: ${sagBefore.toFixed(1)} % → ${sagAfter.toFixed(1)} %.`
     });
   }
 
@@ -695,12 +695,12 @@ export function compareFlights(baseline, comparison, options = {}) {
   const unlikeReason = !aircraft.same
     ? ""
     : !evidenceKnown
-      ? "this pair does not carry enough evidence to verify the two flights were flown alike."
+      ? "dieses Paar trägt nicht genug Beleg, um zu bestätigen, dass beide Flüge gleich geflogen wurden."
       : !headlineEvidence.comparable
         ? headlineEvidence.reason
         : comparability.causal
           ? ""
-          : "the flights' demand or per-axis evidence was only partially comparable (the comparability panel above has the details).";
+          : "die Anforderung oder die Belege je Achse der Flüge waren nur teilweise vergleichbar (das Vergleichbarkeits-Panel oben hat die Details).";
 
   // Different helicopters: the numbers are shown for reference, but
   // "90% better" is a tuning judgment and there is no tune being
@@ -708,36 +708,36 @@ export function compareFlights(baseline, comparison, options = {}) {
   if (!aircraft.same) {
     for (const row of rows) {
       row.direction = "unknown";
-      row.sentence = `${row.title}: ${row.before} vs ${row.after}. Two different machines, shown side by side for reference only.`;
+      row.sentence = `${row.title}: ${row.before} gegen ${row.after}. Zwei verschiedene Maschinen, nur zur Orientierung nebeneinander gezeigt.`;
     }
   }
 
   const summary =
     rows.length === 0
-      ? "Not enough shared data between the two flights to compare."
+      ? "Nicht genug gemeinsame Daten zwischen den beiden Flügen zum Vergleichen."
       : !aircraft.same
-        ? `These flights are different helicopters (${aircraft.before} and ${aircraft.after}), so the figures below describe two machines rather than a change to one.`
+        ? `Diese Flüge sind verschiedene Helikopter (${aircraft.before} und ${aircraft.after}), die Zahlen unten beschreiben also zwei Maschinen und nicht eine Änderung an einer.`
         : comparedRows === 0
           ? uncomparable > 0
-            ? "These two flights cannot be compared usefully: see the rows below for what was missing."
-            : "No meaningful change between these two flights."
+            ? "Diese beiden Flüge lassen sich nicht sinnvoll vergleichen: Siehe die Zeilen unten, was fehlte."
+            : "Keine bedeutsame Änderung zwischen diesen beiden Flügen."
           : worse === 0 && better > 0
             ? likeForLike
               ? setupDiff && setupDiff.changedCount === 0
-                ? "The later flight measured better with NO logged setup change between the two: the difference reflects conditions or flying, not a tune. Nothing to keep or revert."
+                ? "Der spätere Flug maß besser, OHNE dass zwischen beiden eine Einstellungsänderung geloggt wurde: Der Unterschied spiegelt Bedingungen oder Fliegen wider, kein Tuning. Nichts zu behalten oder zurückzunehmen."
                 : setupDiff && setupDiff.changedCount === 1
-                  ? `Your change helped: nothing got worse, and the logs show exactly one setup change (${setupDiff.changedKeys[0]}). That's a keeper.`
+                  ? `Deine Änderung hat geholfen: Nichts wurde schlechter, und die Logs zeigen genau eine Einstellungsänderung (${setupDiff.changedKeys[0]}). Das ist ein Treffer.`
                   : setupDiff && setupDiff.changedCount > 1
-                    ? `The later flight measured better and nothing got worse, and ${setupDiff.changedCount} settings changed between these flights (${setupDiff.changedKeys.slice(0, 3).join(", ")}${setupDiff.changedCount > 3 ? ", …" : ""}). The win belongs to the set: each change's own verifying metric — the pack check runs these automatically for pack changes — tells which member earned it.`
-                    : "Your change helped: nothing got worse. That's a keeper."
-              : `The later flight measured better in ${better} area${better === 1 ? "" : "s"} and nothing measured got worse. Whether that is your change or the flying differing isn't settled yet: ${unlikeReason} Repeat the same maneuvers; if the gain returns, it's a keeper.`
+                    ? `Der spätere Flug maß besser und nichts wurde schlechter, und zwischen diesen Flügen haben sich ${setupDiff.changedCount} Einstellungen geändert (${setupDiff.changedKeys.slice(0, 3).join(", ")}${setupDiff.changedCount > 3 ? ", …" : ""}). Der Gewinn gehört dem ganzen Satz: Die eigene Prüfmetrik jeder Änderung — der Paket-Check führt diese bei Paket-Änderungen automatisch aus — sagt, welches Mitglied ihn verdient hat.`
+                    : "Deine Änderung hat geholfen: Nichts wurde schlechter. Das ist ein Treffer."
+              : `Der spätere Flug maß in ${better} Bereich${better === 1 ? "" : "en"} besser und nichts Gemessenes wurde schlechter. Ob das deine Änderung ist oder ein unterschiedliches Fliegen, ist noch nicht geklärt: ${unlikeReason} Wiederhole dieselben Manöver; kehrt der Gewinn zurück, ist es ein Treffer.`
             : better === 0 && worse > 0
               ? likeForLike
-                ? "This change went the wrong way. Consider reverting it."
-                : `The later flight measured worse in ${worse} area${worse === 1 ? "" : "s"}, but ${unlikeReason} Repeat the same maneuvers before reverting anything.`
+                ? "Diese Änderung ging in die falsche Richtung. Erwäge, sie zurückzunehmen."
+                : `Der spätere Flug maß in ${worse} Bereich${worse === 1 ? "" : "en"} schlechter, aber ${unlikeReason} Wiederhole dieselben Manöver, bevor du etwas zurücknimmst.`
               : likeForLike
-                ? "Mixed result: some things improved, others got worse. Trade-off territory."
-                : `The measurements moved in both directions, and ${unlikeReason} This pair reads as two different flights more than as one change; repeat the same maneuvers for a cleaner verdict.`;
+                ? "Gemischtes Ergebnis: Manches hat sich verbessert, anderes wurde schlechter. Abwägungs-Gebiet."
+                : `Die Messwerte bewegten sich in beide Richtungen, und ${unlikeReason} Dieses Paar liest sich mehr wie zwei verschiedene Flüge als wie eine Änderung; wiederhole dieselben Manöver für ein klareres Urteil.`;
 
   // Better/worse is a JUDGMENT, and a weak footing cannot carry one
   // (#38): when the pair is not causal, directional rows keep their
@@ -755,11 +755,7 @@ export function compareFlights(baseline, comparison, options = {}) {
   // in the same sentence the pilot reads first.
   const confidenceSentence =
     comparability.confidence && rows.length > 0 && aircraft.same
-      ? ` Verdict confidence: ${comparability.confidence}${
-          comparability.reducedBy?.length
-            ? ` — reduced by ${comparability.reducedBy.join(", ")}`
-            : ""
-        }.`
+      ? ` Urteils-Sicherheit: ${comparability.confidence}${ comparability.reducedBy?.length ? ` — reduziert durch ${comparability.reducedBy.join(", ")}` : "" }.`
       : "";
 
   return {

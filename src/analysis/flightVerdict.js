@@ -64,26 +64,26 @@ function vibrationVerdict(spectra, headspeedRpm, filterAdvice, pidAnalysis) {
   // matching wrench-in-hand action separately: the Verdict explains
   // with `source`, Try This First commands with `sourceAction`, and
   // neither repeats the other.
-  let source = "an unidentified source";
+  let source = "eine nicht identifizierte Quelle";
   let sourceAction =
-    "Check the rotating parts for balance and play at the next bench session.";
+    "Prüfe bei der nächsten Werkbank-Session die rotierenden Teile auf Wuchtung und Spiel.";
 
   if (headspeedRpm && headspeedRpm > 300) {
     const oneRev = headspeedRpm / 60;
     const ratio = peakHz / oneRev;
 
     if (Math.abs(ratio - 1) < 0.15) {
-      source = "the MAIN ROTOR turning once per revolution, usually blade balance or head damping";
-      sourceAction = "Balance and track the main blades, and check the head damping.";
+      source = "der HAUPTROTOR, der einmal pro Umdrehung vibriert, meist Blattwucht oder Kopfdämpfung";
+      sourceAction = "Wuchte und spure die Hauptblätter und prüfe die Kopfdämpfung.";
     } else if (Math.abs(ratio - 2) < 0.2) {
-      source = "twice-per-revolution of the main rotor, often blade tracking or head play";
-      sourceAction = "Check the blade tracking and the head for play.";
+      source = "zweimal pro Umdrehung des Hauptrotors, oft Blattspurlauf oder Kopfspiel";
+      sourceAction = "Prüfe den Blattspurlauf und den Kopf auf Spiel.";
     } else if (ratio > 3.5 && ratio < 6.5) {
-      source = "the TAIL rotor region: check tail blades, belt/shaft and bearings";
-      sourceAction = "Check the tail blades, the belt or shaft tension, and the tail bearings.";
+      source = "der HECKROTOR-Bereich: Heckblätter, Riemen/Welle und Lager prüfen";
+      sourceAction = "Prüfe die Heckblätter, die Spannung von Riemen oder Welle und die Heck-Lager.";
     } else if (ratio > 6.5) {
-      source = "a high-frequency source: motor, pinion or bearing territory";
-      sourceAction = "Check the motor mount, the pinion mesh and the bearings.";
+      source = "eine hochfrequente Quelle: Motor-, Ritzel- oder Lagergebiet";
+      sourceAction = "Prüfe die Motorbefestigung, den Ritzeleingriff und die Lager.";
     }
   }
 
@@ -148,17 +148,17 @@ function vibrationVerdict(spectra, headspeedRpm, filterAdvice, pidAnalysis) {
 
   const headline =
     conclusion.level === "observed" && peakMagnitude > 3
-      ? `Vibration at ${hzLabel} Hz: managed by filtering`
+      ? `Vibration bei ${hzLabel} Hz: durch Filterung beherrscht`
       : peakMagnitude > 8
-        ? `Strong vibration at ${hzLabel} Hz`
+        ? `Starke Vibration bei ${hzLabel} Hz`
         : peakMagnitude > 3
-          ? `Vibration at ${hzLabel} Hz`
-          : "Vibration levels look healthy";
+          ? `Vibration bei ${hzLabel} Hz`
+          : "Die Vibrationswerte sehen gesund aus";
 
   const detail =
     peakMagnitude > 3
       ? `${conclusion.detected} ${conclusion.filtering} ${conclusion.impact}`
-      : `Largest peak only ${magnitudeLabel} at ${hzLabel} Hz: a clean, well-balanced machine.`;
+      : `Größte Spitze nur ${magnitudeLabel} bei ${hzLabel} Hz: eine saubere, gut gewuchtete Maschine.`;
 
   return {
     key: "vibration",
@@ -178,10 +178,10 @@ function vibrationVerdict(spectra, headspeedRpm, filterAdvice, pidAnalysis) {
         ? Math.round(reductionPercent)
         : null,
       managed: conclusion.managed === true,
-      identified: source !== "an unidentified source"
+      identified: source !== "eine nicht identifizierte Quelle"
     },
     screen: "filter",
-    evidence: "Noise Spectrum chart, Filter Lab"
+    evidence: "Rauschspektrum-Diagramm, Filter-Labor"
   };
 }
 
@@ -227,38 +227,38 @@ function rotorSpeedVerdict(headspeed, governorTarget) {
   if (droopPercent > 3) {
     return {
       key: "rotor",
-      title: "Rotor Speed",
+      title: "Rotordrehzahl",
       status: "attention",
-      headline: `Headspeed sags up to ${Math.round(maximumDroop)} rpm under load`,
-      detail: `That is ${droopPercent.toFixed(1)}% below target. The governor needs more gain or the power system more headroom.`,
-      action: "In Rotorflight Configurator, raise governor gain in small steps, or check the ESC Lab for missing power headroom.",
+      headline: `Die Headspeed sackt unter Last um bis zu ${Math.round(maximumDroop)} U/min ein`,
+      detail: `Das sind ${droopPercent.toFixed(1)} % unter dem Ziel. Der Governor braucht mehr Gain oder das Antriebssystem mehr Reserve.`,
+      action: "Erhöhe im Rotorflight Configurator den Governor-Gain in kleinen Schritten oder prüfe im ESC-Labor, ob Leistungsreserve fehlt.",
       screen: "governor",
-      evidence: "Headspeed vs Target chart, Governor Lab"
+      evidence: "Diagramm Headspeed gegen Ziel, Governor-Labor"
     };
   }
 
   if (droopPercent > 1.2) {
     return {
       key: "rotor",
-      title: "Rotor Speed",
+      title: "Rotordrehzahl",
       status: "watch",
-      headline: `Headspeed dips ${Math.round(maximumDroop)} rpm on collective`,
-      detail: `${droopPercent.toFixed(1)}% droop is flyable; a touch more governor gain could tighten it.`,
-      action: "Optional: a small governor gain increase next session.",
+      headline: `Die Headspeed fällt beim Kollektiv um ${Math.round(maximumDroop)} U/min`,
+      detail: `${droopPercent.toFixed(1)} % Droop sind flugtauglich; etwas mehr Governor-Gain könnte ihn straffen.`,
+      action: "Optional: In der nächsten Session den Governor-Gain leicht erhöhen.",
       screen: "governor",
-      evidence: "Headspeed vs Target chart, Governor Lab"
+      evidence: "Diagramm Headspeed gegen Ziel, Governor-Labor"
     };
   }
 
   return {
     key: "rotor",
-    title: "Rotor Speed",
+    title: "Rotordrehzahl",
     status: "good",
-    headline: "Rock-solid headspeed",
-    detail: `Worst droop only ${Math.round(maximumDroop)} rpm (${droopPercent.toFixed(1)}%): the governor is doing its job.`,
-    action: "Nothing to do. This is what good looks like.",
+    headline: "Felsenfeste Headspeed",
+    detail: `Schlimmster Droop nur ${Math.round(maximumDroop)} U/min (${droopPercent.toFixed(1)} %): Der Governor macht seine Arbeit.`,
+    action: "Nichts zu tun. So sieht gut aus.",
     screen: "governor",
-    evidence: "Headspeed vs Target chart, Governor Lab"
+    evidence: "Diagramm Headspeed gegen Ziel, Governor-Labor"
   };
 }
 
@@ -279,7 +279,7 @@ function tuningVerdict(pidAnalysis, { vibrationConcern = false } = {}) {
   const hoverDemand =
     pidAnalysis?.technicalSummary?.demand?.hoverLevel === true;
 
-  const demandSuffix = hoverDemand ? " at gentle demand" : "";
+  const demandSuffix = hoverDemand ? " bei sanfter Anforderung" : "";
 
   if (
     overallStatus === "Insufficient Data" ||
@@ -289,13 +289,13 @@ function tuningVerdict(pidAnalysis, { vibrationConcern = false } = {}) {
       key: "tuning",
       title: "Tuning",
       status: "watch",
-      headline: "PID tracking could not be measured",
+      headline: "PID-Nachführung konnte nicht gemessen werden",
       detail:
-        "Setpoint data was present, but no valid axis-response or tracking windows were available. This flight cannot support a PID tuning score.",
+        "Setpoint-Daten waren vorhanden, aber es standen keine gültigen Achsen-Antwort- oder Nachführungs-Fenster zur Verfügung. Dieser Flug kann keine PID-Tuning-Punktzahl tragen.",
       action:
-        "Do not change PID values from this result. Open PID Lab to review the missing evidence.",
+        "Ändere aufgrund dieses Ergebnisses keine PID-Werte. Öffne das PID-Labor, um die fehlenden Belege zu prüfen.",
       screen: "pid",
-      evidence: "PID Lab findings"
+      evidence: "PID-Labor-Befunde"
     };
   }
 
@@ -309,13 +309,13 @@ function tuningVerdict(pidAnalysis, { vibrationConcern = false } = {}) {
       key: "tuning",
       title: "Tuning",
       status: "attention",
-      headline: `Tracking score ${score}/100: room to improve`,
+      headline: `Nachführ-Punktzahl ${score}/100: Luft nach oben`,
       detail:
-        "The helicopter lags or overshoots what the sticks ask for. The PID Lab lists the events behind this number.",
+        "Der Heli hinkt dem hinterher oder schießt über das hinaus, was die Sticks verlangen. Das PID-Labor listet die Ereignisse hinter dieser Zahl.",
       action:
-        "Open the PID Lab and let its recommendations fill this flight's Change Pack.",
+        "Öffne das PID-Labor und lass dessen Empfehlungen das Änderungspaket dieses Fluges füllen.",
       screen: "pid",
-      evidence: "PID Lab findings"
+      evidence: "PID-Labor-Befunde"
     };
   }
 
@@ -331,13 +331,13 @@ function tuningVerdict(pidAnalysis, { vibrationConcern = false } = {}) {
       key: "tuning",
       title: "Tuning",
       status: "watch",
-      headline: `Tracking score ${score}/100, read through a vibration finding${demandSuffix}`,
+      headline: `Nachführ-Punktzahl ${score}/100, gelesen durch einen Vibrationsbefund${demandSuffix}`,
       detail:
-        "The response follows the sticks, but a strong vibration is open on this flight — the tuning instruments are read through it, and no tuning change is earned until the mechanical source is fixed.",
+        "Die Antwort folgt den Sticks, aber in diesem Flug ist eine starke Vibration offen — die Tuning-Instrumente werden durch sie hindurch gelesen, und es wird keine Tuning-Änderung verdient, bis die mechanische Ursache behoben ist.",
       action:
-        "Fix the vibration first (see the Vibration card), fly again, and read this score fresh on that flight.",
+        "Behebe zuerst die Vibration (siehe Vibrations-Karte), fliege erneut und lies diese Punktzahl in diesem Flug frisch.",
       screen: "pid",
-      evidence: "PID Lab findings"
+      evidence: "PID-Labor-Befunde"
     };
   }
 
@@ -349,13 +349,13 @@ function tuningVerdict(pidAnalysis, { vibrationConcern = false } = {}) {
       key: "tuning",
       title: "Tuning",
       status: "watch",
-      headline: `Tracking score ${score}/100: items to review${demandSuffix}`,
+      headline: `Nachführ-Punktzahl ${score}/100: Punkte zum Prüfen${demandSuffix}`,
       detail:
-        "The response follows the sticks, but the PID Lab flags findings worth reading before calling this tune done.",
+        "Die Antwort folgt den Sticks, aber das PID-Labor markiert Befunde, die man lesen sollte, bevor man das Tuning für fertig erklärt.",
       action:
-        "Open the PID Lab and read its review items: they say exactly where to look.",
+        "Öffne das PID-Labor und lies seine Prüfpunkte: Sie sagen genau, wo du hinschauen sollst.",
       screen: "pid",
-      evidence: "PID Lab findings"
+      evidence: "PID-Labor-Befunde"
     };
   }
 
@@ -366,13 +366,13 @@ function tuningVerdict(pidAnalysis, { vibrationConcern = false } = {}) {
       key: "tuning",
       title: "Tuning",
       status: "watch",
-      headline: `Tracking score ${score}/100 on thin evidence${demandSuffix}`,
+      headline: `Nachführ-Punktzahl ${score}/100 bei dünner Beleglage${demandSuffix}`,
       detail:
-        "The machine followed the few clean commands this flight offered, but too few of them to call the tune crisp — the score is honest, the confidence is not there yet.",
+        "Die Maschine folgte den wenigen sauberen Kommandos dieses Fluges, aber es waren zu wenige, um das Tuning knackig zu nennen — die Punktzahl ist ehrlich, die Sicherheit fehlt noch.",
       action:
-        "Fly 4–6 deliberate stops and reversals on each axis at one headspeed; the PID Lab then has the evidence to rate the tune.",
+        "Fliege 4–6 bewusste Stopps und Umkehrungen je Achse bei einer Headspeed; dann hat das PID-Labor die Belege, um das Tuning zu bewerten.",
       screen: "pid",
-      evidence: "PID Lab findings"
+      evidence: "PID-Labor-Befunde"
     };
   }
 
@@ -381,13 +381,13 @@ function tuningVerdict(pidAnalysis, { vibrationConcern = false } = {}) {
       key: "tuning",
       title: "Tuning",
       status: "watch",
-      headline: `Tracking score ${score}/100: decent, not crisp${demandSuffix}`,
+      headline: `Nachführ-Punktzahl ${score}/100: ordentlich, nicht knackig${demandSuffix}`,
       detail:
-        "Response mostly follows the sticks; the PID Lab shows where it loosens.",
+        "Die Antwort folgt den Sticks überwiegend; das PID-Labor zeigt, wo sie sich lockert.",
       action:
-        "If you want it sharper, the PID Lab shows where to look.",
+        "Wenn du es schärfer willst, zeigt das PID-Labor, wo du hinschauen sollst.",
       screen: "pid",
-      evidence: "PID Lab findings"
+      evidence: "PID-Labor-Befunde"
     };
   }
 
@@ -395,13 +395,13 @@ function tuningVerdict(pidAnalysis, { vibrationConcern = false } = {}) {
     key: "tuning",
     title: "Tuning",
     status: "good",
-    headline: `Tracking score ${score}/100: crisp response${demandSuffix}`,
+    headline: `Nachführ-Punktzahl ${score}/100: knackige Antwort${demandSuffix}`,
     detail: hoverDemand
-      ? "The machine follows the sticks faithfully, at the gentle demand this flight asked of it. A score from a harder flight is a different measurement."
-      : "The machine follows the sticks faithfully.",
-    action: "Nothing to do. Enjoy it.",
+      ? "Die Maschine folgt den Sticks treu, bei der sanften Anforderung, die dieser Flug stellte. Eine Punktzahl aus einem härteren Flug ist eine andere Messung."
+      : "Die Maschine folgt den Sticks treu.",
+    action: "Nichts zu tun. Viel Spaß damit.",
     screen: "pid",
-    evidence: "PID Lab findings"
+    evidence: "PID-Labor-Befunde"
   };
 }
   
@@ -433,25 +433,25 @@ function batteryVerdict(vbat) {
   if (sagPercent > 12) {
     return {
       key: "battery",
-      title: "Battery",
+      title: "Akku",
       status: "attention",
-      headline: `Voltage fell ${sagPercent.toFixed(0)}% during the flight`,
-      detail: `${start.toFixed(1)} V → ${end.toFixed(1)} V: an aging pack or a flight flown long/hard.`,
-      action: "Land earlier, or move this pack to gentler duty. The Battery Lab has the details.",
+      headline: `Die Spannung fiel im Flug um ${sagPercent.toFixed(0)} %`,
+      detail: `${start.toFixed(1)} V → ${end.toFixed(1)} V: ein alternder Akku oder ein lang/hart geflogener Flug.`,
+      action: "Lande früher oder setze diesen Akku für sanftere Einsätze ein. Das Akku-Labor hat die Details.",
       screen: "viewer",
-      evidence: "Motor & Power chart, Log Viewer"
+      evidence: "Diagramm Motor & Leistung, Log-Ansicht"
     };
   }
 
   return {
     key: "battery",
-    title: "Battery",
+    title: "Akku",
     status: "good",
-    headline: "Battery held up well",
-    detail: `${start.toFixed(1)} V → ${end.toFixed(1)} V over the flight.`,
-    action: "Nothing to do.",
+    headline: "Der Akku hielt gut durch",
+    detail: `${start.toFixed(1)} V → ${end.toFixed(1)} V über den Flug.`,
+    action: "Nichts zu tun.",
     screen: "viewer",
-    evidence: "Motor & Power chart, Log Viewer"
+    evidence: "Diagramm Motor & Leistung, Log-Ansicht"
   };
 }
 function rotorSpeedVerdictFromLab(governorLab) {
@@ -470,27 +470,23 @@ function rotorSpeedVerdictFromLab(governorLab) {
   ) {
     return {
       key: "rotor",
-      title: "Rotor Speed",
+      title: "Rotordrehzahl",
       status: governorLab.status,
       // The stability RESULT may be favorable, but without a target
       // there is no governed contract to score — the label says
       // partial, never a scored-quality word.
-      statusLabel: "Partial: stability only",
+      statusLabel: "Teilweise: nur Stabilität",
       headline:
         governorLab.status === "good"
-          ? `Headspeed held steady near ${governorLab.averageHeadspeed} rpm`
-          : `Headspeed swung ${Math.round(
-              governorLab.droopRpm
-            )} rpm short-term`,
-      detail: `No governor target is logged, so hold is judged against the rotor's own trend: largest short-term swing ${Math.round(
-        governorLab.droopRpm
-      )} rpm (${governorLab.droopPercent.toFixed(1)}%).`,
+          ? `Die Headspeed hielt sich stabil bei etwa ${governorLab.averageHeadspeed} U/min`
+          : `Die Headspeed schwankte kurzfristig um ${Math.round( governorLab.droopRpm )} U/min`,
+      detail: `Es ist kein Governor-Ziel geloggt, deshalb wird das Halten am eigenen Trend des Rotors beurteilt: größte kurzfristige Schwankung ${Math.round( governorLab.droopRpm )} U/min (${governorLab.droopPercent.toFixed(1)} %).`,
       action:
         governorLab.status === "good"
-          ? "Nothing to change from this result."
-          : "Worth a look at that moment in the Governor Lab chart. Deliberate headspeed changes are not counted against this.",
+          ? "Aufgrund dieses Ergebnisses ist nichts zu ändern."
+          : "Einen Blick auf diesen Moment im Governor-Labor-Diagramm wert. Bewusste Headspeed-Änderungen werden dagegen nicht gezählt.",
       screen: "governor",
-      evidence: "Headspeed Over Time chart, Governor Lab"
+      evidence: "Diagramm Headspeed im Zeitverlauf, Governor-Labor"
     };
   }
 
@@ -500,7 +496,7 @@ function rotorSpeedVerdictFromLab(governorLab) {
   ) {
     return {
       key: "rotor",
-      title: "Rotor Speed",
+      title: "Rotordrehzahl",
       // Not logged is not unhealthy: a model without an RPM sensor
       // gets the greyed card, not a yellow one.
       status:
@@ -511,28 +507,28 @@ function rotorSpeedVerdictFromLab(governorLab) {
       statusLabel:
         governorLab.hasRotorSpeedData === false &&
         governorLab.movedDuringRecording !== false
-          ? "not logged"
+          ? "nicht geloggt"
           : null,
       headline:
         governorLab.movedDuringRecording === false
-          ? "No flight found in this recording"
+          ? "In dieser Aufzeichnung wurde kein Flug gefunden"
           : governorLab.hasRotorSpeedData === false
-            ? "No rotor-speed data in this log"
-            : "Governor hold could not be measured",
+            ? "Keine Rotordrehzahl-Daten in diesem Log"
+            : "Das Governor-Halten konnte nicht gemessen werden",
       detail:
         governorLab.movedDuringRecording === false
-          ? "The sticks and servos move in this log, but the airframe itself never does, and no rotor speed was recorded. That is the signature of a bench or ground run rather than a flight."
+          ? "Die Sticks und Servos bewegen sich in diesem Log, aber das Fluggerät selbst nie, und es wurde keine Rotordrehzahl aufgezeichnet. Das ist die Signatur eines Werkbank- oder Bodenlaufs und nicht eines Fluges."
           : governorLab.hasRotorSpeedData === false
-            ? "This log records no headspeed, which is normal for a model flown without an RPM sensor. Governor hold is measured against rotor speed, so it cannot be scored from this flight."
-            : "No stable governed-flight section was long enough for a reliable governor result.",
+            ? "Dieses Log enthält keine Headspeed, was für ein Modell ohne RPM-Sensor normal ist. Das Governor-Halten wird an der Rotordrehzahl gemessen und lässt sich aus diesem Flug daher nicht bewerten."
+            : "Kein stabiler Governor-Flugabschnitt war lang genug für ein verlässliches Governor-Ergebnis.",
       action:
         governorLab.movedDuringRecording === false
-          ? "Open a log recorded in flight. If this was a flight, check that the gyro and RPM sensor are being logged."
+          ? "Öffne ein im Flug aufgezeichnetes Log. Falls das ein Flug war, prüfe, ob Gyro und RPM-Sensor geloggt werden."
           : governorLab.hasRotorSpeedData === false
-            ? "Nothing to fix in the log. Fit and enable an RPM sensor if you want governor scoring."
-            : "Do not change governor settings from this flight.",
+            ? "Am Log ist nichts zu beheben. Baue einen RPM-Sensor ein und aktiviere ihn, wenn du eine Governor-Bewertung willst."
+            : "Ändere aufgrund dieses Fluges keine Governor-Einstellungen.",
       screen: "governor",
-      evidence: "Headspeed vs Target chart, Governor Lab"
+      evidence: "Diagramm Headspeed gegen Ziel, Governor-Labor"
     };
   }
 
@@ -554,75 +550,55 @@ function rotorSpeedVerdictFromLab(governorLab) {
 
     return {
       key: "rotor",
-      title: "Rotor Speed",
+      title: "Rotordrehzahl",
       status: "attention",
-      headline: `Rotor fell ${Math.round(
-        governorLab.flightDroopRpm
-      )} rpm under load`,
-      detail: `A sustained ${governorLab.flightDroopPercent.toFixed(
-        1
-      )}% dip below target${
-        Number.isFinite(governorLab.flightDroopOutputPercent)
-          ? ` with the motor output at ${Math.round(
-              governorLab.flightDroopOutputPercent
-            )}%`
-          : ""
-      }.`,
+      headline: `Der Rotor fiel unter Last um ${Math.round( governorLab.flightDroopRpm )} U/min ein`,
+      detail: `Ein anhaltender Einbruch von ${governorLab.flightDroopPercent.toFixed( 1 )} % unter das Ziel${ Number.isFinite(governorLab.flightDroopOutputPercent) ? ` bei einem Motorausgang von ${Math.round( governorLab.flightDroopOutputPercent )} %` : "" }.`,
       action: outputAtCeiling
-        ? "The output was already at its ceiling, so more governor gain cannot help. Lower the headspeed, take some pitch out, or adjust the gearing/Kv to match your target headspeed. The ESC Lab shows the moment."
-        : "Review the worst-droop event in Governor Lab before changing gain or power-system settings.",
+        ? "Der Ausgang stand bereits an seiner Obergrenze, mehr Governor-Gain kann also nicht helfen. Senke die Headspeed, nimm etwas Pitch heraus oder passe Übersetzung/Kv an deine Ziel-Headspeed an. Das ESC-Labor zeigt den Moment."
+        : "Sieh dir das Ereignis mit dem schlimmsten Droop im Governor-Labor an, bevor du Gain oder Antriebs-Einstellungen änderst.",
       screen: "governor",
-      evidence: "Headspeed vs Target chart, Governor Lab"
+      evidence: "Diagramm Headspeed gegen Ziel, Governor-Labor"
     };
   }
 
   if (governorLab.status === "attention") {
     return {
       key: "rotor",
-      title: "Rotor Speed",
+      title: "Rotordrehzahl",
       status: "attention",
-      headline: `Sustained dip of ${Math.round(
-        droopRpm
-      )} rpm in stable flight`,
-      detail: `${droopPercent.toFixed(
-        1
-      )}% below target, held for a quarter second or longer.`,
+      headline: `Anhaltender Einbruch von ${Math.round( droopRpm )} U/min im stabilen Flug`,
+      detail: `${droopPercent.toFixed( 1 )} % unter dem Ziel, eine Viertelsekunde oder länger gehalten.`,
       action:
-        "Review the matching event in Governor Lab before changing gain or power-system settings.",
+        "Sieh dir das passende Ereignis im Governor-Labor an, bevor du Gain oder Antriebs-Einstellungen änderst.",
       screen: "governor",
-      evidence: "Headspeed vs Target chart, Governor Lab"
+      evidence: "Diagramm Headspeed gegen Ziel, Governor-Labor"
     };
   }
 
   if (governorLab.status === "watch") {
     return {
       key: "rotor",
-      title: "Rotor Speed",
+      title: "Rotordrehzahl",
       status: "watch",
-      headline: `Sustained dip of ${Math.round(
-        droopRpm
-      )} rpm in stable flight`,
-      detail: `${droopPercent.toFixed(
-        1
-      )}% below target. Review the event before making a governor change.`,
+      headline: `Anhaltender Einbruch von ${Math.round( droopRpm )} U/min im stabilen Flug`,
+      detail: `${droopPercent.toFixed( 1 )} % unter dem Ziel. Sieh dir das Ereignis an, bevor du eine Governor-Änderung machst.`,
       action:
-        "No automatic change recommended. Confirm that the dip occurred during a real airborne load.",
+        "Keine automatische Änderung empfohlen. Bestätige, dass der Einbruch bei einer echten Last in der Luft auftrat.",
       screen: "governor",
-      evidence: "Headspeed vs Target chart, Governor Lab"
+      evidence: "Diagramm Headspeed gegen Ziel, Governor-Labor"
     };
   }
 
   return {
     key: "rotor",
-    title: "Rotor Speed",
+    title: "Rotordrehzahl",
     status: "good",
-    headline: "Rock-solid headspeed",
-    detail: `Largest sustained dip was ${Math.round(
-      droopRpm
-    )} rpm (${droopPercent.toFixed(1)}%).`,
-    action: "Nothing to change from this result.",
+    headline: "Felsenfeste Headspeed",
+    detail: `Größter anhaltender Einbruch war ${Math.round( droopRpm )} U/min (${droopPercent.toFixed(1)} %).`,
+    action: "Aufgrund dieses Ergebnisses ist nichts zu ändern.",
     screen: "governor",
-    evidence: "Headspeed vs Target chart, Governor Lab"
+    evidence: "Diagramm Headspeed gegen Ziel, Governor-Labor"
   };
 }
 
@@ -637,25 +613,25 @@ function batteryVerdictFromLab(batteryLab) {
   ) {
     return {
       key: "battery",
-      title: "Battery",
+      title: "Akku",
       status:
         batteryLab.hasRotorSpeedData === false ? "unavailable" : "watch",
       statusLabel:
-        batteryLab.hasRotorSpeedData === false ? "not measurable" : null,
+        batteryLab.hasRotorSpeedData === false ? "nicht messbar" : null,
       headline:
         batteryLab.hasRotorSpeedData === false
-          ? "Battery assessment needs rotor-speed data"
-          : "Battery condition could not be assessed",
+          ? "Die Akku-Bewertung braucht Rotordrehzahl-Daten"
+          : "Der Akku-Zustand konnte nicht beurteilt werden",
       detail:
         batteryLab.hasRotorSpeedData === false
-          ? "Pack condition is judged over a steady-load section, which this app identifies from rotor speed. This log records none, so the pack cannot be scored from this flight."
-          : "No stable governed-flight section was long enough for a reliable battery result.",
+          ? "Der Zustand des Akkus wird über einen Abschnitt mit gleichmäßiger Last beurteilt, den diese App an der Rotordrehzahl erkennt. Dieses Log enthält keine, deshalb lässt sich der Akku aus diesem Flug nicht bewerten."
+          : "Kein stabiler Governor-Flugabschnitt war lang genug für ein verlässliches Akku-Ergebnis.",
       action:
         batteryLab.hasRotorSpeedData === false
-          ? "Nothing to fix in the log. Use the Voltage Over the Flight chart to view the pack directly."
-          : "Do not judge the pack from this flight alone.",
+          ? "Am Log ist nichts zu beheben. Nutze das Diagramm „Spannung über den Flug“, um den Akku direkt anzusehen."
+          : "Beurteile den Akku nicht allein anhand dieses Fluges.",
       screen: "battery",
-      evidence: "Voltage Over the Flight chart, Battery Lab"
+      evidence: "Diagramm Spannung über den Flug, Akku-Labor"
     };
   }
 
@@ -665,46 +641,40 @@ function batteryVerdictFromLab(batteryLab) {
   if (batteryLab.status === "attention") {
     return {
       key: "battery",
-      title: "Battery",
+      title: "Akku",
       status: "attention",
-      headline: "Low voltage observed during stable flight",
-      detail: `Lowest in-flight voltage was ${minimumPerCell.toFixed(
-        2
-      )} V per cell.`,
+      headline: "Niedrige Spannung im stabilen Flug beobachtet",
+      detail: `Die niedrigste Spannung im Flug war ${minimumPerCell.toFixed( 2 )} V pro Zelle.`,
       action:
-        "Review the matching current and throttle event in Battery Lab.",
+        "Sieh dir das passende Strom- und Gas-Ereignis im Akku-Labor an.",
       screen: "battery",
-      evidence: "Voltage Over the Flight chart, Battery Lab"
+      evidence: "Diagramm Spannung über den Flug, Akku-Labor"
     };
   }
 
   if (batteryLab.status === "watch") {
     return {
       key: "battery",
-      title: "Battery",
+      title: "Akku",
       status: "watch",
-      headline: "Loaded voltage is worth reviewing",
-      detail: `Lowest in-flight voltage was ${minimumPerCell.toFixed(
-        2
-      )} V per cell. This alone does not prove the pack is weak.`,
+      headline: "Die Spannung unter Last ist einen Blick wert",
+      detail: `Die niedrigste Spannung im Flug war ${minimumPerCell.toFixed( 2 )} V pro Zelle. Das allein beweist nicht, dass der Akku schwach ist.`,
       action:
-        "Compare the voltage dip with current demand in Battery Lab.",
+        "Vergleiche den Spannungseinbruch im Akku-Labor mit dem Strombedarf.",
       screen: "battery",
-      evidence: "Voltage Over the Flight chart, Battery Lab"
+      evidence: "Diagramm Spannung über den Flug, Akku-Labor"
     };
   }
 
   return {
     key: "battery",
-    title: "Battery",
+    title: "Akku",
     status: "good",
-    headline: "Battery held up well",
-    detail: `Lowest in-flight voltage was ${minimumPerCell.toFixed(
-      2
-    )} V per cell. No clear evidence of a weak or tired pack.`,
-    action: "Nothing to change from this result.",
+    headline: "Der Akku hielt gut durch",
+    detail: `Die niedrigste Spannung im Flug war ${minimumPerCell.toFixed( 2 )} V pro Zelle. Kein klares Anzeichen für einen schwachen oder müden Akku.`,
+    action: "Aufgrund dieses Ergebnisses ist nichts zu ändern.",
     screen: "battery",
-    evidence: "Voltage Over the Flight chart, Battery Lab"
+    evidence: "Diagramm Spannung über den Flug, Akku-Labor"
   };
 }
 // ------------------------------------------------------
@@ -717,27 +687,27 @@ function powerVerdictFromLab(escLab) {
 
   const headline =
     escLab.status === "attention"
-      ? "The power system ran out of headroom"
+      ? "Dem Antriebssystem ging die Reserve aus"
       : escLab.status === "watch"
-        ? "Power headroom is getting thin"
-        : "Plenty of power in reserve";
+        ? "Die Leistungsreserve wird dünn"
+        : "Reichlich Leistung in Reserve";
 
   const action =
     escLab.status === "attention"
-      ? "Lower the headspeed, take some pitch out, or adjust the gearing/Kv to match your target headspeed. The ESC Lab shows the exact moments."
+      ? "Senke die Headspeed, nimm etwas Pitch heraus oder passe Übersetzung/Kv an deine Ziel-Headspeed an. Das ESC-Labor zeigt die genauen Momente."
       : escLab.status === "watch"
-        ? "Fine for now. Worth remembering before asking the machine for more."
-        : "Nothing to do.";
+        ? "Vorerst in Ordnung. Gut zu merken, bevor du der Maschine mehr abverlangst."
+        : "Nichts zu tun.";
 
   return {
     key: "power",
-    title: "Power & ESC",
+    title: "Antrieb & ESC",
     status: escLab.status,
     headline,
     detail: escLab.story,
     action,
     screen: "esc",
-    evidence: "Throttle Output chart, ESC Lab"
+    evidence: "Diagramm Gas-Ausgang, ESC-Labor"
   };
 }
 
@@ -761,18 +731,18 @@ function signalVerdict(signalLab) {
     headline:
       status === "attention"
         ? signalLab.counts.failsafe > 0
-          ? "The control link was interrupted"
-          : "The link needs a look"
+          ? "Die Steuerverbindung wurde unterbrochen"
+          : "Die Verbindung braucht einen Blick"
         : status === "watch"
-          ? "Signal dipped: the link held"
-          : "Radio link solid the whole flight",
+          ? "Das Signal brach ein: Die Verbindung hielt"
+          : "Funkverbindung den ganzen Flug über stabil",
     detail: signalLab.story,
     action:
       status === "good"
-        ? "Nothing to do."
-        : "Open the Signal Lab: the events name each moment.",
+        ? "Nichts zu tun."
+        : "Öffne das Signal-Labor: Die Ereignisse nennen jeden Moment.",
     screen: "signal",
-    evidence: "Signal Lab events"
+    evidence: "Signal-Labor-Ereignisse"
   };
 }
 
@@ -783,23 +753,23 @@ function becVerdict(becLab) {
 
   return {
     key: "bec",
-    title: "BEC Output",
+    title: "BEC-Ausgang",
     status,
     headline:
       status === "attention"
-        ? "BEC output needs attention"
+        ? "Der BEC-Ausgang braucht Aufmerksamkeit"
         : status === "watch"
           ? becLab.implausibleBrownout
-            ? "Voltage reading worth checking"
-            : "BEC voltage dipped"
-          : "BEC output rock steady",
+            ? "Spannungswert einen Check wert"
+            : "Die BEC-Spannung brach ein"
+          : "BEC-Ausgang felsenfest",
     detail: becLab.story,
     action:
       status === "good"
-        ? "Nothing to do."
-        : "Open the BEC Lab: each dip carries its servo context.",
+        ? "Nichts zu tun."
+        : "Öffne das BEC-Labor: Jeder Einbruch trägt seinen Servo-Zusammenhang.",
     screen: "bec",
-    evidence: "BEC Lab events"
+    evidence: "BEC-Labor-Ereignisse"
   };
 }
 
@@ -818,54 +788,54 @@ function becVerdict(becLab) {
 
 // Which quality chip speaks for which card.
 const CARD_CAPABILITY = {
-  vibration: "Vibration & filters",
+  vibration: "Vibration & Filter",
   rotor: "Governor",
-  power: "Battery & ESC",
-  battery: "Battery & ESC",
-  signal: "Signal & link",
-  bec: "BEC output"
+  power: "Akku & ESC",
+  battery: "Akku & ESC",
+  signal: "Signal & Verbindung",
+  bec: "BEC-Ausgang"
 };
 
 const UNAVAILABLE_CARDS = {
   vibration: {
     title: "Vibration",
-    headline: "No noise reading from this flight",
+    headline: "Keine Rauschmessung aus diesem Flug",
     screen: "filter",
-    evidence: "Filter Lab",
+    evidence: "Filter-Labor",
     fallbackNote:
-      "The flight never held steady long enough for a spectrum, or the log carries no gyro data."
+      "Der Flug blieb nie lange genug gleichmäßig für ein Spektrum, oder das Log enthält keine Gyro-Daten."
   },
   rotor: {
-    title: "Rotor Speed",
-    headline: "Headspeed not logged",
+    title: "Rotordrehzahl",
+    headline: "Headspeed nicht geloggt",
     screen: "governor",
-    evidence: "Governor Lab"
+    evidence: "Governor-Labor"
   },
   power: {
-    title: "Power & ESC",
-    headline: "Motor output not measurable",
+    title: "Antrieb & ESC",
+    headline: "Motorausgang nicht messbar",
     screen: "esc",
-    evidence: "ESC Lab",
+    evidence: "ESC-Labor",
     fallbackNote:
-      "Output headroom needs motor or ESC-throttle output and rotor speed in the log."
+      "Die Ausgangsreserve braucht Motor- oder ESC-Gas-Ausgang und Rotordrehzahl im Log."
   },
   battery: {
-    title: "Battery",
-    headline: "Voltage not logged",
+    title: "Akku",
+    headline: "Spannung nicht geloggt",
     screen: "battery",
-    evidence: "Battery Lab"
+    evidence: "Akku-Labor"
   },
   signal: {
     title: "Signal",
-    headline: "Link telemetry not logged",
+    headline: "Link-Telemetrie nicht geloggt",
     screen: "signal",
-    evidence: "Signal Lab"
+    evidence: "Signal-Labor"
   },
   bec: {
-    title: "BEC Output",
-    headline: "BEC voltage not logged",
+    title: "BEC-Ausgang",
+    headline: "BEC-Spannung nicht geloggt",
     screen: "bec",
-    evidence: "BEC Lab"
+    evidence: "BEC-Labor"
   }
 };
 
@@ -878,21 +848,21 @@ export function gapAdvice(key, capability) {
     case "battery":
     case "power":
       return level === "missing"
-        ? "No voltage telemetry logged. Enable pack or ESC voltage telemetry so the pack and the power system can be judged."
-        : "Current was not measured: the channel is absent or read zero all flight. Check the current sensor's wiring and scale, or add one — consumption, internal resistance and power figures need it.";
+        ? "Keine Spannungs-Telemetrie geloggt. Aktiviere Akku- oder ESC-Spannungs-Telemetrie, damit sich Akku und Antriebssystem beurteilen lassen."
+        : "Der Strom wurde nicht gemessen: Der Kanal fehlt oder las den ganzen Flug über null. Prüfe Verkabelung und Skalierung des Stromsensors oder baue einen ein — Verbrauch, Innenwiderstand und Leistungszahlen brauchen ihn.";
     case "rotor":
       return level === "missing"
-        ? "No headspeed logged. Enable RPM telemetry to unlock governor and headspeed analysis."
-        : "No governor target logged: stability is judged against the rotor's own trend. Droop against target needs the target in the log.";
+        ? "Keine Headspeed geloggt. Aktiviere die RPM-Telemetrie, um Governor- und Headspeed-Analyse freizuschalten."
+        : "Kein Governor-Ziel geloggt: Die Stabilität wird am eigenen Trend des Rotors beurteilt. Droop gegen das Ziel braucht das Ziel im Log.";
     case "signal":
       return level === "missing"
-        ? "No link telemetry logged. Enable RSSI telemetry on the receiver; then the link is watched for you."
-        : "Receiver flags only: enable signal-strength (RSSI) telemetry for the full link picture.";
+        ? "Keine Link-Telemetrie geloggt. Aktiviere die RSSI-Telemetrie am Empfänger; dann wird die Verbindung für dich überwacht."
+        : "Nur Empfänger-Flags: Aktiviere die Signalstärke-Telemetrie (RSSI) für das volle Bild der Verbindung.";
     case "bec":
-      return "No BEC voltage logged. Enable BEC voltage telemetry to watch the power your receiver and servos run on.";
+      return "Keine BEC-Spannung geloggt. Aktiviere die BEC-Spannungs-Telemetrie, um die Versorgung von Empfänger und Servos zu beobachten.";
     case "vibration":
       return capability?.note ??
-        "No noise reading: fly a longer steady stretch, or log the gyro at a healthy rate.";
+        "Keine Rauschmessung: Fliege eine längere gleichmäßige Strecke oder logge den Gyro mit gesunder Rate.";
     default:
       return capability?.note ?? null;
   }
@@ -906,18 +876,18 @@ export function gapShort(key, capability) {
     case "battery":
     case "power":
       return level === "missing"
-        ? "voltage"
-        : "current (no usable sensor reading)";
+        ? "Spannung"
+        : "Strom (keine brauchbare Sensormessung)";
     case "rotor":
-      return level === "missing" ? "headspeed" : "governor target";
+      return level === "missing" ? "Headspeed" : "Governor-Ziel";
     case "signal":
       return level === "missing"
-        ? "link telemetry"
-        : "signal strength (receiver flags only)";
+        ? "Link-Telemetrie"
+        : "Signalstärke (nur Empfänger-Flags)";
     case "bec":
-      return "BEC voltage";
+      return "BEC-Spannung";
     case "vibration":
-      return level === "missing" ? "gyro noise" : "full noise picture";
+      return level === "missing" ? "Gyro-Rauschen" : "volles Rauschbild";
     default:
       return null;
   }
@@ -939,10 +909,10 @@ function unavailableCard(key, capability, { rotorMissing = false } = {}) {
   const rotorBlocked =
     rotorMissing && (key === "power" || key === "battery");
   const note = rotorBlocked
-    ? "Measured over steady flight, which is found from rotor speed — and this log records none."
-    : capability?.note ?? spec.fallbackNote ?? "Not logged.";
+    ? "Wird im gleichmäßigen Flug gemessen, der an der Rotordrehzahl erkannt wird — und dieses Log enthält keine."
+    : capability?.note ?? spec.fallbackNote ?? "Nicht geloggt.";
   const advice = rotorBlocked
-    ? "No headspeed logged: output headroom and pack condition are read over steady flight found from rotor speed. Enable RPM telemetry to unlock them."
+    ? "Keine Headspeed geloggt: Ausgangsreserve und Akku-Zustand werden im gleichmäßigen Flug gelesen, der an der Rotordrehzahl erkannt wird. Aktiviere die RPM-Telemetrie, um sie freizuschalten."
     : gapAdvice(key, capability) ?? note;
   return {
     key,
@@ -951,10 +921,10 @@ function unavailableCard(key, capability, { rotorMissing = false } = {}) {
     // "not logged" when the channel is absent; "no reading" when
     // the channel exists but the flight gave nothing to measure.
     statusLabel: rotorBlocked
-      ? "not measurable"
+      ? "nicht messbar"
       : (capability?.level ?? "missing") === "missing"
-        ? "not logged"
-        : "no reading",
+        ? "nicht geloggt"
+        : "keine Messung",
     headline: spec.headline,
     detail: note,
     action: advice,
@@ -1061,10 +1031,10 @@ export function buildFlightVerdict({
 
   const summary =
     worst === "good"
-      ? "This flight looks healthy. Explore the Labs to see the details."
+      ? "Dieser Flug sieht gesund aus. Erkunde die Labore für die Details."
       : worst === "watch"
-        ? "Mostly healthy, with a few things worth keeping an eye on."
-        : "This flight found something that deserves your attention.";
+        ? "Überwiegend gesund, mit ein paar Dingen, die man im Auge behalten sollte."
+        : "In diesem Flug wurde etwas gefunden, das deine Aufmerksamkeit verdient.";
 
   return { cards, worst, summary };
 }

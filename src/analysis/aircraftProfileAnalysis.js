@@ -4,7 +4,7 @@ function analyzeAircraftProfile(profile) {
       score: 40,
       status: "Unknown Aircraft",
       finding:
-        "No matching aircraft profile was found. Generic analysis rules will be used."
+        "Es wurde kein passendes Fluggeräte-Profil gefunden. Es gelten allgemeine Analyseregeln."
     };
   }
 
@@ -12,7 +12,7 @@ function analyzeAircraftProfile(profile) {
     score: 100,
     status: "Profile Matched",
     finding:
-      `${profile.displayName} was identified and its aircraft-specific targets were loaded.`
+      `${profile.displayName} wurde erkannt und seine fluggerätespezifischen Zielwerte wurden geladen.`
   };
 }
 export { analyzeAircraftProfile };

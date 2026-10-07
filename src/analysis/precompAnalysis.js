@@ -235,7 +235,7 @@ export function analyzePrecomp({
         riseCount: rises.length,
         dropCount: drops.length,
         story:
-          "Not enough fast collective moves in both directions to read the governor's precomp balance: it needs a few honest pumps each way."
+          "Nicht genug schnelle Kollektiv-Bewegungen in beide Richtungen, um die Precomp-Balance des Governors zu lesen: Es braucht einige ehrliche Pumpen in jede Richtung."
       };
     }
 
@@ -309,12 +309,12 @@ export function analyzePrecomp({
 
     const story =
       balance === "low"
-        ? `Collective rises pull the rotor ${riseDroopPercent.toFixed(1)}% under target while drops stay clean: the governor's anticipation of load is running behind. More collective precomp asks for the power before the load arrives.`
+        ? `Kollektiv-Anstiege ziehen den Rotor ${riseDroopPercent.toFixed(1)} % unter das Ziel, während Abfälle sauber bleiben: Die Lastvorwegnahme des Governors läuft hinter der Last her. Mehr Kollektiv-Precomp fordert die Leistung an, bevor die Last kommt.`
         : balance === "high"
-          ? `Collective drops push the rotor ${dropOvershootPercent.toFixed(1)}% over target while rises stay clean: the governor keeps feeding power the load no longer needs. Less collective precomp, or more governor damping, absorbs it.`
+          ? `Kollektiv-Abfälle drücken den Rotor ${dropOvershootPercent.toFixed(1)} % über das Ziel, während Anstiege sauber bleiben: Der Governor speist weiter Leistung, die die Last nicht mehr braucht. Weniger Kollektiv-Precomp, oder mehr Governor-Dämpfung, absorbiert das.`
           : balance === "lagging"
-            ? `The rotor misses its target both ways around collective moves (droop ${riseDroopPercent.toFixed(1)}% on rises, overspeed ${dropOvershootPercent.toFixed(1)}% on drops): the governor is late in both directions, which reads as a response-speed story before a precomp one.`
-            : "Fast collective moves barely disturb the headspeed in either direction: the governor's precomp is doing its job.";
+            ? `Der Rotor verfehlt sein Ziel in beide Richtungen bei Kollektiv-Bewegungen (Droop ${riseDroopPercent.toFixed(1)} % bei Anstiegen, Überdrehzahl ${dropOvershootPercent.toFixed(1)} % bei Abfällen): Der Governor ist in beide Richtungen spät, was vor einem Precomp-Thema ein Antwortgeschwindigkeits-Thema ist.`
+            : "Schnelle Kollektiv-Bewegungen stören die Headspeed kaum in eine Richtung: Die Precomp des Governors macht ihre Arbeit.";
 
     return {
       balance,
@@ -348,7 +348,7 @@ export function analyzePrecomp({
         balance: null,
         kickRatio: null,
         story:
-          "Not enough fast collective moves to read the tail's precomp coupling."
+          "Nicht genug schnelle Kollektiv-Bewegungen, um die Precomp-Kopplung des Hecks zu lesen."
       };
     }
 
@@ -408,7 +408,7 @@ export function analyzePrecomp({
         balance: null,
         kickRatio: null,
         story:
-          "Not enough measurable yaw responses around collective moves to read the tail coupling."
+          "Nicht genug messbare Gier-Reaktionen um Kollektiv-Bewegungen, um die Heck-Kopplung zu lesen."
       };
     }
 
@@ -437,8 +437,8 @@ export function analyzePrecomp({
       consistency >= tuning.TAIL_CONSISTENCY;
 
     const story = coupled
-      ? `Collective moves kick the tail ${kickRatio.toFixed(1)}× harder than its ordinary error (median ${Math.round(transientError)} deg/s, ${Math.round(consistency * 100)}% in a consistent direction). A torque-anticipation story: the collective feedforward into yaw is not matching the torque change.\n\nWhich way to move it depends on your rotation direction: step once, and if the kick grows, go the other way.`
-      : "The tail holds its own during collective moves: no precomp coupling worth chasing.";
+      ? `Kollektiv-Bewegungen kicken das Heck ${kickRatio.toFixed(1)}× stärker als seinen gewöhnlichen Fehler (Median ${Math.round(transientError)} °/s, ${Math.round(consistency * 100)} % in einer konsistenten Richtung). Ein Drehmoment-Vorwegnahme-Thema: Der Kollektiv-Feedforward in Gier passt nicht zur Drehmomentänderung.\n\nIn welche Richtung er zu verschieben ist, hängt von deiner Rotordrehrichtung ab: Einen Schritt machen, und wenn der Kick wächst, die andere Richtung wählen.`
+      : "Das Heck behauptet sich bei Kollektiv-Bewegungen: keine Precomp-Kopplung, der man nachgehen müsste.";
 
     return {
       balance: coupled ? "coupled" : "balanced",

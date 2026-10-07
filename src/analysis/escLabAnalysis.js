@@ -157,15 +157,15 @@ export function analyzeEscLab({
     return {
       status: "insufficient",
       story:
-        "No stable governed-flight section was long enough for a reliable ESC assessment.",
+        "Kein stabiler Governor-Flugabschnitt war lang genug für eine verlässliche ESC-Bewertung.",
       metrics: [
         {
-          label: "Stable samples",
+          label: "Stabile Samples",
           value: String(stableIndexes.length)
         },
         {
-          label: "ESC result",
-          value: "Insufficient stable-flight data"
+          label: "ESC-Ergebnis",
+          value: "Zu wenig Daten aus stabilem Flug"
         }
       ],
       stableSampleCount: stableIndexes.length
@@ -378,36 +378,26 @@ export function analyzeEscLab({
 
   const story =
     status === "good"
-      ? `Healthy headroom: stable-flight motor output averages ${averagePercent.toFixed(
-          1
-        )}% with ${headroomPercent.toFixed(
-          1
-        )}% average reserve, and the output stayed clear of its ceiling across the whole flight.`
+      ? `Gesunde Reserve: Der Motorausgang im stabilen Flug liegt im Mittel bei ${averagePercent.toFixed( 1 )} % mit ${headroomPercent.toFixed( 1 )} % mittlerer Reserve, und der Ausgang blieb über den ganzen Flug von seiner Obergrenze entfernt.`
       : status === "watch"
-        ? `Stable-flight motor output averages ${averagePercent.toFixed(
-            1
-          )}%, leaving ${headroomPercent.toFixed(
-            1
-          )}% average reserve. The highest-load events below show where that reserve went and what was asked in those moments.`
-        : `ESC-reported throttle sat at or above 97% for ${flightSaturationPercent.toFixed(
-            1
-          )}% of the flight. During those moments the governor had no remaining output authority: the system was giving everything it had, and the flight asked for more than the gearing and headspeed can deliver.`;
+        ? `Der Motorausgang im stabilen Flug liegt im Mittel bei ${averagePercent.toFixed( 1 )} % und lässt ${headroomPercent.toFixed( 1 )} % mittlere Reserve übrig. Die Momente höchster Last unten zeigen, wohin diese Reserve ging und was in diesen Momenten verlangt wurde.`
+        : `Das vom ESC gemeldete Gas lag in ${flightSaturationPercent.toFixed( 1 )} % des Fluges bei oder über 97 %. In diesen Momenten hatte der Governor keine Ausgangsreserve mehr: Das System gab alles, was es hatte, und der Flug verlangte mehr, als Übersetzung und Headspeed liefern können.`;
 
   const metrics = [
     {
-      label: "ESC-reported stable-flight throttle",
+      label: "Vom ESC gemeldetes Gas im stabilen Flug",
       value: `${averagePercent.toFixed(1)}%`
     },
     {
-      label: "Average output reserve",
+      label: "Mittlere Ausgangsreserve",
       value: `${headroomPercent.toFixed(1)}%`
     },
     {
-      label: "Flight time near ceiling",
+      label: "Flugzeit nahe der Obergrenze",
       value: `${flightSaturationPercent.toFixed(1)}%`
     },
     {
-      label: "Stable samples used",
+      label: "Verwendete stabile Samples",
       value:
         stableIndexes.length.toLocaleString()
     }
@@ -415,26 +405,22 @@ export function analyzeEscLab({
 
   if (ampsStats) {
     metrics.push({
-      label: "Stable current avg / peak",
-      value: `${ampsStats.average.toFixed(
-        1
-      )} / ${ampsStats.max.toFixed(
-        1
-      )} A (est.)`
+      label: "Strom Ø / Spitze im stabilen Flug",
+      value: `${ampsStats.average.toFixed( 1 )} / ${ampsStats.max.toFixed( 1 )} A (geschätzt)`
     });
   } else {
     // The same capability state Home and Log Quality report: a fitted
     // sensor with no usable data reads as unavailable, never as zero.
     metrics.push({
-      label: "Stable current avg / peak",
-      value: "Unavailable — no usable current telemetry"
+      label: "Strom Ø / Spitze im stabilen Flug",
+      value: "Nicht verfügbar — keine brauchbare Strom-Telemetrie"
     });
   }
 
   if (Number.isFinite(peakPower)) {
     metrics.push({
-      label: "Stable-flight peak power",
-      value: `~${peakPower} W (est.)`
+      label: "Spitzenleistung im stabilen Flug",
+      value: `~${peakPower} W (geschätzt)`
     });
   }
 

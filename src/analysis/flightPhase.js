@@ -569,7 +569,7 @@ const sampleCount =
       stableSampleCount: 0,
       hasRotorSpeedData,
       basis: "none",
-      reason: "Not enough aligned samples were available."
+      reason: "Nicht genug ausgerichtete Samples verfügbar."
     };
   }
 
@@ -627,8 +627,8 @@ const sampleCount =
       basis,
       movedDuringRecording: hasActivitySignal ? false : null,
       reason: hasActivitySignal
-        ? "This log contains no rotor-speed data, and the airframe did not move during the recording, so no flight section could be identified."
-        : "This log contains no rotor-speed data, so a governed-flight section could not be identified."
+        ? "Dieses Log enthält keine Rotordrehzahl-Daten, und das Fluggerät hat sich während der Aufzeichnung nicht bewegt, deshalb ließ sich kein Flugabschnitt erkennen."
+        : "Dieses Log enthält keine Rotordrehzahl-Daten, deshalb ließ sich kein Governor-Flugabschnitt erkennen."
     };
   }
 
@@ -685,11 +685,11 @@ const sampleCount =
     reason:
       stableIndexes.length > 0
         ? basis === "activity"
-          ? "Steady flight was detected from airframe motion, because this log contains no rotor-speed data."
-          : "Stable governed-flight samples were detected."
+          ? "Gleichmäßiger Flug wurde an der Bewegung des Fluggeräts erkannt, weil dieses Log keine Rotordrehzahl-Daten enthält."
+          : "Stabile Governor-Flug-Samples wurden erkannt."
         : basis === "activity"
-          ? "The airframe moved, but no single section was steady for long enough to measure."
-          : "No stable governed-flight segment passed the phase checks."
+          ? "Das Fluggerät bewegte sich, aber kein einzelner Abschnitt war lange genug gleichmäßig zum Messen."
+          : "Kein stabiles Governor-Flugsegment hat die Phasenprüfungen bestanden."
   };
 }
 

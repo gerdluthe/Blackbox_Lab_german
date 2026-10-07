@@ -148,7 +148,7 @@ export function chooseVoltageSource(escVoltage, vbat) {
     if (disagreement !== null && disagreement > 0.08) {
       return {
         selected: vbat,
-        note: `The ESC's voltage telemetry (reading ~${scaledAverageVolts(escVoltage)?.toFixed(1)} V) disagrees with the flight controller's pack measurement (~${scaledAverageVolts(vbat)?.toFixed(1)} V). This assessment uses the flight controller's. If the FC's voltage calibration is off, correcting it there fixes both readings at once.`
+        note: `Die ESC-Spannungstelemetrie (Messwert ~${scaledAverageVolts(escVoltage)?.toFixed(1)} V) weicht von der Packmessung der Flugsteuerung (~${scaledAverageVolts(vbat)?.toFixed(1)} V) ab. Diese Auswertung nutzt die der Flugsteuerung. Ist die Spannungskalibrierung der FC falsch, behebt eine Korrektur dort beide Messwerte auf einmal.`
       };
     }
 
@@ -269,16 +269,16 @@ export function analyzeBatteryLab({
       hasRotorSpeedData: flightPhase.hasRotorSpeedData !== false,
       story:
         flightPhase.hasRotorSpeedData === false
-          ? "This log contains no rotor-speed data, so a steady-load section could not be identified for a battery assessment."
-          : "No stable governed-flight section was long enough for a reliable battery assessment.",
+          ? "Dieses Log enthält keine Rotordrehzahl-Daten, deshalb ließ sich kein Abschnitt mit gleichmäßiger Last für eine Akku-Bewertung finden."
+          : "Kein stabiler Governor-Flugabschnitt war lang genug für eine verlässliche Akku-Bewertung.",
       metrics: [
         {
-          label: "Stable samples",
+          label: "Stabile Samples",
           value: String(stableIndexes.length)
         },
         {
-          label: "Battery result",
-          value: "Insufficient stable-flight data"
+          label: "Akku-Ergebnis",
+          value: "Zu wenig Daten aus stabilem Flug"
         }
       ],
       sagPercent: null,
@@ -452,10 +452,10 @@ export function analyzeBatteryLab({
   let internalResistanceNote = null;
 
   if (!amps) {
-    internalResistanceNote = "needs a current sensor";
+    internalResistanceNote = "braucht einen Stromsensor";
   } else if (voltageSourceNote !== null) {
     internalResistanceNote =
-      "not estimated: voltage and current came from different sensors";
+      "nicht geschätzt: Spannung und Strom stammen von verschiedenen Sensoren";
   }
 
   if (
@@ -506,7 +506,7 @@ export function analyzeBatteryLab({
         (best / cellCount) * 1000;
     } else {
       internalResistanceNote =
-        "no clean load steps in stable flight to measure from";
+        "keine sauberen Laststufen im stabilen Flug, an denen sich messen ließe";
     }
   }
 
@@ -522,52 +522,30 @@ export function analyzeBatteryLab({
 
   const story =
     status === "good"
-      ? `Pack voltage remained within the normal reviewed range during stable flight. It began the analyzed window near ${startVolts.toFixed(
-          1
-        )} V and ended near ${endVolts.toFixed(
-          1
-        )} V. Lowest in-flight voltage was ${flightMinVolts.toFixed(
-          1
-        )} V (${minimumPerCell.toFixed(
-          2
-        )} V per cell). No clear evidence of a weak or tired pack.`
+      ? `Die Packspannung blieb im stabilen Flug im normalen, geprüften Bereich. Sie begann im analysierten Fenster bei etwa ${startVolts.toFixed( 1 )} V und endete bei etwa ${endVolts.toFixed( 1 )} V. Die niedrigste Spannung im Flug war ${flightMinVolts.toFixed( 1 )} V (${minimumPerCell.toFixed( 2 )} V pro Zelle). Kein klares Anzeichen für einen schwachen oder müden Akku.`
       : status === "watch"
-        ? `The lowest in-flight voltage was ${flightMinVolts.toFixed(
-            1
-          )} V (${minimumPerCell.toFixed(
-            2
-          )} V per cell). A single dip to this level usually reflects the load of that moment rather than a tired pack: the matching current and throttle event below shows what was being asked of it.`
-        : `In-flight voltage reached ${flightMinVolts.toFixed(
-            1
-          )} V (${minimumPerCell.toFixed(
-            2
-          )} V per cell). That is deep enough to matter: sustained lows at this level usually trace to an aging pack or a soft cell, a connector or wiring drop under current, or more load than the pack's capacity comfortably delivers.`;
+        ? `Die niedrigste Spannung im Flug war ${flightMinVolts.toFixed( 1 )} V (${minimumPerCell.toFixed( 2 )} V pro Zelle). Ein einzelner Einbruch auf dieses Niveau spiegelt meist die Last dieses Moments wider und nicht einen müden Akku: Das passende Strom- und Gas-Ereignis unten zeigt, was von ihm verlangt wurde.`
+        : `Die Spannung im Flug erreichte ${flightMinVolts.toFixed( 1 )} V (${minimumPerCell.toFixed( 2 )} V pro Zelle). Das ist tief genug, um zu zählen: Anhaltend so niedrige Werte gehen meist auf einen alternden Akku oder eine weiche Zelle, einen Stecker- oder Kabelabfall unter Strom oder mehr Last zurück, als die Kapazität des Akkus bequem liefert.`;
 
   const metrics = [
     {
-      label: "Pack (detected)",
-      value: `${cellCount}S (est.)`
+      label: "Akku (erkannt)",
+      value: `${cellCount}S (geschätzt)`
     },
     {
-      label: "Stable-flight start → end",
-      value: `${startVolts.toFixed(
-        1
-      )} → ${endVolts.toFixed(1)} V (est.)`
+      label: "Stabiler Flug Anfang → Ende",
+      value: `${startVolts.toFixed( 1 )} → ${endVolts.toFixed(1)} V (geschätzt)`
     },
     {
-      label: "Lowest in-flight voltage",
-      value: `${flightMinVolts.toFixed(
-        1
-      )} V (${minimumPerCell.toFixed(
-        2
-      )} V/cell)`
+      label: "Niedrigste Spannung im Flug",
+      value: `${flightMinVolts.toFixed( 1 )} V (${minimumPerCell.toFixed( 2 )} V/Zelle)`
     },
     {
-      label: "Stable-flight voltage drop",
+      label: "Spannungsabfall im stabilen Flug",
       value: `${flightVoltageDropPercent.toFixed(1)}%`
     },
     {
-      label: "Stable samples used",
+      label: "Verwendete stabile Samples",
       value: stableIndexes.length.toLocaleString()
     }
   ];
@@ -577,13 +555,13 @@ export function analyzeBatteryLab({
     consumedMah > 0
   ) {
     metrics.push({
-      label: "Stable-flight consumption",
-      value: `~${consumedMah} mAh (est.)`
+      label: "Verbrauch im stabilen Flug",
+      value: `~${consumedMah} mAh (geschätzt)`
     });
   } else {
     metrics.push({
-      label: "Stable-flight consumption",
-      value: "— needs a current sensor"
+      label: "Verbrauch im stabilen Flug",
+      value: "— braucht einen Stromsensor"
     });
   }
 
@@ -591,14 +569,12 @@ export function analyzeBatteryLab({
     Number.isFinite(internalResistancePerCell)
   ) {
     metrics.push({
-      label: "Internal resistance",
-      value: `~${internalResistancePerCell.toFixed(
-        1
-      )} mΩ/cell (est.)`
+      label: "Innenwiderstand",
+      value: `~${internalResistancePerCell.toFixed( 1 )} mΩ/Zelle (geschätzt)`
     });
   } else if (internalResistanceNote) {
     metrics.push({
-      label: "Internal resistance",
+      label: "Innenwiderstand",
       value: `— ${internalResistanceNote}`
     });
   }

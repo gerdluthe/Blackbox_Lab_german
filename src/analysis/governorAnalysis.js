@@ -38,7 +38,7 @@ function getStandardDeviation(values) {
       averageError: null,
       variation: null,
       finding:
-        "Headspeed or governor-target data was not available."
+        "Headspeed- oder Governor-Ziel-Daten waren nicht verfügbar."
     };
   }
 
@@ -75,7 +75,7 @@ function getStandardDeviation(values) {
       averageError: null,
       variation: null,
       finding:
-        "Governor columns were found, but no active governed-flight samples were detected."
+        "Governor-Spalten wurden gefunden, aber es wurden keine aktiven Governor-Flug-Samples erkannt."
     };
   }
 
@@ -147,10 +147,10 @@ function getStandardDeviation(values) {
     averageError: averageAbsoluteError,
     variation,
     finding:
-      `Average headspeed was ${Math.round(averageHeadspeed)} RPM ` +
-      `against an average target of ${Math.round(averageTarget)} RPM. ` +
-      `Average tracking error was ${averageAbsoluteError.toFixed(1)} RPM ` +
-      `and headspeed variation was ${variation.toFixed(1)} RPM.`
+      `Die mittlere Headspeed lag bei ${Math.round(averageHeadspeed)} U/min ` +
+      `gegenüber einem mittleren Ziel von ${Math.round(averageTarget)} U/min. ` +
+      `Der mittlere Nachführfehler war ${averageAbsoluteError.toFixed(1)} U/min ` +
+      `und die Headspeed-Schwankung war ${variation.toFixed(1)} U/min.`
   };
 }
 

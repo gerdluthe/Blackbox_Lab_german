@@ -250,20 +250,20 @@ export function buildFlightEvents({
 
   const sentence =
     events.length === 0
-      ? "No distinct stick commands found in the stable flight sections: smooth cruising, or not enough command activity to judge."
-      : `${events.length} clear stick command${events.length === 1 ? "" : "s"} analyzed: ` +
-        `${counts.clean} tracked cleanly` +
-        (counts.overshoot > 0 ? `, ${counts.overshoot} overshot` : "") +
+      ? "Keine eindeutigen Stick-Kommandos in den stabilen Flugabschnitten gefunden: gleichmäßiges Dahinfliegen oder nicht genug Kommando-Aktivität zum Beurteilen."
+      : `${events.length} Stick-Kommando${events.length === 1 ? "" : "s"} eindeutig analysiert: ` +
+        `${counts.clean} sauber nachgeführt` +
+        (counts.overshoot > 0 ? `, ${counts.overshoot} mit Überschwingen` : "") +
         (counts.oscillation > 0
-          ? `, ${counts.oscillation} oscillated after the input`
+          ? `, ${counts.oscillation} mit Schwingen nach dem Eingriff`
           : "") +
-        (counts.slow > 0 ? `, ${counts.slow} settled slowly` : "") +
+        (counts.slow > 0 ? `, ${counts.slow} mit langsamem Einschwingen` : "") +
         (counts.lagging > 0
-          ? `, ${counts.lagging} still approaching the target when their window closed`
+          ? `, ${counts.lagging} noch im Anlauf zum Ziel, als ihr Fenster endete`
           : "") +
         "." +
         (worst && worst.t !== null
-          ? ` Worst: ${worst.axis.toLowerCase()} at ${worst.t.toFixed(1)} s.`
+          ? ` Schlimmster: ${worst.axis.toLowerCase()} bei ${worst.t.toFixed(1)} s.`
           : "");
 
   return {

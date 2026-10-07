@@ -81,7 +81,7 @@ export function applyFeedforwardDoctrine(
     ...saturationAssessment,
     status: "Expected",
     recommendation:
-      "Feedforward held near-maximum output for sustained periods. In Rotorflight, feedforward is supposed to do most of the work during commanded motion, so sustained feedforward drive is expected behavior and does not reduce the score. If this axis tracks poorly, review the command-balance result and gyro evidence instead of lowering feedforward."
+      "Feedforward hielt nahezu maximale Ausgabe für anhaltende Perioden. In Rotorflight soll Feedforward die meiste Arbeit bei kommandierten Bewegungen leisten, deshalb ist anhaltender Feedforward-Antrieb erwartetes Verhalten und mindert die Punktzahl nicht. Wenn diese Achse schlecht nachführt, überprüfe stattdessen das Kommando-Balance-Ergebnis und Gyro-Belege."
   };
 }
 
@@ -2039,7 +2039,7 @@ const classifyPidTermSaturation = (
       status: "Insufficient Data",
       confidence: "Low",
       recommendation:
-        "More valid PID-term samples are required before evaluating saturation."
+        "Mehr gültige PID-Anteils-Samples sind nötig, bevor Sättigung beurteilt werden kann."
     };
   }
 
@@ -2074,11 +2074,11 @@ const classifyPidTermSaturation = (
 
   const recommendation =
     status === "Review"
-      ? "Repeated near-maximum PID-term activity was detected. Review the affected axis and term together with command activity, tracking error, and clipping evidence before changing PID values."
+      ? "Wiederholte nahezu maximale PID-Anteils-Aktivität wurde erkannt. Prüfe die betroffene Achse und den Anteil zusammen mit Kommando-Aktivität, Nachführfehler und Begrenzungsbelegen, bevor PID-Werte geändert werden."
       : sustainedRunDetected &&
           moderateNearPeakActivity
-        ? "A sustained near-peak run was detected, but total near-peak activity remained below the Review threshold. Monitor this term in another comparable log."
-        : "No repeated sustained PID-term saturation pattern was identified.";
+        ? "Ein anhaltender Nahezu-Spitzen-Lauf wurde erkannt, aber die gesamte Nahezu-Spitzen-Aktivität blieb unter dem Prüf-Schwellwert. Beobachte diesen Anteil in einem weiteren vergleichbaren Log."
+        : "Kein wiederholtes anhaltendes PID-Anteils-Sättigungsmuster wurde erkannt.";
 
   return {
     status,
@@ -2619,32 +2619,26 @@ const commandBalanceReviewAxes =
 
 const pidSummary = [
   highestTrackingErrorAxis
-    ? `${highestTrackingErrorAxis.axis} has the highest tracking error.`
-    : "Tracking-error priority could not be identified.",
+    ? `${highestTrackingErrorAxis.axis} hat den höchsten Nachführfehler.`
+    : "Nachführfehler-Priorität konnte nicht erkannt werden.",
 
   commandBalanceReviewAxes.length > 0
-    ? `${commandBalanceReviewAxes
-        .map((axisResult) => axisResult.axis)
-        .join(", ")} command balance requires review.`
-    : "No command-balance review condition was identified.",
+    ? `${commandBalanceReviewAxes .map((axisResult) => axisResult.axis) .join(", ")}-Kommando-Balance erfordert Prüfung.`
+    : "Keine Kommando-Balance-Prüfbedingung erkannt.",
 
   saturationReviewTerms.length > 0
-    ? `${saturationReviewTerms.length} PID term${
-        saturationReviewTerms.length === 1
-          ? ""
-          : "s"
-      } showed possible sustained saturation.`
-    : "No sustained PID-term saturation pattern was identified.",
+    ? `${saturationReviewTerms.length} PID-Anteil${ saturationReviewTerms.length === 1 ? "" : "s" } zeigte mögliche anhaltende Sättigung.`
+    : "Kein anhaltendes PID-Anteils-Sättigungsmuster erkannt.",
 
   canCompareProfiles
     ? bestProfileUnderSampled
-      ? `${bestTrackingProfile.targetRpm} RPM showed the lowest observed tracking error, but only ${bestTrackingProfile.sampleCount} samples were measured at that headspeed. Collect more flight time there before comparing headspeeds.`
-      : `${bestTrackingProfile.targetRpm} RPM produced the lowest overall tracking error.`
+      ? `${bestTrackingProfile.targetRpm} U/min zeigte den niedrigsten beobachteten Nachführfehler, aber nur ${bestTrackingProfile.sampleCount} Samples wurden bei dieser Headspeed gemessen. Sammel mehr Flugzeit dort, bevor Headspeeds verglichen werden.`
+      : `${bestTrackingProfile.targetRpm} U/min erzeugte den niedrigsten Gesamtnachführfehler.`
     : onlyTrackingProfile
       ? Number.isFinite(onlyTrackingProfile.targetRpm)
-        ? `The flight ran at one headspeed, ${onlyTrackingProfile.targetRpm} RPM, so headspeeds cannot be compared.`
-        : "No rotor-speed data was logged, so tracking was measured over the moving parts of the flight and headspeeds cannot be compared."
-      : "A best tracking profile could not be identified."
+        ? `Der Flug lief bei einer Headspeed, ${onlyTrackingProfile.targetRpm} U/min, deshalb lassen sich Headspeeds nicht vergleichen.`
+        : "Keine Rotordrehzahl-Daten geloggt, deshalb wurde Nachführung über die bewegten Teile des Fluges gemessen und Headspeeds lassen sich nicht vergleichen."
+      : "Ein bester Nachführ-Profil konnte nicht erkannt werden."
 ];
 const hasCompleteTrackingEvidence =
   validAxisCount === 3 &&
@@ -2671,28 +2665,24 @@ const pidScore =
   hasCompleteTrackingEvidence ? scoreParts.score : null;
 
 const pidScoreExplanation = [
-  `${TRACKING_SCORE_TUNING.REAL_WORLD_MARGIN} points are reserved because one real-world flight cannot prove a mathematically perfect PID tune.`,
+  `${TRACKING_SCORE_TUNING.REAL_WORLD_MARGIN} Punkte sind reserviert, weil ein realer Flug kein mathematisch perfektes PID-Tuning beweisen kann.`,
   Number.isFinite(meanRelativeTrackingError)
-    ? `${scoreParts.trackingDeduction} points deducted for measured tracking error: on average the response missed its commanded rate by ${Math.round(
-        meanRelativeTrackingError * 100
-      )}% of the commanded magnitude.`
-    : "Tracking error could not be measured against commanded motion.",
+    ? `${scoreParts.trackingDeduction} Punkte abgezogen für gemessenen Nachführfehler: Im Durchschnitt verfehlte die Antwort ihre kommandierte Rate um ${Math.round( meanRelativeTrackingError * 100 )} % der kommandierten Größe.`
+    : "Nachführfehler konnte nicht gegen kommandierte Bewegung gemessen werden.",
 
   commandBalanceReviewAxes.length > 0
-    ? `${scoreParts.balanceDeduction} points deducted because ${commandBalanceReviewAxes
-        .map((axisResult) => axisResult.axis)
-        .join(", ")} command balance requires review.`
-    : "No points were deducted for command balance.",
+    ? `${scoreParts.balanceDeduction} Punkte abgezogen, weil ${commandBalanceReviewAxes .map((axisResult) => axisResult.axis) .join(", ")}-Kommando-Balance Prüfung erfordert.`
+    : "Keine Punkte für Kommando-Balance abgezogen.",
 
   saturationReviewTerms.length > 0
-    ? `${scoreParts.saturationDeduction} points deducted because sustained PID-term saturation requires review.`
-    : "No points were deducted for PID-term saturation.",
+    ? `${scoreParts.saturationDeduction} Punkte abgezogen, weil anhaltende PID-Anteils-Sättigung Prüfung erfordert.`
+    : "Keine Punkte für PID-Anteils-Sättigung abgezogen.",
 
   bestTrackingProfile
   ? bestProfileUnderSampled
-    ? "Profile comparison carries limited evidence (severe sample imbalance between headspeeds) and did not affect the PID score."
-    : "No points were deducted for profile comparison data."
-  : "Profile comparison was not available and did not affect the PID score."
+    ? "Profil-Vergleich trägt begrenzte Belege (starkes Ungleichgewicht der Samples zwischen Headspeeds) und hat die PID-Punktzahl nicht beeinflusst."
+    : "Keine Punkte für Profil-Vergleichsdaten abgezogen."
+  : "Profil-Vergleich war nicht verfügbar und hat die PID-Punktzahl nicht beeinflusst."
 ];
   const pidResult = {
     status: hasCompleteTrackingEvidence
@@ -2841,15 +2831,15 @@ const pidScoreExplanation = [
     findings: [
       ...(hoverLevelDemand
         ? [
-            "Stick demand: gentle. The average commanded rate stayed below the scoring floor on every axis, so this score describes gentle flying and is not comparable to a score earned in hard maneuvers."
+            "Stick-Anforderung: sanft. Die durchschnittliche kommandierte Rate blieb auf jeder Achse unter dem Bewertungs-Schwellwert, deshalb beschreibt diese Punktzahl sanftes Fliegen und ist nicht vergleichbar mit einer Punktzahl aus harten Manövern."
           ]
         : []),
-      `Axis setpoint columns detected: ${axisSetpointColumns.length}`,
+      `Achsen-Setpoint-Spalten erkannt: ${axisSetpointColumns.length}`,
       axisErrorColumns.length === 3
-  ? `Tracking-error source: recorded axis-error columns (${axisErrorColumns.join(", ")})`
+  ? `Nachführfehler-Quelle: aufgezeichnete Achsenfehler-Spalten (${axisErrorColumns.join(", ")})`
   : filteredGyroColumns.length === 3
-    ? "Tracking-error source: derived from setpoint minus filtered gyro"
-    : "Tracking-error source: unavailable",
+    ? "Nachführfehler-Quelle: abgeleitet aus Setpoint minus gefiltertem Gyro"
+    : "Nachführfehler-Quelle: nicht verfügbar",
       ...averageAbsoluteAxisError.map((axisResult) =>
         `${axisResult.axis} average absolute tracking error: ${
     Number.isFinite(axisResult.averageAbsoluteError)
@@ -2988,13 +2978,13 @@ const highestOvershootEvent =
    const overshootRecommendation =
   overshootConfidence === "Insufficient" ||
   overshootConfidence === "Low"
-    ? `Collect more clean ${axisResult.axis} command events before evaluating overshoot.`
+    ? `Sammle mehr saubere ${axisResult.axis}-Kommando-Ereignisse, bevor Überschwingen beurteilt wird.`
     : axisDidNotOvershoot
-      ? `${axisResult.axis} did not overshoot its target on any of the ${cleanResponseCount} clean responses measured.`
+      ? `${axisResult.axis} hat sein Ziel bei keiner der ${cleanResponseCount} gemessenen sauberen Antworten überschossen. Kein Handlungsbedarf.`
       : Number.isFinite(medianOvershootPercent) &&
         medianOvershootPercent >= 25
-      ? `Review ${axisResult.axis} for repeated overshoot. Confirm the pattern with another log before changing PID or feedforward values.`
-      : `No repeated ${axisResult.axis} overshoot pattern was identified from the available clean events.`;
+      ? `${axisResult.axis} auf wiederholtes Überschwingen prüfen. Muster mit einem weiteren Log bestätigen, bevor PID- oder Feedforward-Werte geändert werden.`
+      : `Kein wiederholtes ${axisResult.axis}-Überschwing-Muster aus den verfügbaren sauberen Ereignissen erkannt.`;
 
 return [
   `${axisResult.axis} events with valid overshoot measurements: ${validOvershootEvents.length}`,
@@ -3152,15 +3142,15 @@ const trimmedMaximumBounceBackPercent =
         : "Insufficient";
         const bounceBackRecommendation =
   nothingToBounceFrom
-    ? `${axisResult.axis} produced ${cleanBounceResponseCount} clean responses and none overshot, so there is no bounce-back to measure. No action needed.`
+    ? `${axisResult.axis} erzeugte ${cleanBounceResponseCount} saubere Antworten und keine überschoss, deshalb gibt es kein Rückfedern zu messen. Kein Handlungsbedarf.`
     : bounceBackConfidence === "Insufficient" ||
   bounceBackConfidence === "Low"
-    ? `Collect more clean ${axisResult.axis} command events before evaluating bounce-back.`
+    ? `Sammle mehr saubere ${axisResult.axis}-Kommando-Ereignisse, bevor Rückfedern beurteilt wird.`
     : Number.isFinite(medianBounceBackPercent) &&
         medianBounceBackPercent >=
           (RESPONSE_REVIEW_BARS.bounceBackPercent[axisResult.axis] ?? 54)
-      ? `Review ${axisResult.axis} for repeated response reversal after command peaks. Confirm the pattern before changing PID gains.`
-      : `No repeated ${axisResult.axis} bounce-back pattern was identified from the valid command events.`;
+      ? `${axisResult.axis} auf wiederholtes Rückfedern nach Kommando-Spitzen prüfen. Muster bestätigen, bevor PID-Gains geändert werden.`
+      : `Kein wiederholtes ${axisResult.axis}-Rückfeder-Muster aus den gültigen Kommando-Ereignissen erkannt.`;
 
       const bounceBackStatus =
   nothingToBounceFrom
@@ -3321,14 +3311,14 @@ const trimmedMaximumSettlingDurationSamples =
         const settlingRecommendation =
   settlingConfidence === "Insufficient" ||
   settlingConfidence === "Low"
-    ? `Collect more clean ${axisResult.axis} command events before evaluating settling behavior.`
+    ? `Sammle mehr saubere ${axisResult.axis}-Kommando-Ereignisse, bevor Einschwingverhalten beurteilt wird.`
     : Number.isFinite(
         medianSettlingDurationSamples
       ) &&
         medianSettlingDurationSamples * (1000 / samplesPerSecond) >=
           (RESPONSE_REVIEW_BARS.settleMs[axisResult.axis] ?? 290)
-      ? `Review ${axisResult.axis} for slow settling after command changes. Confirm the pattern with another log before changing PID values.`
-      : `No repeated slow-settling pattern was identified for ${axisResult.axis}.`;
+      ? `${axisResult.axis} auf langsames Einschwingen nach Kommando-Änderungen prüfen. Muster mit einem weiteren Log bestätigen, bevor PID-Werte geändert werden.`
+      : `Kein wiederholtes Langsam-Einschwing-Muster für ${axisResult.axis} erkannt.`;
       const settlingStatus =
   settlingConfidence === "Insufficient" ||
   settlingConfidence === "Low"
@@ -3470,14 +3460,14 @@ const trimmedMaximumRingingCrossingCount =
         const ringingRecommendation =
   ringingConfidence === "Insufficient" ||
   ringingConfidence === "Low"
-    ? `Collect more clean ${axisResult.axis} command events before evaluating sustained ringing.`
+    ? `Sammle mehr saubere ${axisResult.axis}-Kommando-Ereignisse, bevor anhaltendes Schwingen beurteilt wird.`
     : Number.isFinite(
         medianRingingCrossingCount
       ) &&
         medianRingingCrossingCount >=
           (RESPONSE_REVIEW_BARS.ringingCrossings[axisResult.axis] ?? 40)
-      ? `Review ${axisResult.axis} for repeated post-command ringing. Confirm the pattern with another log before changing PID or filter values.`
-      : `No repeated sustained-ringing pattern was identified for ${axisResult.axis}.`;
+      ? `${axisResult.axis} auf wiederholtes Schwingen nach Kommandos prüfen. Muster mit einem weiteren Log bestätigen, bevor PID- oder Filter-Werte geändert werden.`
+      : `Kein wiederholtes Anhaltendes-Schwing-Muster für ${axisResult.axis} erkannt.`;
       const ringingStatus =
   ringingConfidence === "Insufficient" ||
   ringingConfidence === "Low"
@@ -3536,8 +3526,8 @@ highestRingingEvent
 ];
 }),
 highestTrackingErrorAxis
-  ? `${highestTrackingErrorAxis.axis} has the highest average tracking error at ${highestTrackingErrorAxis.averageAbsoluteError.toFixed(2)}. This axis deserves the closest review during PID tuning.`
-  : "A highest tracking-error axis could not be identified.",
+  ? `${highestTrackingErrorAxis.axis} hat den höchsten durchschnittlichen Nachführfehler bei ${highestTrackingErrorAxis.averageAbsoluteError.toFixed(2)}. Diese Achse verdient die genaueste Prüfung beim PID-Tuning.`
+  : "Eine Achse mit dem höchsten Nachführfehler konnte nicht erkannt werden.",
 
 ...profileTrackingAnalysis.flatMap((profile) => {
   const axisResults = Array.isArray(profile.axisResults)
@@ -3568,12 +3558,8 @@ highestTrackingErrorAxis
 ...(canCompareProfiles
   ? [
       bestProfileUnderSampled
-        ? `${bestTrackingProfile.targetRpm} RPM showed the lowest observed tracking error at ${bestTrackingProfile.averageTrackingError.toFixed(
-            2
-          )}: from only ${bestTrackingProfile.sampleCount} samples (best-measured bank: ${largestProfileSampleCount}), a limited read rather than an established comparison.`
-        : `${bestTrackingProfile.targetRpm} RPM has the lowest overall tracking error at ${bestTrackingProfile.averageTrackingError.toFixed(
-            2
-          )}.`,
+        ? `${bestTrackingProfile.targetRpm} U/min zeigte den niedrigsten beobachteten Nachführfehler bei ${bestTrackingProfile.averageTrackingError.toFixed( 2 )}: aus nur ${bestTrackingProfile.sampleCount} Samples (am besten gemessene Bank: ${largestProfileSampleCount}), eine begrenzte Lesung statt eines etablierten Vergleichs.`
+        : `${bestTrackingProfile.targetRpm} U/min hat den niedrigsten Gesamtnachführfehler bei ${bestTrackingProfile.averageTrackingError.toFixed( 2 )}.`,
       `${worstTrackingProfile.targetRpm} RPM has the highest overall tracking error at ${worstTrackingProfile.averageTrackingError.toFixed(
         2
       )}.`

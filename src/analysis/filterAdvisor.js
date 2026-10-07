@@ -93,39 +93,39 @@ peaks.push({
 
 function classifySource(peakHz, headspeedRpm) {
   if (!headspeedRpm || headspeedRpm < 300) {
-    return { source: "unknown (no headspeed logged)", rpmLinked: false };
+    return { source: "unbekannt (keine Headspeed geloggt)", rpmLinked: false };
   }
 
   const oneRev = headspeedRpm / 60;
   const ratio = peakHz / oneRev;
 
   if (Math.abs(ratio - 1) < 0.15) {
-    return { source: "main rotor 1/rev", rpmLinked: true };
+    return { source: "Hauptrotor 1/rev", rpmLinked: true };
   }
 
   if (Math.abs(ratio - 2) < 0.2) {
-    return { source: "main rotor 2/rev", rpmLinked: true };
+    return { source: "Hauptrotor 2/rev", rpmLinked: true };
   }
 
   if (Math.abs(ratio - 3) < 0.25) {
-    return { source: "main rotor 3/rev", rpmLinked: true };
+    return { source: "Hauptrotor 3/rev", rpmLinked: true };
   }
 
   if (ratio > 3.5 && ratio < 6.5) {
     return {
-      source: `tail region (~${ratio.toFixed(1)}× rotor speed)`,
+      source: `Heckbereich (~${ratio.toFixed(1)}× Rotordrehzahl)`,
       rpmLinked: true
     };
   }
 
   if (ratio >= 6.5) {
     return {
-      source: `high frequency (~${ratio.toFixed(1)}× rotor speed): motor/bearing territory`,
+      source: `hohe Frequenz (~${ratio.toFixed(1)}× Rotordrehzahl): Motor-/Lagergebiet`,
       rpmLinked: ratio < 15
     };
   }
 
-  return { source: "not rotor-linked (electrical or frame resonance)", rpmLinked: false };
+  return { source: "nicht rotorgebunden (elektrisch oder Rahmenresonanz)", rpmLinked: false };
 }
 
 export function magnitudeNear(spectrum, hz) {
@@ -155,7 +155,7 @@ export function adviseFilters({
   if (peaks.length === 0) {
     return {
       story:
-        "No significant vibration peaks found in the UNFILTERED gyro: the raw signal is about as clean as they come. Whatever your filters are set to, they are not being challenged.",
+        "Keine nennenswerten Vibrationsspitzen im UNGEFILTERTEN Gyro gefunden: Das Rohsignal ist so sauber, wie es nur geht. Egal, wie deine Filter eingestellt sind, sie werden nicht gefordert.",
       rows: [],
       recommendations: [],
       filteredSpectrum: filteredSpectrum ?? null
@@ -220,7 +220,7 @@ if (structuralRows.length > 0) {
 
   recommendations.push({
     priority: "first",
-    text: `Your ${strongest.hz} Hz peak (magnitude ${strongest.magnitude}) sits below ~20 Hz, inside the band the flight controller itself works in. No gyro filter can remove it without softening control response, so do not add a notch or lower a cutoff for this one. It is a mechanical story: frame and boom stiffness, landing-gear or canopy resonance, mounting and damping are the places to look.`
+    text: `Deine ${strongest.hz}-Hz-Spitze (Betrag ${strongest.magnitude}) liegt unter ~20 Hz, innerhalb des Bandes, in dem die Flugsteuerung selbst arbeitet. Kein Gyro-Filter kann sie entfernen, ohne die Steuerantwort aufzuweichen, füge für diese also keinen Notch hinzu und senke keine Grenzfrequenz. Das ist eine mechanische Geschichte: Rahmen- und Auslegersteifigkeit, Fahrwerks- oder Haubenresonanz, Befestigung und Dämpfung sind die Stellen, an denen man suchen sollte.`
   });
 }
 
@@ -240,8 +240,8 @@ if (isStrongProminentPeak && !biggest.belowFilterBand) {
   recommendations.push({
     priority: biggestIsManaged ? "gentle" : "first",
     text: biggestIsManaged
-      ? `Your biggest peak (${biggest.magnitude} at ${biggest.hz} Hz, ${biggest.source}) is prominent in the raw gyro, but the filters are containing it: ${biggest.reductionPercent}% removed, ${biggest.filteredMagnitude} remaining. Vibration is present and being managed successfully. No change recommended. The physical vibration still exists in the airframe, so keep an eye on this peak's trend across flights and review mechanically if it grows.`
-      : `Your biggest peak (${biggest.magnitude} at ${biggest.hz} Hz, ${biggest.source}) is highly prominent compared with its nearby noise floor. Check the mechanics first: blade balance and tracking, head damping, bearings, shafts, and mounting. Then re-log before changing filter settings. Filters can suppress what the gyro sees, but they do not remove the physical vibration from the airframe.`
+      ? `Deine größte Spitze (${biggest.magnitude} bei ${biggest.hz} Hz, ${biggest.source}) ist im rohen Gyro auffällig, aber die Filter halten sie im Griff: ${biggest.reductionPercent} % entfernt, ${biggest.filteredMagnitude} verbleiben. Vibration ist vorhanden und wird erfolgreich beherrscht. Keine Änderung empfohlen. Die physische Vibration existiert weiterhin in der Zelle, behalte also den Trend dieser Spitze über die Flüge im Auge und prüfe mechanisch, wenn sie wächst.`
+      : `Deine größte Spitze (${biggest.magnitude} bei ${biggest.hz} Hz, ${biggest.source}) ist im Vergleich zu ihrem nahen Rauschpegel sehr auffällig. Prüfe zuerst die Mechanik: Blattwucht und Spurlauf, Kopfdämpfung, Lager, Wellen und Befestigung. Logge dann erneut, bevor du Filter-Einstellungen änderst. Filter können unterdrücken, was der Gyro sieht, aber sie entfernen die physische Vibration nicht aus der Zelle.`
   });
 }
 
@@ -262,7 +262,7 @@ const rpmLinkedRows = rows.filter(
 
     recommendations.push({
       priority: "filters",
-      text: `These peaks follow rotor speed: ${list}. That is exactly what Rotorflight's RPM filter (harmonic notches keyed to headspeed) is for. It tracks the peaks as headspeed changes, where a static notch would need to be wide (and slow) to keep covering them. Check that the RPM filter is enabled and covers these harmonics in the Configurator's filter page.`
+      text: `Diese Spitzen folgen der Rotordrehzahl: ${list}. Genau dafür ist Rotorflights RPM-Filter da (harmonische Notches, an die Headspeed gekoppelt). Er verfolgt die Spitzen, wenn sich die Headspeed ändert, während ein statischer Notch breit (und langsam) sein müsste, um sie weiter abzudecken. Prüfe, dass der RPM-Filter aktiviert ist und diese Harmonischen auf der Filterseite des Configurators abdeckt.`
     });
   }
 
@@ -281,13 +281,13 @@ const rpmLinkedRows = rows.filter(
     const list = leakyRows
       .map(
         (row) =>
-          `${row.hz} Hz (only ${row.reductionPercent}% removed, ${row.magnitude} → ${row.filteredMagnitude})`
+          `${row.hz} Hz (nur ${row.reductionPercent} % entfernt, ${row.magnitude} → ${row.filteredMagnitude})`
       )
       .join("; ");
 
     recommendations.push({
       priority: "filters",
-      text: `Your current filters let a meaningful share of these peaks through to the flight controller: ${list}. If the mechanics are already as good as they get, this is where a targeted notch earns its keep.`
+      text: `Deine aktuellen Filter lassen einen bedeutenden Anteil dieser Spitzen zur Flugsteuerung durch: ${list}. Wenn die Mechanik schon so gut ist, wie sie sein kann, ist das die Stelle, an der sich ein gezielter Notch lohnt.`
     });
   }
 
@@ -308,20 +308,20 @@ if (
   recommendations.push({
     priority: "gentle",
     text:
-      "The isolated vibration peaks detected here are strongly attenuated and the raw peak magnitudes are modest. This confirms effective suppression of those specific frequencies, but it does not by itself prove that the overall filter setup is excessive. Review the broader gyro averages, control tracking, and PID evidence before changing filter cutoffs."
+      "Die hier erkannten isolierten Vibrationsspitzen werden stark gedämpft, und die rohen Spitzenwerte sind bescheiden. Das bestätigt eine wirksame Unterdrückung dieser bestimmten Frequenzen, beweist aber für sich allein nicht, dass das gesamte Filter-Setup übertrieben ist. Prüfe die breiteren Gyro-Mittelwerte, die Nachführung und die PID-Belege, bevor du Filter-Grenzfrequenzen änderst."
   });
 }
 
   if (recommendations.length === 0) {
     recommendations.push({
       priority: "gentle",
-      text: "Peaks are modest and the filters handle them: no changes suggested. Keep this log as your baseline for future comparisons."
+      text: "Die Spitzen sind bescheiden und die Filter beherrschen sie: keine Änderungen vorgeschlagen. Behalte dieses Log als Basis für künftige Vergleiche."
     });
   }
 
   const story = filteredSpectrum
-  ? `Found ${rows.length} vibration peak(s). The table shows each peak's likely source and how much that exact frequency peak is reduced after filtering. This does not mean the helicopter's overall vibration is reduced by the same percentage.`
-  : `Found ${rows.length} vibration peak(s) in the unfiltered gyro. This log doesn't include the filtered gyro trace, so filter effectiveness cannot be measured.`;
+  ? `${rows.length} Vibrationsspitze(n) gefunden. Die Tabelle zeigt die wahrscheinliche Quelle jeder Spitze und wie stark genau diese Frequenzspitze nach der Filterung reduziert ist. Das heißt nicht, dass die Gesamtvibration des Helis um denselben Prozentsatz reduziert ist.`
+  : `${rows.length} Vibrationsspitze(n) im ungefilterten Gyro gefunden. Dieses Log enthält die gefilterte Gyro-Kurve nicht, deshalb lässt sich die Filterwirkung nicht messen.`;
 
   return {
     story,

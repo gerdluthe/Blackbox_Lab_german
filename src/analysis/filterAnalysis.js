@@ -89,7 +89,7 @@ export function assessUnresolvedFindings({
     // The vibration itself is still charged below.
     findings.push({
       reason:
-        "Low overall reduction alongside a peak below the ~20 Hz filter band: that vibration is structural, and filters are right not to touch it. The fix is at the bench, not in filter settings.",
+        "Geringe Gesamtreduktion bei gleichzeitiger Spitze unterhalb des ~20-Hz-Filterbands: Diese Vibration ist strukturell, und Filter tun gut daran, sie nicht anzufassen. Die Lösung liegt an der Werkbank, nicht in den Filter-Einstellungen.",
       cost: 0
     });
   }
@@ -103,17 +103,15 @@ export function assessUnresolvedFindings({
     findings.push({
       reason:
         unmatchedPeakCount === 1
-          ? "One vibration peak did not line up with any known rotating frequency of this machine."
-          : `${unmatchedPeakCount} vibration peaks did not line up with any known rotating frequency of this machine.`,
+          ? "Eine Vibrationsspitze passte zu keiner bekannten Drehfrequenz dieser Maschine."
+          : `${unmatchedPeakCount} Vibrationsspitzen passten zu keiner bekannten Drehfrequenz dieser Maschine.`,
       cost: Math.min(10, unmatchedPeakCount * 5)
     });
   }
 
   if (filtersAreIneffective) {
     findings.push({
-      reason: `Filtering reduced gyro noise by only ${averageReduction.toFixed(
-        1
-      )}% while vibration stayed high.`,
+      reason: `Die Filterung reduzierte das Gyro-Rauschen nur um ${averageReduction.toFixed( 1 )} %, während die Vibration hoch blieb.`,
       cost: 15
     });
   }
@@ -121,13 +119,13 @@ export function assessUnresolvedFindings({
   if (vibrationIsHigh) {
     findings.push({
       reason:
-        "Vibration after filtering is high compared with most machines.",
+        "Die Vibration nach der Filterung ist im Vergleich zu den meisten Maschinen hoch.",
       cost: 20
     });
   } else if (vibrationStillMatters && !filtersAreIneffective) {
     findings.push({
       reason:
-        "Vibration remains at a level worth watching after filtering.",
+        "Die Vibration bleibt nach der Filterung auf einem Niveau, das Beobachtung verdient.",
       cost: 8
     });
   }
@@ -733,7 +731,7 @@ export function analyzeFilters(
       label: "Low"
     },
     findings: [
-      "Filter analysis requires gyro and PID-related Blackbox data."
+      "Die Filter-Analyse benötigt Gyro- und PID-bezogene Blackbox-Daten."
     ],
     recommendations: [],
     evidence: []
@@ -963,7 +961,7 @@ const headspeedProfiles =
     return {
       status: "Insufficient Data",
       summary:
-        `Not enough gyro data was available to evaluate the ${targetRpm} RPM profile.`,
+        `Nicht genug Gyro-Daten verfügbar, um das Profil mit ${targetRpm} U/min auszuwerten.`,
       strongestAxis: null
     };
   }
@@ -1009,7 +1007,7 @@ const controlMotionAxes = [
 );
 
 let controlMotionAssessment =
-  "Control-motion evidence was not available for this profile.";
+  "Belege zur Steuerbewegung waren für dieses Profil nicht verfügbar.";
 let controlMotionConcern = null;
 
 if (controlMotionAxes.length > 0) {
@@ -1044,13 +1042,13 @@ if (controlMotionAxes.length > 0) {
 
     if (highestControlRatio.ratio >= 0.5) {
       controlMotionAssessment =
-        `${highestControlRatio.axis} shows a high control-error ratio during the available commanded-motion samples. This indicates a tracking concern, but Filter Lab cannot determine by itself whether the cause is filtering, PID balance, mechanics, or the command-event mix. Cross-check PID Lab before changing filter settings.`;
+        `${highestControlRatio.axis} zeigt in den verfügbaren Samples der kommandierten Bewegung ein hohes Regelfehler-Verhältnis. Das weist auf ein Nachführungs-Problem hin, aber das Filter-Labor kann allein nicht bestimmen, ob die Ursache die Filterung, die PID-Balance, die Mechanik oder die Mischung der Kommando-Ereignisse ist. Prüfe gegen das PID-Labor, bevor du Filter-Einstellungen änderst.`;
     } else if (highestControlRatio.ratio >= 0.25) {
       controlMotionAssessment =
-        `${highestControlRatio.axis} shows a moderate control-error ratio during the available commanded-motion samples. Track this alongside PID Lab and mechanical evidence before attributing it to the filters.`;
+        `${highestControlRatio.axis} zeigt in den verfügbaren Samples der kommandierten Bewegung ein mäßiges Regelfehler-Verhältnis. Verfolge das zusammen mit dem PID-Labor und mechanischen Belegen, bevor du es den Filtern zuschreibst.`;
     } else {
       controlMotionAssessment =
-        "Setpoint and axis-error data indicate that commanded motion is being tracked without obvious evidence of useful control motion being removed.";
+        "Setpoint- und Achsenfehler-Daten zeigen, dass die kommandierte Bewegung nachgeführt wird, ohne offensichtliche Belege dafür, dass nützliche Steuerbewegung entfernt würde.";
     }
   }
 }
@@ -1067,7 +1065,7 @@ controlMotionConcern,
     averageFiltered,
     summary:
       `${targetRpm} RPM is rated ${status} with ${confidence} confidence from ${sampleCount} samples. ` +
-      `${strongestAxis.name} has the highest remaining filtered vibration.`
+      `${strongestAxis.name} hat die höchste verbleibende gefilterte Vibration.`
   };
 }
 
@@ -1564,41 +1562,41 @@ const aircraftFrequencyMatches =
 
   const evidence = [
     {
-      source: "Blackbox Log",
+      source: "Blackbox-Log",
       status: hasBlackboxLog
         ? "Available"
         : "Unavailable"
     },
     {
-      source: "Total Columns",
+      source: "Spalten gesamt",
       value: allColumns.length
     },
     {
-      source: "Raw Gyro Columns",
+      source: "Rohe Gyro-Spalten",
       value: rawGyroColumns
     },
     {
-      source: "Filtered Gyro Columns",
+      source: "Gefilterte Gyro-Spalten",
       value: filteredGyroColumns
     },
     {
-      source: "Setpoint Columns",
+      source: "Setpoint-Spalten",
       value: setpointColumns
     },
     {
-      source: "PID Columns",
+      source: "PID-Spalten",
       value: pidColumns
     },
     {
-  source: "Motor Output Columns",
+  source: "Motorausgangs-Spalten",
   value: motorOutputColumns,
 },
 {
-  source: "Aircraft Frequency Matches",
+  source: "Treffer bei Fluggerät-Frequenzen",
   value: aircraftFrequencyMatches,
 },
 {
-  source: "Profile-Specific Filter Analysis",
+  source: "Profilspezifische Filter-Analyse",
   value: profileSpecificFilterAnalysis,
 },
 ];
@@ -1613,70 +1611,68 @@ for (const profile of profileSpecificFilterAnalysis) {
   }
   if (profile.mechanicalFinding?.controlMotionAssessment) {
   summaryFindings.push(
-    `${profile.targetRpm} RPM control-motion check: ` +
+    `${profile.targetRpm} U/min Steuerbewegungs-Check: ` +
     profile.mechanicalFinding.controlMotionAssessment
   );
 }
 }
   const findings = [
-    `The filter-analysis engine inspected ${allColumns.length} Blackbox columns.`,
-    `${detectedGroupCount} of 5 required filter-analysis column groups were detected.`
+    `Die Filter-Analyse hat ${allColumns.length} Blackbox-Spalten untersucht.`,
+    `${detectedGroupCount} von 5 benötigten Spaltengruppen der Filter-Analyse wurden erkannt.`
   ];
   
 if (aircraftFrequencyMatches.length > 0) {
  findings.push(
-    `Mechanical-frequency comparisons were completed across ${aircraftFrequencyMatches.length} gyro ${
-  aircraftFrequencyMatches.length === 1 ? "axis" : "axes"
-} using one continuous stable governed-flight FFT window.`
+    `Mechanische Frequenzvergleiche wurden über ${aircraftFrequencyMatches.length} Gyro-${ aircraftFrequencyMatches.length === 1 ? "Achse" : "Achsen" } mit einem durchgehenden stabilen Governor-Flug-FFT-Fenster abgeschlossen.`
  );
 }
   if (rawGyroColumns.length > 0) {
     findings.push(
-      `Raw gyro columns detected: ${rawGyroColumns.join(", ")}.`
+      `Rohe Gyro-Spalten erkannt: ${rawGyroColumns.join(", ")}.`
     );
   } else {
     findings.push(
-      "Raw gyro columns were not detected."
+      "Rohe Gyro-Spalten wurden nicht erkannt."
     );
   }
 
   if (filteredGyroColumns.length > 0) {
     findings.push(
-      `Filtered gyro columns detected: ${filteredGyroColumns.join(", ")}.`
+      `Gefilterte Gyro-Spalten erkannt: ${filteredGyroColumns.join(", ")}.`
     );
   } else {
     findings.push(
-      "Filtered gyro columns were not detected."
+      "Gefilterte Gyro-Spalten wurden nicht erkannt."
     );
   }
 
   if (setpointColumns.length > 0) {
     findings.push(
-      `Setpoint columns detected: ${setpointColumns.join(", ")}.`
+      `Setpoint-Spalten erkannt: ${setpointColumns.join(", ")}.`
     );
   } else {
     findings.push(
-      "Setpoint columns were not detected."
+      "Setpoint-Spalten wurden nicht erkannt."
     );
   }
 
   if (pidColumns.length > 0) {
     findings.push(
-      `PID-related columns detected: ${pidColumns.join(", ")}.`
+      `PID-bezogene Spalten erkannt: ${pidColumns.join(", ")}.`
     );
   } else {
     findings.push(
-      "PID-related columns were not detected."
+      "PID-bezogene Spalten wurden nicht erkannt."
     );
   }
 
   if (motorOutputColumns.length > 0) {
     findings.push(
-      `Motor-output columns detected: ${motorOutputColumns.join(", ")}.`
+      `Motorausgangs-Spalten erkannt: ${motorOutputColumns.join(", ")}.`
     );
   } else {
     findings.push(
-      "Motor-output columns were not detected."
+      "Motorausgangs-Spalten wurden nicht erkannt."
     );
   }
   let matchedMechanicalPeakCount = 0;
@@ -1692,11 +1688,11 @@ let lowFrequencyStructuralPeakCount = 0;
     if (rawMatch?.isWithinTolerance) {
       matchedMechanicalPeakCount += 1;
       findings.push(
-        `${axisMatch.axis} raw peak at ` +
-        `${rawMatch.peakFrequencyHz.toFixed(2)} Hz matched ` +
-        `${rawMatch.frequencyName} at ` +
-        `${rawMatch.targetRpm ?? Math.round(rawMatch.averageRpm)} RPM ` +
-        `within ${rawMatch.differenceHz.toFixed(2)} Hz.`
+        `${axisMatch.axis} Rohspitze bei ` +
+        `${rawMatch.peakFrequencyHz.toFixed(2)} Hz passte zu ` +
+        `${rawMatch.frequencyName} bei ` +
+        `${rawMatch.targetRpm ?? Math.round(rawMatch.averageRpm)} U/min ` +
+        `innerhalb von ${rawMatch.differenceHz.toFixed(2)} Hz.`
       );
     } else if (rawMatch && rawMatch.peakFrequencyHz < 20) {
       // Below ~20 Hz the flight controller itself must respond, so
@@ -1705,21 +1701,21 @@ let lowFrequencyStructuralPeakCount = 0;
       // filter settings can answer for.
       lowFrequencyStructuralPeakCount += 1;
       findings.push(
-        `${axisMatch.axis} raw peak at ` +
-        `${rawMatch.peakFrequencyHz.toFixed(2)} Hz sits below the ` +
-        `filter band (~20 Hz): a structural or airframe resonance. ` +
-        `Gyro filters must not act this low, so this peak is a ` +
-        `bench item, not a filter-settings item.`
+        `${axisMatch.axis} Rohspitze bei ` +
+        `${rawMatch.peakFrequencyHz.toFixed(2)} Hz liegt unterhalb des ` +
+        `Filterbands (~20 Hz): eine Struktur- oder Rahmenresonanz. ` +
+        `Gyro-Filter dürfen hier nicht wirken, deshalb ist diese Spitze ein ` +
+        `Werkbank-Thema, kein Filter-Einstellungs-Thema.`
       );
     } else if (rawMatch) {
       unmatchedMechanicalPeakCount += 1;
       findings.push(
-        `${axisMatch.axis} raw peak at ` +
-        `${rawMatch.peakFrequencyHz.toFixed(2)} Hz did not match a known ` +
-        `aircraft frequency within tolerance. Closest was ` +
-        `${rawMatch.frequencyName} at ` +
+        `${axisMatch.axis} Rohspitze bei ` +
+        `${rawMatch.peakFrequencyHz.toFixed(2)} Hz passte zu keiner bekannten ` +
+        `Fluggerät-Frequenz innerhalb der Toleranz. Am nächsten lag ` +
+        `${rawMatch.frequencyName} bei ` +
         `${rawMatch.expectedFrequencyHz.toFixed(2)} Hz, ` +
-        `${rawMatch.differenceHz.toFixed(2)} Hz away.`
+        `${rawMatch.differenceHz.toFixed(2)} Hz entfernt.`
       );
     }
  if (filteredMatch?.isWithinTolerance) {
@@ -1727,22 +1723,22 @@ let lowFrequencyStructuralPeakCount = 0;
 
   
       findings.push(
-        `${axisMatch.axis} filtered peak at ` +
-        `${filteredMatch.peakFrequencyHz.toFixed(2)} Hz matched ` +
-        `${filteredMatch.frequencyName} at ` +
-        `${filteredMatch.targetRpm ?? Math.round(filteredMatch.averageRpm)} RPM ` +
-        `within ${filteredMatch.differenceHz.toFixed(2)} Hz.`
+        `${axisMatch.axis} gefilterte Spitze bei ` +
+        `${filteredMatch.peakFrequencyHz.toFixed(2)} Hz passte zu ` +
+        `${filteredMatch.frequencyName} bei ` +
+        `${filteredMatch.targetRpm ?? Math.round(filteredMatch.averageRpm)} U/min ` +
+        `innerhalb von ${filteredMatch.differenceHz.toFixed(2)} Hz.`
       );
     } else if (filteredMatch) {
   unmatchedFilteredPeakCount += 1;
 
   findings.push(
-    `${axisMatch.axis} filtered peak at ` +
-    `${filteredMatch.peakFrequencyHz.toFixed(2)} Hz did not match a known ` +
-    `aircraft frequency within tolerance. Closest was ` +
-    `${filteredMatch.frequencyName} at ` +
+    `${axisMatch.axis} gefilterte Spitze bei ` +
+    `${filteredMatch.peakFrequencyHz.toFixed(2)} Hz passte zu keiner bekannten ` +
+    `Fluggerät-Frequenz innerhalb der Toleranz. Am nächsten lag ` +
+    `${filteredMatch.frequencyName} bei ` +
     `${filteredMatch.expectedFrequencyHz.toFixed(2)} Hz, ` +
-    `${filteredMatch.differenceHz.toFixed(2)} Hz away.`
+    `${filteredMatch.differenceHz.toFixed(2)} Hz entfernt.`
   );
 }
 }
@@ -1753,15 +1749,15 @@ if (aircraftFrequencyMatches.length > 0) {
   // drifts with rotor speed the two windows can legitimately read
   // a few Hz apart — say so, or the difference looks like an error.
   findings.push(
-    "Peak frequencies in these findings come from the filter analysis's own measurement window. The Noise Spectrum chart and the Home vibration card average across every stable section of the flight, so the same peak can read a few Hz differently there."
+    "Die Spitzenfrequenzen in diesen Befunden stammen aus dem eigenen Messfenster der Filter-Analyse. Das Rauschspektrum-Diagramm und die Vibrationskarte auf dem Startbildschirm mitteln über jeden stabilen Abschnitt des Fluges, deshalb kann dieselbe Spitze dort einige Hz abweichend gelesen werden."
   );
 
   if (matchedMechanicalPeakCount === 0 && unmatchedMechanicalPeakCount > 0) {
   summaryFindings.push(
-    "The detected vibration peaks do not currently line up with the aircraft’s known rotating frequencies."
+    "Die erkannten Vibrationsspitzen passen derzeit nicht zu den bekannten Drehfrequenzen des Fluggeräts."
   );
   summaryFindings.push(
-    "An unmatched vibration peak does not automatically mean there is a mechanical defect; it only means the strongest detected peak did not closely match the known rotating frequencies in the aircraft profile."
+    "Eine nicht zugeordnete Vibrationsspitze bedeutet nicht automatisch einen mechanischen Defekt; sie bedeutet nur, dass die stärkste erkannte Spitze nicht genau zu den bekannten Drehfrequenzen im Fluggeräte-Profil passte."
   );
 const strongestAxes =
   profileSpecificFilterAnalysis
@@ -1774,40 +1770,38 @@ const yawIsStrongestAcrossProfiles =
 
 if (yawIsStrongestAcrossProfiles) {
   summaryFindings.push(
-    "Yaw being the strongest remaining filtered axis means the tail-control direction deserves the closest review. This does not prove a tail problem, but it makes tail mechanics, tail-blade balance, tail-drive frequencies, and yaw-control activity the most useful places to investigate next."
+    "Dass Gier die stärkste verbleibende gefilterte Achse ist, bedeutet, dass die Heck-Steuerrichtung die genaueste Prüfung verdient. Das beweist kein Heck-Problem, macht aber Heckmechanik, Heckblatt-Wuchtung, Heckantriebs-Frequenzen und Gier-Steueraktivität zu den nützlichsten Stellen für die nächste Untersuchung."
   );
 }
 }
   if (matchedMechanicalPeakCount > 0) {
   summaryFindings.push(
-    `${matchedMechanicalPeakCount} detected vibration ${
-      matchedMechanicalPeakCount === 1 ? "peak aligns" : "peaks align"
-    } with known aircraft rotating frequencies.`
+    `${matchedMechanicalPeakCount} erkannte Vibrations${ matchedMechanicalPeakCount === 1 ? "spitze passt" : "spitzen passen" } zu bekannten Drehfrequenzen des Fluggeräts.`
   );
 }
 
 summaryFindings.push(
-  `Raw mechanical-frequency peaks: ${matchedMechanicalPeakCount} matched known aircraft frequencies and ${unmatchedMechanicalPeakCount} were outside tolerance.` 
+  `Rohe mechanische Frequenzspitzen: ${matchedMechanicalPeakCount} passten zu bekannten Fluggerät-Frequenzen und ${unmatchedMechanicalPeakCount} lagen außerhalb der Toleranz.` 
 );
 
 summaryFindings.push(
-  `Filtered residual peaks: ${matchedFilteredPeakCount} aligned with known aircraft frequencies and ${unmatchedFilteredPeakCount} did not align. Unmatched filtered residuals are not automatically faults; they may simply be the strongest low-level frequencies remaining after the original mechanical peaks were suppressed.`
+  `Gefilterte Restspitzen: ${matchedFilteredPeakCount} stimmten mit bekannten Fluggerät-Frequenzen überein und ${unmatchedFilteredPeakCount} nicht. Nicht zugeordnete gefilterte Reste sind nicht automatisch Fehler; sie können schlicht die stärksten niedrigen Frequenzen sein, die übrig bleiben, nachdem die ursprünglichen mechanischen Spitzen unterdrückt wurden.`
 );
 }
 
 findings.push(
-  `Raw mechanical-frequency evidence: ` +
-  `${matchedMechanicalPeakCount} matched and ` +
-  `${unmatchedMechanicalPeakCount} outside tolerance.`
+  `Rohe mechanische Frequenz-Belege: ` +
+  `${matchedMechanicalPeakCount} passten und ` +
+  `${unmatchedMechanicalPeakCount} außerhalb der Toleranz.`
 );
 
 findings.push(
-  `Filtered residual-frequency evidence: ` +
-  `${matchedFilteredPeakCount} aligned with known aircraft frequencies and ` +
-  `${unmatchedFilteredPeakCount} remained unmatched after filtering.`
+  `Gefilterte Rest-Frequenz-Belege: ` +
+  `${matchedFilteredPeakCount} stimmten mit bekannten Fluggerät-Frequenzen überein und ` +
+  `${unmatchedFilteredPeakCount} blieben nach der Filterung unzugeordnet.`
 );
  evidence.push({
-  source: "Mechanical Frequency Match Counts",
+  source: "Zähler der mechanischen Frequenz-Treffer",
   value: {
   raw: {
     matched: matchedMechanicalPeakCount,
@@ -1993,7 +1987,7 @@ if (hasSufficientFilterEvidence) {
 
   if (detectedGroupCount < 5) {
     recommendations.push(
-      "Review the missing column groups before calculating filter-performance scores."
+      "Prüfe die fehlenden Spaltengruppen, bevor Filter-Leistungs-Punktzahlen berechnet werden."
     );
   } else if (quietestProfile) {
 let filterReductionAssessment = "";
@@ -2004,8 +1998,8 @@ let filterReductionAssessment = "";
 if (Number.isFinite(averageReduction)) {
   if (averageReduction < LOW_REDUCTION_PERCENT) {
     filterReductionAssessment = vibrationStillMatters
-      ? " Measurable vibration remained afterwards, so the filters are not removing much of what is there."
-      : " There was little vibration to remove, so filters doing little is the expected result here.";
+      ? " Messbare Vibration blieb danach übrig, die Filter entfernen also nicht viel von dem, was da ist."
+      : " Es gab wenig Vibration zu entfernen, deshalb ist es hier das erwartete Ergebnis, dass die Filter wenig tun.";
   } else if (averageReduction > 60) {
     // High reduction alone is the filters doing a big job, not proof
     // they are doing harm. The caution is only actionable when the
@@ -2018,8 +2012,8 @@ if (Number.isFinite(averageReduction)) {
         profile.mechanicalFinding?.controlMotionConcern === "moderate"
     );
     filterReductionAssessment = controlSuffering
-      ? " The high average reduction deserves a closer check for possible over-filtering: the control-motion evidence shows tracking being affected."
-      : " The high average reduction reflects how much vibration the filters had to remove. With no control-motion impact in evidence, this is informational, not a call to action.";
+      ? " Die hohe mittlere Reduktion verdient eine genauere Prüfung auf mögliches Über-Filtern: Die Belege zur Steuerbewegung zeigen, dass die Nachführung betroffen ist."
+      : " Die hohe mittlere Reduktion spiegelt wider, wie viel Vibration die Filter entfernen mussten. Ohne Belege für Auswirkungen auf die Steuerbewegung ist das Information, kein Handlungsaufruf.";
   }
 }
 
@@ -2036,22 +2030,16 @@ const quietestIsEstablished =
   quietestProfile.mechanicalFinding?.confidence === "Moderate";
 
 recommendations.push(
-  `${quietestProfile.targetRpm} RPM ${
-    onlyOneProfile
-      ? "was the only headspeed profile analyzed, so profiles cannot be compared"
-      : quietestIsEstablished
-        ? "currently has the lowest remaining filtered vibration"
-        : `showed the lowest remaining filtered vibration in the limited samples available (${quietestProfile.mechanicalFinding?.sampleCount ?? "few"} samples)`
-  }` +
+  `${quietestProfile.targetRpm} U/min ${ onlyOneProfile ? "war das einzige analysierte Headspeed-Profil, daher lassen sich Profile nicht vergleichen" : quietestIsEstablished ? "hat derzeit die niedrigste verbleibende gefilterte Vibration" : `zeigte die niedrigste verbleibende gefilterte Vibration in den wenigen verfügbaren Samples (${quietestProfile.mechanicalFinding?.sampleCount ?? "wenige"} Samples)` }` +
   `${
     Number.isFinite(averageReduction)
-      ? `: average gyro reduction ${averageReduction.toFixed(1)}%`
+      ? `: mittlere Gyro-Reduktion ${averageReduction.toFixed(1)} %`
       : ""
   }.` +
   filterReductionAssessment +
   (quietestIsEstablished
-    ? ` It should be used as the baseline for the next comparison flight.`
-    : ` Collect more time at this headspeed before using it as a comparison baseline.`)
+    ? ` Es sollte als Basis für den nächsten Vergleichsflug verwendet werden.`
+    : ` Sammle mehr Zeit bei dieser Headspeed, bevor du sie als Vergleichsbasis verwendest.`)
 );
 
 for (const finding of unresolvedFindings) {
@@ -2060,12 +2048,12 @@ for (const finding of unresolvedFindings) {
 
 if (!hasControlMotionEvidence) {
   recommendations.push(
-    "No commanded-motion samples were available, so the check that separates filter delay from mechanical noise could not be run."
+    "Es waren keine Samples der kommandierten Bewegung verfügbar, deshalb konnte der Check, der Filterverzögerung von mechanischem Rauschen trennt, nicht laufen."
   );
 }
 } else {
   recommendations.push(
-    "Raw and filtered gyro values were compared successfully, but no stable headspeed profiles were available for a profile-specific recommendation."
+    "Rohe und gefilterte Gyro-Werte wurden erfolgreich verglichen, aber es waren keine stabilen Headspeed-Profile für eine profilspezifische Empfehlung verfügbar."
   );
 }
   return {
